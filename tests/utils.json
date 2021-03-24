@@ -1,0 +1,18 @@
+{
+	"UnitConverter": {
+		"convert_to_seconds": {"input": {"value": [1, "h"], "format": "tuple"}, "output": {"value":  3600,"format": "float"}},
+		"convert_to_pascal": {"input": {"value": [1, "bar"], "format": "tuple"}, "output": {"value": 1e05,"format": "float"}},
+		"convert_to_cubic_meter": {"input": {"value": [1, "dm3"],"format": "tuple"}, "output": {"value":  1e-03,"format": "float"}},
+		"convert_to_meter": {"input": {"value": [1, "dm"],"format": "tuple"}, "output": {"value":  0.1,"format": "float"}},
+		"convert_to_one_over_meter":{"input":  {"value": [1, "1/cm"],"format": "tuple"}, "output": {"value": 1e02,"format": "float"}},
+		"convert_to_kelvin": {"input": {"value": [25, "degC"],"format": "tuple"}, "output": {"value": 298.15,"format": "float"}},
+		"convert_to_kg_per_seconds":{"input":  {"value": [3600, "kg/h"], "format": "tuple"}, "output":  {"value":  1 ,"format": "float"}},
+		"convert_to_cubic_meter_per_seconds":{"input":  {"value": [3600, "m3/h"], "format": "tuple"}, "output":  {"value":  1 ,"format": "float"}},
+		"convert_from_seconds": {"input": {"value": [3600, "h"],"format": "tuple"}, "output": {"value": 1,"format": "float"}},
+		"convert_from_pascal": {"input": {"value": [1e05, "bar"],"format": "tuple"}, "output": {"value": 1,"format": "float"}},
+		"convert_from_cubic_meter":{"input":  {"value": [1, "dm3"], "format": "tuple"}, "output":  {"value":  1000 ,"format": "float"}},
+		"convert_to_watt_per_meter_per_kelvin": {"input":  {"value": [1, "W/dm/degK"], "format": "tuple"}, "output":  {"value":  10 ,"format": "float"}},
+		"convert_to_joule_per_kg_per_kelvin": {"input":  {"value": [1, "kJ/g/degK"], "format": "tuple"}, "output":  {"value":  1e06 ,"format": "float"}},
+		"convert_to_kg_per_cubic_meter": {"input":  {"value": [1, "g/cm3"], "format": "tuple"}, "output":  {"value":  1000 ,"format": "float"}}
+	}
+}
