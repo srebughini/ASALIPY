@@ -1,40 +1,3 @@
-################################################################################################
-#                                                                                              #
-#     #############       #############       #############       ####                ####     #
-#    #             #     #             #     #             #     #    #              #    #    #
-#    #    #####    #     #    #########      #    #####    #     #    #              #    #    #
-#    #    #   #    #     #    #              #    #   #    #     #    #              #    #    #
-#    #    #####    #     #    #              #    #####    #     #    #              #    #    #
-#    #             #     #    #########      #             #     #    #              #    #    #
-#    #             #     #             #     #             #     #    #              #    #    #
-#    #    #####    #      #########    #     #    #####    #     #    #              #    #    #
-#    #    #   #    #              #    #     #    #   #    #     #    #              #    #    #
-#    #    #   #    #      #########    #     #    #   #    #     #    #########      #    #    #
-#    #    #   #    #     #             #     #    #   #    #     #             #     #    #    #
-#     ####     ####       #############       ####     ####       #############       ####     #
-#                                                                                              #
-#   Author: Stefano Rebughini <ste.rebu@outlook.it>                                            #
-#                                                                                              #
-################################################################################################
-#                                                                                              #
-#   License                                                                                    #
-#                                                                                              #
-#   This file is part of ASALI.                                                                #
-#                                                                                              #
-#   ASALI is free software: you can redistribute it and/or modify                              #
-#   it under the terms of the GNU General Public License as published by                       #
-#   the Free Software Foundation, either version 3 of the License, or                          #
-#   (at your option) any later version.                                                        #
-#                                                                                              #
-#   ASALI is distributed in the hope that it will be useful,                                   #
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of                             #
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                              #
-#   GNU General Public License for more details.                                               #
-#                                                                                              #
-#   You should have received a copy of the GNU General Public License                          #
-#   along with ASALI. If not, see <http://www.gnu.org/licenses/>.                              #
-#                                                                                              #
-################################################################################################
 from asali.reactors.basic import ReactorType, BasicReactor, ReactorSection
 from enum import IntEnum
 
@@ -196,7 +159,7 @@ class Heterogeneous1DReactor(BasicReactor):
         dT_bulk = np.zeros_like(T_bulk)
         dT_wall = np.zeros_like(T_wall)
 
-        domega_bulk[0, :] = self.y_in - omega_bulk[0, :]  # Inlet conditions
+        domega_bulk[0, :] = self.inlet_mass_fraction - omega_bulk[0, :]  # Inlet conditions
         dT_bulk[0] = self.T_in - T_bulk[0]  # Inlet conditions
         dT_bulk[-1] = T_bulk[-1] - T_bulk[-2]  # Outlet conditions
 
@@ -264,12 +227,12 @@ class Heterogeneous1DReactor(BasicReactor):
             self.T_in = self.temperature
             y0_matrix[:, -1] = self.temperature
 
-        y0_matrix[0, :self.gas.n_species] = self.y_in
+        y0_matrix[0, :self.gas.n_species] = self.inlet_mass_fraction
         y0_matrix[0, -1] = self.T_in
 
         if not self.is_mass_flow_rate:
-            self.gas.TPY = self.T_in, self.pressure, self.y_in
-            self.m_in = self.Q_in * self.gas.density
+            self.gas.TPY = self.T_in, self.pressure, self.inlet_mass_fraction
+            self.m_in = self.inlet_volumetric_flow_rate * self.gas.density
 
         return y0_matrix.flatten()
 

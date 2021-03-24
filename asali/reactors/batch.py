@@ -1,42 +1,4 @@
-################################################################################################
-#                                                                                              #
-#     #############       #############       #############       ####                ####     #
-#    #             #     #             #     #             #     #    #              #    #    #
-#    #    #####    #     #    #########      #    #####    #     #    #              #    #    #
-#    #    #   #    #     #    #              #    #   #    #     #    #              #    #    #
-#    #    #####    #     #    #              #    #####    #     #    #              #    #    #
-#    #             #     #    #########      #             #     #    #              #    #    #
-#    #             #     #             #     #             #     #    #              #    #    #
-#    #    #####    #      #########    #     #    #####    #     #    #              #    #    #
-#    #    #   #    #              #    #     #    #   #    #     #    #              #    #    #
-#    #    #   #    #      #########    #     #    #   #    #     #    #########      #    #    #
-#    #    #   #    #     #             #     #    #   #    #     #             #     #    #    #
-#     ####     ####       #############       ####     ####       #############       ####     #
-#                                                                                              #
-#   Author: Stefano Rebughini <ste.rebu@outlook.it>                                            #
-#                                                                                              #
-################################################################################################
-#                                                                                              #
-#   License                                                                                    #
-#                                                                                              #
-#   This file is part of ASALI.                                                                #
-#                                                                                              #
-#   ASALI is free software: you can redistribute it and/or modify                              #
-#   it under the terms of the GNU General Public License as published by                       #
-#   the Free Software Foundation, either version 3 of the License, or                          #
-#   (at your option) any later version.                                                        #
-#                                                                                              #
-#   ASALI is distributed in the hope that it will be useful,                                   #
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of                             #
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                              #
-#   GNU General Public License for more details.                                               #
-#                                                                                              #
-#   You should have received a copy of the GNU General Public License                          #
-#   along with ASALI. If not, see <http://www.gnu.org/licenses/>.                              #
-#                                                                                              #
-################################################################################################
 from asali.reactors.basic import ReactorType, BasicReactor
-
 import numpy as np
 
 
@@ -45,6 +7,7 @@ class BatchReactor(BasicReactor):
         super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name, surface_phase_name=surface_phase_name)
         self.mass_sol = None
         self.reactor_type = ReactorType.BATCH
+        self.initial_mass = None
 
     def equations(self, t, y):
         dy = np.zeros_like(y)
@@ -85,7 +48,10 @@ class BatchReactor(BasicReactor):
         return dy
 
     def initial_condition(self):
-        return np.block([self.gas.Y, self.gas.density * self.volume, self.surf.coverages, self.temperature])
+        if self.initial_mass is None:
+            self.initial_mass = self.gas.density * self.volume
+
+        return np.block([self.initial_mass_fraction, self.initial_mass, self.initial_coverage, self.initial_temperature])
 
     def solve(self, tspan, time_ud):
         self.tspan, self.sol = self._solve_ode(self.equations, self.initial_condition(), self.uc.convert_to_seconds(tspan, time_ud), atol=self.atol, rtol=self.rtol)
@@ -99,5 +65,6 @@ class BatchReactor(BasicReactor):
         self.mass_sol = self.sol[:, self.gas.n_species]
         self.coverage_sol = self.sol[:, self.gas.n_species + 1:self.gas.n_species + 1 + self.surf.n_species]
         self.temperature_sol = self.sol[:, -1]
+
         self.is_solved = True
         return self.sol

@@ -1,40 +1,3 @@
-################################################################################################
-#                                                                                              #
-#     #############       #############       #############       ####                ####     #
-#    #             #     #             #     #             #     #    #              #    #    #
-#    #    #####    #     #    #########      #    #####    #     #    #              #    #    #
-#    #    #   #    #     #    #              #    #   #    #     #    #              #    #    #
-#    #    #####    #     #    #              #    #####    #     #    #              #    #    #
-#    #             #     #    #########      #             #     #    #              #    #    #
-#    #             #     #             #     #             #     #    #              #    #    #
-#    #    #####    #      #########    #     #    #####    #     #    #              #    #    #
-#    #    #   #    #              #    #     #    #   #    #     #    #              #    #    #
-#    #    #   #    #      #########    #     #    #   #    #     #    #########      #    #    #
-#    #    #   #    #     #             #     #    #   #    #     #             #     #    #    #
-#     ####     ####       #############       ####     ####       #############       ####     #
-#                                                                                              #
-#   Author: Stefano Rebughini <ste.rebu@outlook.it>                                            #
-#                                                                                              #
-################################################################################################
-#                                                                                              #
-#   License                                                                                    #
-#                                                                                              #
-#   This file is part of ASALI.                                                                #
-#                                                                                              #
-#   ASALI is free software: you can redistribute it and/or modify                              #
-#   it under the terms of the GNU General Public License as published by                       #
-#   the Free Software Foundation, either version 3 of the License, or                          #
-#   (at your option) any later version.                                                        #
-#                                                                                              #
-#   ASALI is distributed in the hope that it will be useful,                                   #
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of                             #
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                              #
-#   GNU General Public License for more details.                                               #
-#                                                                                              #
-#   You should have received a copy of the GNU General Public License                          #
-#   along with ASALI. If not, see <http://www.gnu.org/licenses/>.                              #
-#                                                                                              #
-################################################################################################
 from asali.reactors.basic import ReactorType, BasicReactor, ResolutionMethod
 
 import numpy as np
@@ -97,9 +60,9 @@ class PseudoHomogeneous1DReactor(BasicReactor):
 
     def _initial_conditions_steady_state(self):
         if not self.is_mass_flow_rate:
-            self.gas.TPY = self.T_in, self.pressure, self.y_in
-            self.m_in = self.Q_in * self.gas.density
-        return np.block([self.y_in, self.surf.coverages, self.T_in])
+            self.gas.TPY = self.T_in, self.pressure, self.inlet_mass_fraction
+            self.m_in = self.inlet_volumetric_flow_rate * self.gas.density
+        return np.block([self.inlet_mass_fraction, self.surf.coverages, self.T_in])
 
     def _equations_transient(self, t, y):
         NP = self.length.size
@@ -149,7 +112,7 @@ class PseudoHomogeneous1DReactor(BasicReactor):
         domega = np.zeros_like(omega)
         dT = np.zeros_like(T)
 
-        domega[0, :] = self.y_in - omega[0, :]  # Outlet conditions
+        domega[0, :] = self.inlet_mass_fraction - omega[0, :]  # Outlet conditions
         domega[-1, :] = omega[-1, :] - omega[-2, :]  # Outlet conditions
 
         dT[0] = self.T_in - T[0]  # Outlet conditions
@@ -252,12 +215,12 @@ class PseudoHomogeneous1DReactor(BasicReactor):
         if not self.energy:
             self.T_in = self.temperature
 
-        y0_matrix[0, :self.gas.n_species] = self.y_in
+        y0_matrix[0, :self.gas.n_species] = self.inlet_mass_fraction
         y0_matrix[0, -1] = self.T_in
 
         if not self.is_mass_flow_rate:
-            self.gas.TPY = self.T_in, self.pressure, self.y_in
-            self.m_in = self.Q_in * self.gas.density
+            self.gas.TPY = self.T_in, self.pressure, self.inlet_mass_fraction
+            self.m_in = self.inlet_volumetric_flow_rate * self.gas.density
 
         return y0_matrix.flatten()
 

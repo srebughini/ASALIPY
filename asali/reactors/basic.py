@@ -1,40 +1,4 @@
-################################################################################################
-#                                                                                              #
-#     #############       #############       #############       ####                ####     #
-#    #             #     #             #     #             #     #    #              #    #    #
-#    #    #####    #     #    #########      #    #####    #     #    #              #    #    #
-#    #    #   #    #     #    #              #    #   #    #     #    #              #    #    #
-#    #    #####    #     #    #              #    #####    #     #    #              #    #    #
-#    #             #     #    #########      #             #     #    #              #    #    #
-#    #             #     #             #     #             #     #    #              #    #    #
-#    #    #####    #      #########    #     #    #####    #     #    #              #    #    #
-#    #    #   #    #              #    #     #    #   #    #     #    #              #    #    #
-#    #    #   #    #      #########    #     #    #   #    #     #    #########      #    #    #
-#    #    #   #    #     #             #     #    #   #    #     #             #     #    #    #
-#     ####     ####       #############       ####     ####       #############       ####     #
-#                                                                                              #
-#   Author: Stefano Rebughini <ste.rebu@outlook.it>                                            #
-#                                                                                              #
-################################################################################################
-#                                                                                              #
-#   License                                                                                    #
-#                                                                                              #
-#   This file is part of ASALI.                                                                #
-#                                                                                              #
-#   ASALI is free software: you can redistribute it and/or modify                              #
-#   it under the terms of the GNU General Public License as published by                       #
-#   the Free Software Foundation, either version 3 of the License, or                          #
-#   (at your option) any later version.                                                        #
-#                                                                                              #
-#   ASALI is distributed in the hope that it will be useful,                                   #
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of                             #
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                              #
-#   GNU General Public License for more details.                                               #
-#                                                                                              #
-#   You should have received a copy of the GNU General Public License                          #
-#   along with ASALI. If not, see <http://www.gnu.org/licenses/>.                              #
-#                                                                                              #
-################################################################################################
+from abc import abstractmethod, ABC
 from enum import IntEnum
 from asali.utils.unit_converter import UnitConverter
 from assimulo.problem import Implicit_Problem
@@ -64,7 +28,7 @@ class ReactorSection(IntEnum):
     TRIANGLE = 2
 
 
-class BasicReactor:
+class BasicReactor(ABC):
     def __init__(self, cantera_input_file, gas_phase_name, surface_phase_name):
         self.uc = UnitConverter()
         self.gas = ct.Solution(cantera_input_file, gas_phase_name)
@@ -78,16 +42,16 @@ class BasicReactor:
         self.pressure = 0.
         self.temperature = 0.
         self.area = 0.
-        self.m_in = 0.
-        self.Q_in = 0.
-        self.T_in = 0.
+        self.inlet_mass_flow_rate = 0.
+        self.inlet_volumetric_flow_rate = 0.
+        self.inlet_temperature = 0.
         self.solid_rho = 0.
         self.solid_k = 0.
         self.solid_cp = 0.
         self.solid_temperature = 0.
 
-        self.y_in = None
-        self.x_in = None
+        self.inlet_mass_fraction = None
+        self.inlet_mole_fraction = None
         self.sol = None
         self.tspan = None
         self.x_sol = None
@@ -95,6 +59,10 @@ class BasicReactor:
         self.temperature_sol = None
         self.coverage_sol = None
         self.length = None
+        self.initial_mass_fraction = None
+        self.initial_mole_fraction = None
+        self.initial_temperature = None
+        self.initial_coverage = None
 
         self.atol = 1.e-12
         self.rtol = 1.e-07
@@ -102,6 +70,18 @@ class BasicReactor:
         self.reactor_type = None
         self.resolution_method = None
         self.reactor_section = None
+
+    @abstractmethod
+    def equations(self, t, y):
+        pass
+
+    @abstractmethod
+    def initial_condition(self):
+        pass
+
+    @abstractmethod
+    def solve(self, tspan, time_ud):
+        pass
 
     @staticmethod
     def _true_parser(v):
@@ -188,40 +168,40 @@ class BasicReactor:
     def set_mass_flow_rate(self, value, unit_dimension):
         if self.reactor_type == ReactorType.BATCH:
             print("ASALI::WARNING::Mass flow rate ignored for BATCH reactor")
-        self.m_in = self.uc.convert_to_kg_per_seconds(value, unit_dimension)
-        self.Q_in = 0.
+        self.inlet_mass_flow_rate = self.uc.convert_to_kg_per_seconds(value, unit_dimension)
+        self.inlet_volumetric_flow_rate = 0.
         self.is_mass_flow_rate = True
-        return self.m_in
+        return self.inlet_mass_flow_rate
 
     def set_volumetric_flow_rate(self, value, unit_dimension):
         if self.reactor_type == ReactorType.BATCH:
             print("ASALI::WARNING::Volumetric flow rate ignored for BATCH reactor")
-        self.Q_in = self.uc.convert_to_cubic_meter_per_seconds(value, unit_dimension)
-        self.m_in = 0.
+        self.inlet_volumetric_flow_rate = self.uc.convert_to_cubic_meter_per_seconds(value, unit_dimension)
+        self.inlet_mass_flow_rate = 0.
         self.is_mass_flow_rate = False
-        return self.Q_in
+        return self.inlet_volumetric_flow_rate
 
     def set_inlet_mass_fraction(self, value):
         if self.reactor_type == ReactorType.BATCH:
             print("ASALI::WARNING::Inlet mass ignored for BATCH reactor")
         self.gas.Y = value
-        self.y_in = self.gas.Y
-        self.x_in = self.gas.X
-        return self.y_in
+        self.inlet_mass_fraction = self.gas.Y
+        self.inlet_mole_fraction = self.gas.X
+        return self.inlet_mass_fraction
 
     def set_inlet_mole_fraction(self, value):
         if self.reactor_type == ReactorType.BATCH:
             print("ASALI::WARNING::Inlet mole ignored for BATCH reactor")
         self.gas.X = value
-        self.y_in = self.gas.Y
-        self.x_in = self.gas.X
-        return self.x_in
+        self.inlet_mass_fraction = self.gas.Y
+        self.inlet_mole_fraction = self.gas.X
+        return self.inlet_mole_fraction
 
     def set_inlet_temperature(self, value, unit_dimension):
         if self.reactor_type == ReactorType.BATCH:
             print("ASALI::WARNING::Inlet temperature ignored for BATCH reactor")
-        self.T_in = self.uc.convert_to_kelvin(value, unit_dimension)
-        return self.T_in
+        self.inlet_temperature = self.uc.convert_to_kelvin(value, unit_dimension)
+        return self.inlet_temperature
 
     def set_catalytic_load(self, value, unit_dimension):
         self.alfa = self.uc.convert_to_one_over_meter(value, unit_dimension)
@@ -282,18 +262,24 @@ class BasicReactor:
 
     def set_initial_mass_fraction(self, value):
         self.gas.Y = value
+        self.initial_mass_fraction = self.gas.Y
+        self.initial_mole_fraction = self.gas.X
         return self.gas.Y
 
     def set_initial_mole_fraction(self, value):
         self.gas.X = value
+        self.initial_mass_fraction = self.gas.Y
+        self.initial_mole_fraction = self.gas.X
         return self.gas.X
 
     def set_initial_coverage(self, value):
         self.surf.coverages = value
+        self.initial_coverage = self.surf.coverages
         return self.surf.coverages
 
     def set_initial_temperature(self, value, unit_dimension):
         self.temperature = self.uc.convert_to_kelvin(value, unit_dimension)
+        self.initial_temperature = self.uc.convert_to_kelvin(value, unit_dimension)
         return self.temperature
 
     def set_initial_solid_temperature(self, value, unit_dimension):
@@ -373,15 +359,6 @@ class BasicReactor:
 
         self.solid_k = self.uc.convert_to_watt_per_meter_per_kelvin(value, unit_dimension)
         return self.solid_k
-
-    def equations(self, t, y):
-        pass
-
-    def initial_condition(self):
-        pass
-
-    def solve(self, tspan, time_ud):
-        pass
 
     def get_time(self, ud):
         return self.uc.convert_from_seconds(self.tspan, ud)

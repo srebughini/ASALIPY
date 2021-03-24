@@ -75,7 +75,7 @@ class BasicUnitTest:
                 raise BasicUnitTestException(str(f))
 
     @staticmethod
-    def _check_array(f, results, args, args_format, rounded=5):
+    def _check_array(f, results, args, args_format, rounded=3):
         if args_format == "none":
             if not np.array_equal(np.round(f(), rounded), np.round(results, rounded)):
                 raise BasicUnitTestException(str(f))

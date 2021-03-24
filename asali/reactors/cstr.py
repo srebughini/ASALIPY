@@ -1,40 +1,3 @@
-################################################################################################
-#                                                                                              #
-#     #############       #############       #############       ####                ####     #
-#    #             #     #             #     #             #     #    #              #    #    #
-#    #    #####    #     #    #########      #    #####    #     #    #              #    #    #
-#    #    #   #    #     #    #              #    #   #    #     #    #              #    #    #
-#    #    #####    #     #    #              #    #####    #     #    #              #    #    #
-#    #             #     #    #########      #             #     #    #              #    #    #
-#    #             #     #             #     #             #     #    #              #    #    #
-#    #    #####    #      #########    #     #    #####    #     #    #              #    #    #
-#    #    #   #    #              #    #     #    #   #    #     #    #              #    #    #
-#    #    #   #    #      #########    #     #    #   #    #     #    #########      #    #    #
-#    #    #   #    #     #             #     #    #   #    #     #             #     #    #    #
-#     ####     ####       #############       ####     ####       #############       ####     #
-#                                                                                              #
-#   Author: Stefano Rebughini <ste.rebu@outlook.it>                                            #
-#                                                                                              #
-################################################################################################
-#                                                                                              #
-#   License                                                                                    #
-#                                                                                              #
-#   This file is part of ASALI.                                                                #
-#                                                                                              #
-#   ASALI is free software: you can redistribute it and/or modify                              #
-#   it under the terms of the GNU General Public License as published by                       #
-#   the Free Software Foundation, either version 3 of the License, or                          #
-#   (at your option) any later version.                                                        #
-#                                                                                              #
-#   ASALI is distributed in the hope that it will be useful,                                   #
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of                             #
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                              #
-#   GNU General Public License for more details.                                               #
-#                                                                                              #
-#   You should have received a copy of the GNU General Public License                          #
-#   along with ASALI. If not, see <http://www.gnu.org/licenses/>.                              #
-#                                                                                              #
-################################################################################################
 from asali.reactors.basic import ReactorType, BasicReactor
 
 import numpy as np
@@ -60,8 +23,8 @@ class CstrReactor(BasicReactor):
         gas_reaction_rates_from_surface = self.surf.net_production_rates[:self.gas.n_species]
         coverage_reaction_rates = self.surf.net_production_rates[-self.surf.n_species:]
 
-        dy[:self.gas.n_species] = (self.m_in / self.volume) * (
-                self.y_in - omega) + self.gas.molecular_weights * gas_reaction_rates / self.gas.density + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights / self.gas.density
+        dy[:self.gas.n_species] = (self.inlet_mass_flow_rate / self.volume) * (
+                self.inlet_mass_fraction - omega) + self.gas.molecular_weights * gas_reaction_rates / self.gas.density + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights / self.gas.density
 
         dy[self.gas.n_species:self.gas.n_species + self.surf.n_species] = coverage_reaction_rates / self.surf.site_density
 
@@ -78,16 +41,16 @@ class CstrReactor(BasicReactor):
             else:
                 heat_from_reaction_from_surface = 0.
 
-            dy[-1] = (self.m_in / self.volume) * (self.T_in - T) + (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) / (self.gas.density * self.gas.cp_mass)
+            dy[-1] = (self.inlet_mass_flow_rate / self.volume) * (self.inlet_temperature - T) + (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) / (self.gas.density * self.gas.cp_mass)
 
         return dy
 
     def initial_condition(self):
         if not self.is_mass_flow_rate:
-            self.gas.TPY = self.T_in, self.pressure, self.y_in
-            self.m_in = self.Q_in * self.gas.density
+            self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
+            self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
 
-        return np.block([self.gas.Y, self.surf.coverages, self.temperature])
+        return np.block([self.initial_mass_fraction, self.initial_coverage, self.initial_temperature])
 
     def solve(self, tspan, time_ud):
         self.tspan, self.sol = self._solve_ode(self.equations, self.initial_condition(), self.uc.convert_to_seconds(tspan, time_ud), atol=self.atol, rtol=self.rtol)

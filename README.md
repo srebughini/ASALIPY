@@ -6,9 +6,12 @@
 A Python package to simulate chemical reactors
 
 [To create conda package](https://medium.com/@giswqs/building-a-conda-package-and-uploading-it-to-anaconda-cloud-6a3abd1c5c52)
+[To upload asalipy to PyPi](https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56)
 
 Pyhton version of ASALI. To install:
 * ```conda install -c conda-forge assimulo```
 * ```conda install -c conda-forge pint```
 * ```conda install -c cantera cantera```
 * ```conda install -c conda-forge xmltodict```
+
+* https://github.com/SciML/diffeqpy

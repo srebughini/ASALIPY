@@ -1,0 +1,10 @@
+name: asali
+channels:
+  - conda-forge
+  - cantera
+dependencies:
+  - cantera
+  - pint
+  - assimulo
+  - python=3.8
+
