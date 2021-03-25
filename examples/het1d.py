@@ -15,7 +15,7 @@ if __name__ == "__main__":
     h.set_solid_thermal_conductivity(2.5, 'W/m/degK')
     h.set_initial_solid_temperature(250, 'degC')
     h.set_energy(True)
-    h.set_initial_mass_fraction({'AR': 1})
+    h.set_initial_mass_fraction({'O2': 0.4, 'AR': 0.5, 'H2': 0.1})
     h.set_initial_temperature(250, 'degC')
     h.set_packed_bed_reactor(0.3, 'mm', 1, 'cm', 0.75)
     h.solve([0, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0, 2.0, 4.0, 10., 20.], 's')

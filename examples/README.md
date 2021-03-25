@@ -84,10 +84,44 @@ if __name__ == "__main__":
     h.set_solid_thermal_conductivity(2.5, 'W/m/degK')  # Set catalyst thermal conductivity in [W/m/K]
     h.set_initial_solid_temperature(250, 'degC')  # Set initial catalyst temperature in [°C]
     h.set_energy(True)  # Enable energy balance
-    h.set_initial_mass_fraction({'AR': 1})  # Set reactor initial composition using mass fraction
+    h.set_initial_mass_fraction({'O2': 0.4, 'AR': 0.5, 'H2': 0.1})  # Set reactor initial composition using mass fraction
     h.set_initial_temperature(250, 'degC')  # Set reactor initial temperature in [°C]
     h.set_packed_bed_reactor(0.3, 'mm', 1, 'cm', 0.75)  # Set packed bed reactor properties
     h.solve([0, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0, 2.0, 4.0, 10., 20.], 's')  # Solve for different time steps in [s]
 ```
 
 ## **Reactor Plotter**
+
+This [example](https://github.com/srebughini/ASALIPY/blob/main/examples/het1d.py) show how to **solve and plot** 1-D heterogeneous plug flow reactor for the [catalytic combustion of hydrogen over rhodium](https://www.detchem.com/mechanisms)
+.
+
+```python
+from asali.reactors.het1d import Heterogeneous1DReactor
+from asali.plotters.reactor import ReactorPlotter
+
+if __name__ == "__main__":
+    h = Heterogeneous1DReactor('H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    h.set_length([0, 0.05, 0.1, 0.15, 0.2, 0.6, 0.65], 'm')
+    h.set_pressure(5, 'bar')
+    h.set_catalytic_load(10, '1/m')
+    h.set_volumetric_flow_rate(1., 'm3/h')
+    h.set_inlet_temperature(250, 'degC')
+    h.set_inlet_mass_fraction({'O2': 0.4, 'AR': 0.5, 'H2': 0.1})
+    h.set_initial_coverage({'Rh(s)': 1})
+    h.set_solid_density(2300, 'kg/m3')
+    h.set_solid_specific_heat(750, 'J/kg/degK')
+    h.set_solid_thermal_conductivity(2.5, 'W/m/degK')
+    h.set_initial_solid_temperature(250, 'degC')
+    h.set_energy(True)
+    h.set_initial_mass_fraction({'O2': 0.4, 'AR': 0.5, 'H2': 0.1})
+    h.set_initial_temperature(250, 'degC')
+    h.set_packed_bed_reactor(0.3, 'mm', 1, 'cm', 0.75)
+    h.solve([0, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0, 2.0, 4.0, 10., 20.], 's')
+
+    plt = ReactorPlotter(h)  # Initialize plotting object
+    plt.plot_species_mass_fraction(['H2', 'H2O', 'O2'])  # Plot mass fraction from species names
+    plt.plot_species_mole_fraction(['H2', 'H2O', 'O2'])  # Plot mole fraction from species names
+    plt.plot_coverage(['Rh(s)', 'H(s)', 'O(s)', 'OH(s)'])  # Plot coverage from coverage names
+    plt.plot_temperature()  # Plot temperature
+    plt.show()  # Show plots
+```
