@@ -89,3 +89,5 @@ if __name__ == "__main__":
     h.set_packed_bed_reactor(0.3, 'mm', 1, 'cm', 0.75)  # Set packed bed reactor properties
     h.solve([0, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0, 2.0, 4.0, 10., 20.], 's')  # Solve for different time steps in [s]
 ```
+
+## **Reactor Plotter**

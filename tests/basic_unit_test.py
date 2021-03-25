@@ -1,41 +1,9 @@
+from termcolor import colored
+
 import json
 import os
-import sys
-import traceback
 
 import numpy as np
-
-
-class BasicUnitTestException(Exception):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
-
-    @staticmethod
-    def output_value(f, args, args_format, results_format):
-        msg = 'Output value: {}'
-        if args_format == "none":
-            if results_format == "enum":
-                return msg.format(int(f()))
-            return msg.format(f())
-
-        if args_format == "tuple":
-            if results_format == "enum":
-                return msg.format(int(f(*args)))
-            return msg.format(f(*args))
-
-        if results_format == "enum":
-            return msg.format(int(f(args)))
-
-        return msg.format(f(args))
-
-    @staticmethod
-    def expected_value(results, results_format):
-        msg = 'Expected value: {}'
-        if results_format == "enum":
-            return msg.format(int(results))
-
-        return msg.format(results)
 
 
 class BasicUnitTest:
@@ -48,10 +16,28 @@ class BasicUnitTest:
         self.setting_dict = solution_dict[cls.__class__.__name__]
         self.function_to_check = self.setting_dict.keys()
 
-    def _print_on_screen(self, f, output):
+    @staticmethod
+    def _get_output(f, args, args_format):
+        if args_format == "none":
+            return f()
+
+        if args_format == "tuple":
+            return f(*args)
+
+        return f(args)
+
+    @staticmethod
+    def _print_comparison_on_screen(outputs, results, results_format):
+        msg = 'Output value: {}\nExpected value: {}'
+        if results_format == "enum":
+            print(msg.format(int(outputs), int(results)))
+        else:
+            print(msg.format(outputs, results))
+
+    def _print_on_screen(self, f, output, color):
         tested_function = '{}::{}'.format(self.cls.__class__.__name__, f.__name__)
         msg = 'ASALI::{}{} --> {}'.format(tested_function, ' ' * (60 - len(tested_function)), output)
-        print(msg)
+        print(colored(msg, color))
 
     def _convert_path(self, f, results, results_format):
         if results_format == "path":
@@ -62,81 +48,48 @@ class BasicUnitTest:
 
         return results, results_format
 
-    @staticmethod
-    def _check_float(f, results, args, args_format):
-        if args_format == "none":
-            if not np.fabs(f() - results) < 1.e-12:
-                raise BasicUnitTestException(str(f))
-        elif args_format == "tuple":
-            if not np.fabs(f(*args) - results) < 1.e-12:
-                raise BasicUnitTestException(str(f))
-        else:
-            if not np.fabs(f(args) - results) < 1.e-12:
-                raise BasicUnitTestException(str(f))
+    def _check_float(self, f, results, args, args_format):
+        outputs = self._get_output(f, args, args_format)
+        return np.fabs(outputs - results) < 1.e-12, outputs
 
-    @staticmethod
-    def _check_array(f, results, args, args_format, rounded=3):
-        if args_format == "none":
-            if not np.array_equal(np.round(f(), rounded), np.round(results, rounded)):
-                raise BasicUnitTestException(str(f))
-        elif args_format == "tuple":
-            if not np.array_equal(np.round(f(*args), rounded), np.round(results, rounded)):
-                raise BasicUnitTestException(str(f))
-        else:
-            if not np.array_equal(np.round(f(args), rounded), np.round(results, rounded)):
-                raise BasicUnitTestException(str(f))
+    def _check_array(self, f, results, args, args_format, atol=1.e-04, rtol=1.e-04):
+        outputs = self._get_output(f, args, args_format)
+        return np.allclose(outputs, results, atol=atol, rtol=rtol), outputs
 
-    @staticmethod
-    def _check_enum(f, results, args, args_format):
-        if args_format == "none":
-            if not int(f()) == results:
-                raise BasicUnitTestException(str(f))
-        elif args_format == "tuple":
-            if not int(f(*args)) == results:
-                raise BasicUnitTestException(str(f))
-        else:
-            if not int(f(args)) == results:
-                raise BasicUnitTestException(str(f))
+    def _check_enum(self, f, results, args, args_format):
+        outputs = self._get_output(f, args, args_format)
+        return int(outputs) == results, outputs
 
-    @staticmethod
-    def _check_others(f, results, args, args_format):
-        if args_format == "none":
-            if not f() == results:
-                raise BasicUnitTestException(str(f))
-        elif args_format == "tuple":
-            if not f(*args) == results:
-                raise BasicUnitTestException(str(f))
-        else:
-            if not f(args) == results:
-                raise BasicUnitTestException(str(f))
+    def _check_others(self, f, results, args, args_format):
+        outputs = self._get_output(f, args, args_format)
+        return outputs == results, outputs
 
     def check(self, f):
         args = self.setting_dict[f.__name__]["input"]["value"]
         results = self.setting_dict[f.__name__]["output"]["value"]
         args_format = self.setting_dict[f.__name__]["input"]["format"]
         results_format = self.setting_dict[f.__name__]["output"]["format"]
-        try:
-            results, results_format = self._convert_path(f, results, results_format)
 
-            if results_format == "float":
-                self._check_float(f, results, args, args_format)
-            elif results_format == "array":
-                self._check_array(f, results, args, args_format)
-            elif results_format == "enum":
-                self._check_enum(f, results, args, args_format)
-            else:
-                self._check_others(f, results, args, args_format)
+        results, results_format = self._convert_path(f, results, results_format)
 
-            self._print_on_screen(f, "OK")
-        except Exception as e:
-            self._print_on_screen(f, "ASALI::ERROR")
-            if isinstance(e, BasicUnitTestException):
-                print(e.output_value(f, args, args_format, results_format))
-                print(e.expected_value(results, results_format))
-            else:
-                print(str(traceback.format_exc()))
+        if results_format == "float":
+            check, outputs = self._check_float(f, results, args, args_format)
+        elif results_format == "array":
+            check, outputs = self._check_array(f, results, args, args_format)
+        elif results_format == "enum":
+            check, outputs = self._check_enum(f, results, args, args_format)
+        else:
+            check, outputs = self._check_others(f, results, args, args_format)
 
-            sys.exit()
+        if check:
+            self._print_on_screen(f, "OK", "green")
+        else:
+            self._print_on_screen(f, "ASALI::ERROR", "red")
+            self._print_comparison_on_screen(outputs, results, results_format)
+
+    def check_function(self, f_as_string):
+        f = getattr(self.cls, f_as_string)
+        self.check(f)
 
     def check_all(self):
         for function in self.function_to_check:

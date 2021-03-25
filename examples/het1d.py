@@ -1,5 +1,5 @@
 from asali.reactors.het1d import Heterogeneous1DReactor
-from asali.utils.reactor_plotter import ReactorPlotter
+from asali.plotters.reactor import ReactorPlotter
 
 if __name__ == "__main__":
     h = Heterogeneous1DReactor('H2-O2-Rh.xml', 'gas', 'Rh_surface')

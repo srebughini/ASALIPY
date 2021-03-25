@@ -1,5 +1,5 @@
 from asali.reactors.basic import ReactorType, ResolutionMethod
-from asali.utils.basic_plotter import BasicPlotter
+from asali.plotters.basic import BasicPlotter
 
 import matplotlib.pyplot as plt
 import matplotlib
@@ -7,8 +7,8 @@ import numpy as np
 
 
 class ReactorPlotter(BasicPlotter):
-    def __init__(self, reactor_cls, config_file=None):
-        super().__init__(cls=reactor_cls, config_file=config_file)
+    def __init__(self, reactor_cls, colormap="Blues"):
+        super().__init__(cls=reactor_cls, colormap=colormap)
 
         if self.cls.reactor_type not in [r for r in ReactorType]:
             raise Exception("ASALI::ERROR::Unknown class type: ", str(type(self.cls)))
@@ -16,11 +16,8 @@ class ReactorPlotter(BasicPlotter):
         if not self.cls.is_solved:
             raise Exception("ASALI::ERROR::Nothing to plot, no solution found")
 
-        colormap = self.config_dict[self.cls.__class__.__name__]["colormap"]
-
-        if colormap is not None:
-            cmap = matplotlib.cm.get_cmap(colormap)
-            self.colors = cmap(np.linspace(0.2, 1., num=self.cls.tspan.size))
+        cmap = matplotlib.cm.get_cmap(self.colormap)
+        self.colors = cmap(np.linspace(0.2, 1., num=self.cls.tspan.size))
 
     def _plot_species_mass_fraction_for_batch_and_cstr(self, species_names):
         self.nFig = self.nFig + 1

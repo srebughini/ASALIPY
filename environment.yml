@@ -2,9 +2,12 @@ name: asali
 channels:
   - conda-forge
   - cantera
+  - omnia
 dependencies:
   - cantera
   - pint
   - assimulo
+  - termcolor
+  - matplotlib
   - python=3.8
 

@@ -1,5 +1,5 @@
 from asali.reactors.cstr import CstrReactor
-from asali.utils.reactor_plotter import ReactorPlotter
+from asali.plotters.reactor import ReactorPlotter
 
 if __name__ == "__main__":
     c = CstrReactor('H2-O2-Rh.xml', 'gas', 'Rh_surface')

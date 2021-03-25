@@ -1052,17 +1052,19 @@
     "set_initial_mole_fraction": {
       "input": {
         "value": {
-          "AR": 1
+          "O2": 0.4,
+          "AR": 0.5,
+          "H2": 0.1
         },
         "format": "dict"
       },
       "output": {
         "value": [
+          0.1,
+          0.4,
           0,
           0,
-          0,
-          0,
-          1
+          0.5
         ],
         "format": "array"
       }
@@ -1070,17 +1072,19 @@
     "set_initial_mass_fraction": {
       "input": {
         "value": {
-          "AR": 1
+          "O2": 0.4,
+          "AR": 0.5,
+          "H2": 0.1
         },
         "format": "dict"
       },
       "output": {
         "value": [
+          0.1,
+          0.4,
           0,
           0,
-          0,
-          0,
-          1
+          0.5
         ],
         "format": "array"
       }

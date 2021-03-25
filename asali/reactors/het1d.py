@@ -30,7 +30,7 @@ class Heterogeneous1DReactor(BasicReactor):
 
     def _estimate_mass_transfer_coefficient(self, viscosity, density, diffusivity):
         if self.reactor_model == ReactorModel.PACKEDBED:
-            reynolds_real = self.m_in * self.particle_diameter / (viscosity * 0.25 * np.square(self.tube_diameter))
+            reynolds_real = self.inlet_mass_flow_rate * self.particle_diameter / (viscosity * 0.25 * np.square(self.tube_diameter))
             reynolds = reynolds_real / ((1. - self.void_fraction) * 6)
 
             laminar_flow = np.logical_and(reynolds < 50, reynolds > 0)
@@ -44,7 +44,7 @@ class Heterogeneous1DReactor(BasicReactor):
 
             return ((j_mass * reynolds_real) * (np.power(Sc, 1. / 3.) * diffusivity).T).T / self.particle_diameter
 
-        reynolds_real = self.m_in * self.tube_diameter / (viscosity * self.void_fraction * 0.25 * np.square(self.tube_diameter))
+        reynolds_real = self.inlet_mass_flow_rate * self.tube_diameter / (viscosity * self.void_fraction * 0.25 * np.square(self.tube_diameter))
         Sc = ((viscosity / density) / diffusivity.T).T
 
         z_star = np.fabs(np.maximum(1e-06, self.length)) / (self.tube_diameter * reynolds_real)
@@ -55,7 +55,7 @@ class Heterogeneous1DReactor(BasicReactor):
 
     def _estimate_heat_transfer_coefficient(self, viscosity, conductivity, specific_heat):
         if self.reactor_model == ReactorModel.PACKEDBED:
-            reynolds_real = self.m_in * self.particle_diameter / (viscosity * 0.25 * np.square(self.tube_diameter))
+            reynolds_real = self.inlet_mass_flow_rate * self.particle_diameter / (viscosity * 0.25 * np.square(self.tube_diameter))
             reynolds = reynolds_real / ((1. - self.void_fraction) * 6)
 
             laminar_flow = np.logical_and(reynolds < 50, reynolds > 0)
@@ -69,7 +69,7 @@ class Heterogeneous1DReactor(BasicReactor):
 
             return j_heat * reynolds_real * np.power(Pr, 1. / 3.) * conductivity / self.particle_diameter
 
-        reynolds_real = self.m_in * self.tube_diameter / (viscosity * self.void_fraction * 0.25 * np.square(self.tube_diameter))
+        reynolds_real = self.inlet_mass_flow_rate * self.tube_diameter / (viscosity * self.void_fraction * 0.25 * np.square(self.tube_diameter))
         Pr = specific_heat * viscosity / conductivity
         z_star = np.fabs(np.maximum(1e-06, self.length)) / (self.tube_diameter * reynolds_real * Pr)
         return ((self.Nusselt + 8.827 * np.power(1000 * z_star, -0.545) * np.exp(-48.2 * z_star)) * conductivity) / self.tube_diameter
@@ -160,7 +160,7 @@ class Heterogeneous1DReactor(BasicReactor):
         dT_wall = np.zeros_like(T_wall)
 
         domega_bulk[0, :] = self.inlet_mass_fraction - omega_bulk[0, :]  # Inlet conditions
-        dT_bulk[0] = self.T_in - T_bulk[0]  # Inlet conditions
+        dT_bulk[0] = self.inlet_temperature - T_bulk[0]  # Inlet conditions
         dT_bulk[-1] = T_bulk[-1] - T_bulk[-2]  # Outlet conditions
 
         dT_wall[0] = T_wall[1] - T_wall[0]  # Inlet conditions
@@ -170,7 +170,7 @@ class Heterogeneous1DReactor(BasicReactor):
 
         derivative_1st_omega_backward = ((omega_bulk[1:, :] - omega_bulk[:-1, :]).T / (self.length[1:] - self.length[:-1])).T
 
-        domega_bulk[1:, :] = - (derivative_1st_omega_backward.T * (self.m_in / (self.area * density[1:]))).T
+        domega_bulk[1:, :] = - (derivative_1st_omega_backward.T * (self.inlet_mass_flow_rate / (self.area * density[1:]))).T
         domega_bulk[1:, :] = domega_bulk[1:, :] + (gas_reaction_rates[1:, :].T / density[1:]).T
         domega_bulk[1:, :] = domega_bulk[1:, :] - delta_omega[1:, :] / self.void_fraction
 
@@ -187,7 +187,7 @@ class Heterogeneous1DReactor(BasicReactor):
 
             delta_T = k_heat * self.specific_area * (T_bulk - T_wall)
 
-            dT_bulk[1:-1] = -(self.m_in / (self.area * density[1:-1])) * derivative_1st_temperature_bulk_backward
+            dT_bulk[1:-1] = -(self.inlet_mass_flow_rate / (self.area * density[1:-1])) * derivative_1st_temperature_bulk_backward
             dT_bulk[1:-1] = dT_bulk[1:-1] + (thermal_coefficient_forward * derivative_1st_temperature_bulk_forward - thermal_coefficient_backward * derivative_1st_temperature_bulk_backward) / (
                     0.5 * (self.length[2:] - self.length[:-2]) * density[1:-1] * cp_mass[1:-1])
             dT_bulk[1:-1] = dT_bulk[1:-1] + heat_of_reaction_from_gas[1:-1] / (density[1:-1] * cp_mass[1:-1])
@@ -217,22 +217,22 @@ class Heterogeneous1DReactor(BasicReactor):
 
         y0_matrix = np.zeros([NP, NV], dtype=np.float64)
 
-        y0_matrix[:, :self.gas.n_species] = self.gas.Y
-        y0_matrix[:, self.gas.n_species:self.gas.n_species + self.gas.n_species] = self.gas.Y
-        y0_matrix[:, self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species] = self.surf.coverages
-        y0_matrix[:, -2] = self.temperature
+        y0_matrix[:, :self.gas.n_species] = self.initial_mass_fraction
+        y0_matrix[:, self.gas.n_species:self.gas.n_species + self.gas.n_species] = self.initial_mass_fraction
+        y0_matrix[:, self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species] = self.initial_coverage
+        y0_matrix[:, -2] = self.initial_temperature
         y0_matrix[:, -1] = self.solid_temperature
 
         if not self.energy:
-            self.T_in = self.temperature
-            y0_matrix[:, -1] = self.temperature
+            self.inlet_temperature = self.initial_temperature
+            y0_matrix[:, -1] = self.initial_temperature
 
         y0_matrix[0, :self.gas.n_species] = self.inlet_mass_fraction
-        y0_matrix[0, -1] = self.T_in
+        y0_matrix[0, -1] = self.inlet_temperature
 
         if not self.is_mass_flow_rate:
-            self.gas.TPY = self.T_in, self.pressure, self.inlet_mass_fraction
-            self.m_in = self.inlet_volumetric_flow_rate * self.gas.density
+            self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
+            self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
 
         return y0_matrix.flatten()
 
