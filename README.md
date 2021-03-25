@@ -15,3 +15,22 @@ Pyhton version of ASALI. To install:
 * ```conda install -c conda-forge xmltodict```
 
 * https://github.com/SciML/diffeqpy
+
+## 1. Installation
+**asalipy** is part of the [ASALI](https://github.com/srebughini/ASALI) project and it is a **Python** library to model chemical reactors. In particular the following reactor models are implemente:
+* Batch Reactor
+* Continuous Stirred Tank Reactor
+* 1-D Pseudo-Homogeneous Plug Flow Reactor
+* 1-D Heterogeneous Plug Flow Reactor ( tubular reactor, packed bed reactor and honeycomb reactor)
+
+Its anacoda package can be installed as follow:
+
+```bash
+Don't know yey
+```
+## 2. Examples - **asalipy** is based on [International System of Units](https://en.wikipedia.org/wiki/International_System_of_Units)
+**asalipy** examples are [here](https://github.com/srebughini/ASALIPY/tree/main/examples).
+
+## 3. Contacts
+If you want to contribute, ask questions, report bugs or just say *hello* you compile the form [here](https://srebughini.github.io/ASALI/pages/contacts/) or [open an issue](https://github.com/srebughini/ASALIPY/issues)
+
