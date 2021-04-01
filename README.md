@@ -1,20 +1,10 @@
 <p align="center">
+  <a href="https://imgur.com/0QQWNKY"><img src="https://i.imgur.com/0QQWNKYl.png" title="source: imgur.com" /></a>
+</p>
+<p align="center">
   <a href="https://github.com/srebughini/JASALI/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/srebughini/ASALIPY"></a>
   <a href="https://www.codefactor.io/repository/github/srebughini/asalipy"><img src="https://www.codefactor.io/repository/github/srebughini/asalipy/badge" alt="CodeFactor" /></a>
 </p>
-
-A Python package to simulate chemical reactors
-
-[To create conda package](https://medium.com/@giswqs/building-a-conda-package-and-uploading-it-to-anaconda-cloud-6a3abd1c5c52)
-[To upload asalipy to PyPi](https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56)
-
-Pyhton version of ASALI. To install:
-* ```conda install -c conda-forge assimulo```
-* ```conda install -c conda-forge pint```
-* ```conda install -c cantera cantera```
-* ```conda install -c conda-forge xmltodict```
-
-* https://github.com/SciML/diffeqpy
 
 ## 1. Installation
 **asalipy** is part of the [ASALI](https://github.com/srebughini/ASALI) project and it is a **python** library to model chemical reactors. In particular the following reactor models are implemented:
@@ -34,3 +24,16 @@ Don't know yet
 ## 3. Contacts
 If you want to contribute, ask questions, report bugs you compile the form [here](https://srebughini.github.io/ASALI/pages/contacts/) or [open an issue](https://github.com/srebughini/ASALIPY/issues).
 
+## 4. Usefull link that I will remove soon
+A Python package to simulate chemical reactors
+
+[To create conda package](https://medium.com/@giswqs/building-a-conda-package-and-uploading-it-to-anaconda-cloud-6a3abd1c5c52)  
+[To upload asalipy to PyPi](https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56)
+
+Pyhton version of ASALI. To install:
+* ```conda install -c conda-forge assimulo```
+* ```conda install -c conda-forge pint```
+* ```conda install -c cantera cantera```
+* ```conda install -c conda-forge xmltodict```
+
+* https://github.com/SciML/diffeqpy
