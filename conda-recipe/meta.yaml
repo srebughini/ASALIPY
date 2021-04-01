@@ -1,0 +1,28 @@
+package:
+  name: "asali"
+  version: "0.1"
+
+source:
+  path: ../.
+
+build:
+  noarch: python
+  script: python setup.py install
+
+requirements:
+  build:
+    - python {{python}}
+  run:
+    - python {{python}}
+
+test:
+  requires:
+    - asali
+
+  source_files:
+    - tests
+    - run_tests.py
+
+  commands:
+    - python run_tests.py
+
