@@ -7,16 +7,29 @@ source:
 
 build:
   noarch: python
-  script: python setup.py install
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv"
 
 requirements:
   build:
-    - python {{python}}
+    - pip
+    - python
+  host:
+    - python
+    - assimulo
+    - pint
+    - cantera
+    - termcolor
+    - matplotlib
   run:
-    - python {{python}}
+    - python
+    - assimulo
+    - pint
+    - cantera
+    - termcolor
+    - matplotlib
 
 test:
-  requires:
+  imports:
     - asali
 
   source_files:
@@ -26,3 +39,8 @@ test:
   commands:
     - python run_tests.py
 
+about:
+  home: https://github.com/srebughini/ASALIPY
+  license: GPL-3.0
+  license_family: GPL
+  summary: Library to model chemical reactors

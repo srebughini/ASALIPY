@@ -10,7 +10,5 @@ setuptools.setup(
     classifiers=["Programming Language :: Python :: 3", "Operating System :: OS Independent"],
     package_dir={"asali": "src"},
     packages=["asali.utils", "asali.plotters", "asali.reactors"],
-    include_package_data=True,
-    install_requires=[],
-    python_requires='>=3.6'
+    include_package_data=True
 )
