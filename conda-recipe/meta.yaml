@@ -6,7 +6,6 @@ source:
   path: ../.
 
 build:
-  noarch: python
   script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv"
 
 requirements:
@@ -41,6 +40,6 @@ test:
 
 about:
   home: https://github.com/srebughini/ASALIPY
-  license: GPL-3.0
-  license_family: GPL
+  license: GPL
+  license_file: LICENSE
   summary: Library to model chemical reactors
