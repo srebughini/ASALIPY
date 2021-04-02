@@ -1,6 +1,8 @@
+{% set data = load_setup_py_data() %}
+
 package:
   name: "asali"
-  version: "0.1"
+  version: {{ data.get('version') }}
 
 source:
   path: ../.
@@ -39,7 +41,7 @@ test:
     - python run_tests.py
 
 about:
-  home: https://github.com/srebughini/ASALIPY
-  license: GPL
-  license_file: LICENSE
-  summary: Library to model chemical reactors
+  home: {{ data.get('home-page') }}
+  license: {{ data.get('license') }}
+  license_file: {{ data.get('license-file') }}
+  summary: {{ data.get('description') }}
