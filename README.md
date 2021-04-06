@@ -22,6 +22,7 @@ conda install -c conda-forge asali #STILL WORKING ON IT
 If you want to use **ASALIPY** locally, without installing it with conda, it can be installed as follow:  
 ```bash
 git clone https://github.com/srebughini/ASALIPY.git
+cd ASALIPY
 conda env create -f environment.yml
 conda activate asali
 ```  
