@@ -2,7 +2,8 @@
   <a href="https://imgur.com/T5W1buF"><img src="https://i.imgur.com/T5W1buFm.png" title="source: imgur.com" /></a>
 </p>
 <p align="center">
-  <a href="https://github.com/srebughini/JASALI/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/srebughini/ASALIPY"></a>
+  <a href="https://travis-ci.org/srebughini/ASALIPY"><img alt="Travis (.org)" src="https://img.shields.io/travis/srebughini/ASALIPY"></a>
+  <a href="https://github.com/srebughini/ASALIPY/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/srebughini/ASALIPY"></a>
   <a href="https://www.codefactor.io/repository/github/srebughini/asalipy"><img src="https://www.codefactor.io/repository/github/srebughini/asalipy/badge" alt="CodeFactor" /></a>
 </p>
 
