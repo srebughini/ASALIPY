@@ -13,11 +13,19 @@
 * 1-Dimensional Pseudo-Homogeneous Plug Flow Reactor
 * 1-Dimensional Heterogeneous Plug Flow Reactor
 
-Its [conda](https://www.anaconda.com/) package can be installed as follow:
-
+### 1.1 Installation with [Anaconda](https://www.anaconda.com/)
+**ASALIPY** [conda](https://www.anaconda.com/) package can be installed as follow:  
 ```bash
 conda install -c conda-forge asali #STILL WORKING ON IT
-```
+```  
+### 1.2 Installation with [Github](https://github.com/srebughini/ASALIPY.git)
+If you want to use **ASALIPY** locally, without installing it with conda, it can be installed as follow:  
+```bash
+git clone https://github.com/srebughini/ASALIPY.git
+conda env create -f environment.yml
+conda activate asali
+```  
+
 ## 2. Examples
 Examples on how to use reactor models can be found [here](https://github.com/srebughini/ASALIPY/tree/main/examples).
 
