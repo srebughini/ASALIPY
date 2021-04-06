@@ -15,7 +15,7 @@
 
 ## 2. Installation
 **ASALIPY** requires [Anaconda](https://www.anaconda.com/) as package manager, since stable versions of [Cantera](https://cantera.org/) and [Assimulo](https://jmodelica.org/assimulo/) 
-are not for [Pypi](https://pypi.org/). [Here](https://www.anaconda.com/products/individual) you can find how to install Anaconda on your operating system.  
+are not available for [Pypi](https://pypi.org/). [Here](https://www.anaconda.com/products/individual) you can find how to install Anaconda on your operating system.  
 ### 2.1 Using [Anaconda](https://www.anaconda.com/)
 **ASALIPY** [conda](https://www.anaconda.com/) package can be installed as follow:  
 ```bash
@@ -30,8 +30,8 @@ conda env create -f environment.yml
 conda activate asali
 ```  
 
-## 2. Examples
+## 3. Examples
 Examples on how to use reactor models can be found [here](https://github.com/srebughini/ASALIPY/tree/main/examples).
 
-## 3. Contacts
+## 4. Contacts
 If you want to contribute, ask questions, report bugs compile the form [here](https://srebughini.github.io/ASALI/pages/contacts/) or [open an issue](https://github.com/srebughini/ASALIPY/issues).
