@@ -13,13 +13,16 @@
 * 1-Dimensional Pseudo-Homogeneous Plug Flow Reactor
 * 1-Dimensional Heterogeneous Plug Flow Reactor
 
-### 1.1 Installation with [Anaconda](https://www.anaconda.com/)
+## 2. Installation
+**ASALIPY** requires [Anaconda](https://www.anaconda.com/) as package manager, since stable versions of [Cantera](https://cantera.org/) and [Assimulo](https://jmodelica.org/assimulo/) 
+are not for [Pypi](https://pypi.org/). [Here](https://www.anaconda.com/products/individual) you can find how to install Anaconda on your operating system.  
+### 2.1 Using [Anaconda](https://www.anaconda.com/)
 **ASALIPY** [conda](https://www.anaconda.com/) package can be installed as follow:  
 ```bash
 conda install -c conda-forge asali #STILL WORKING ON IT
 ```  
-### 1.2 Installation with [Github](https://github.com/srebughini/ASALIPY.git)
-If you want to use **ASALIPY** locally, without installing it with conda, it can be installed as follow:  
+### 2.2 Using [Github](https://github.com/srebughini/ASALIPY.git)
+If you want to use **ASALIPY** locally, without installing its conda package, it can be installed as follow:  
 ```bash
 git clone https://github.com/srebughini/ASALIPY.git
 cd ASALIPY
