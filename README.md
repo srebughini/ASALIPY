@@ -2,9 +2,13 @@
   <a href="https://imgur.com/T5W1buF"><img src="https://i.imgur.com/T5W1buFm.png" title="source: imgur.com" /></a>
 </p>
 <p align="center">
-  <a href="https://travis-ci.org/srebughini/ASALIPY"><img alt="Travis (.org)" src="https://img.shields.io/travis/srebughini/ASALIPY"></a>
-  <a href="https://github.com/srebughini/ASALIPY/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/srebughini/ASALIPY"></a>
-  <a href="https://www.codefactor.io/repository/github/srebughini/asalipy"><img src="https://www.codefactor.io/repository/github/srebughini/asalipy/badge" alt="CodeFactor" /></a>
+  <a href="https://travis-ci.org/srebughini/ASALIPY"><img alt="Travis (.org)" src="https://img.shields.io/travis/srebughini/ASALIPY?style=flat-square"></a>
+  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/platforms.svg" /></a>
+  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/downloads.svg" /></a>
+  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/license.svg" /></a>
+  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/latest_release_date.svg" /></a>
+  <a href="https://conda.anaconda.org/asalicode"><img src="https://anaconda.org/asalicode/asali/badges/installer/conda.svg" /></a>
+  <a href="https://www.codefactor.io/repository/github/srebughini/asalipy"><img src="https://www.codefactor.io/repository/github/signalr/signalr/badge?style=flat-square" alt="CodeFactor" /></a>
 </p>
 
 ## 1. Introduction
