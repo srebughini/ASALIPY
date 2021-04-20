@@ -24,7 +24,7 @@ are not available for [Pypi](https://pypi.org/). [Here](https://www.anaconda.com
 ### 2.1 Using [Anaconda](https://www.anaconda.com/)
 **ASALIPY** [conda](https://www.anaconda.com/) package can be installed as follow:  
 ```bash
-conda install -c conda-forge asali #STILL WORKING ON IT
+conda install -c conda-forge asalicode::asali
 ```  
 ### 2.2 Using [Github](https://github.com/srebughini/ASALIPY.git)
 If you want to use **ASALIPY** locally, without installing its conda package, it can be installed as follow:  

@@ -13,16 +13,16 @@ build:
 requirements:
   build:
     - pip
-    - python
+    - python {{ python }}
   host:
-    - python
+    - python {{ python }}
     - assimulo
     - pint
     - cantera
     - termcolor
     - matplotlib
   run:
-    - python
+    - python {{ python }}
     - assimulo
     - pint
     - cantera
@@ -41,6 +41,11 @@ test:
     - python run_tests.py
 
 about:
-  home: {{ data.get('home-page') }}
-  license: {{ data.get('license') }}
-  summary: {{ data.get('description') }}
+  home: https://github.com/srebughini/ASALIPY
+  license: GPL
+  summary: Library to model chemical reactors
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - srebughini
