@@ -3,11 +3,10 @@
 </p>
 <p align="center">
   <a href="https://travis-ci.org/srebughini/ASALIPY"><img alt="Travis (.org)" src="https://img.shields.io/travis/srebughini/ASALIPY?style=flat-square"></a>
-  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/platforms.svg" /></a>
-  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/downloads.svg" /></a>
-  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/license.svg" /></a>
-  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/latest_release_date.svg" /></a>
-  <a href="https://conda.anaconda.org/asalicode"><img src="https://anaconda.org/asalicode/asali/badges/installer/conda.svg" /></a>
+  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/pn/asalicode/asali?color=orange&style=flat-square"></a>
+  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda (channel only)" src="https://img.shields.io/conda/vn/asalicode/asali?color=blue&style=flat-square"></a>
+  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda - License" src="https://img.shields.io/conda/l/asalicode/asali?style=flat-square"></a>
+  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/dn/asalicode/asali?style=flat-square"></a>
   <a href="https://www.codefactor.io/repository/github/srebughini/asalipy"><img src="https://www.codefactor.io/repository/github/signalr/signalr/badge?style=flat-square" alt="CodeFactor" /></a>
 </p>
 

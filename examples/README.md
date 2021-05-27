@@ -92,8 +92,7 @@ if __name__ == "__main__":
 
 ## **Reactor Plotter**
 
-This [example](https://github.com/srebughini/ASALIPY/blob/main/examples/het1d.py) show how to **solve and plot** 1-D heterogeneous plug flow reactor for the [catalytic combustion of hydrogen over rhodium](https://www.detchem.com/mechanisms)
-.
+This [example](https://github.com/srebughini/ASALIPY/blob/main/examples/het1d.py) show how to **solve and plot** 1-D heterogeneous plug flow reactor for the [catalytic combustion of hydrogen over rhodium](https://www.detchem.com/mechanisms).
 
 ```python
 from asali.reactors.het1d import Heterogeneous1DReactor
