@@ -1,8 +1,10 @@
+import os
+
 from asali.reactors.cstr import CstrReactor
 from asali.plotters.reactor import ReactorPlotter
 
 if __name__ == "__main__":
-    c = CstrReactor('H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    c = CstrReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')
     c.set_volume(5., 'm3')
     c.set_pressure(5, 'bar')
     c.set_catalytic_load(150, '1/m')

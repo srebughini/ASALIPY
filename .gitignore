@@ -133,3 +133,11 @@ dmypy.json
 
 # Unused files
 NTBL_*
+
+# Extras
+database
+examples/files/output*
+src/plotters/__init__.py
+src/reactors/__init__.py
+src/utils/__init__.py
+src/__init__.py

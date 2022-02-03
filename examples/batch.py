@@ -1,8 +1,10 @@
+import os
+
 from asali.reactors.batch import BatchReactor
 from asali.plotters.reactor import ReactorPlotter
 
 if __name__ == "__main__":
-    b = BatchReactor('H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    b = BatchReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')
     b.set_volume(10., 'mm3')
     b.set_pressure(5, 'bar')
     b.set_catalytic_load(15, '1/m')
