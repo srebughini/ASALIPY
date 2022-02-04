@@ -1,8 +1,10 @@
+import os
+
 from asali.reactors.ph1d import PseudoHomogeneous1DReactor
 from asali.plotters.reactor import ReactorPlotter
 
 if __name__ == "__main__":
-    p = PseudoHomogeneous1DReactor('H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    p = PseudoHomogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')
     p.set_length(0.5, 'cm')
     p.set_diameter(10., 'mm')
     p.set_pressure(5, 'bar')

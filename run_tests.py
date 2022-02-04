@@ -5,6 +5,7 @@ from asali.reactors.ph1d import PseudoHomogeneous1DReactor
 from tests.basic_unit_test import BasicUnitTest
 from tests.reactor_unit_test import ReactorUnitTest
 from asali.utils.unit_converter import UnitConverter
+from asali.utils.cantera_file_converter import CanteraFileConverter
 from termcolor import colored
 
 import argparse
@@ -13,6 +14,13 @@ import argparse
 def unit_converter():
     uc = UnitConverter()
     ut = BasicUnitTest(uc, "utils.json")
+    ut.check_all()
+    print(" ")
+
+
+def cantera_file_converter():
+    cfc = CanteraFileConverter()
+    ut = BasicUnitTest(cfc, "utils.json")
     ut.check_all()
     print(" ")
 
@@ -57,6 +65,7 @@ if __name__ == "__main__":
 
     if class_to_check == "all":
         unit_converter()
+        cantera_file_converter()
         batch_reactor()
         cstr_reactor()
         pseudohomogeneous_reactor()
@@ -71,5 +80,7 @@ if __name__ == "__main__":
         pseudohomogeneous_reactor()
     elif class_to_check == "heterogeneous1dreactor":
         heterogeneous_reactor()
+    elif class_to_check == "canterafileconverter":
+        cantera_file_converter()
     else:
         print(colored("ASALI::ERROR::Unknown class", "red"))

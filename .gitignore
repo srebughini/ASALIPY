@@ -133,3 +133,12 @@ dmypy.json
 
 # Unused files
 NTBL_*
+
+# Extras
+database
+examples/files/output*
+asali/plotters/__init__.py
+asali/reactors/__init__.py
+asali/utils/__init__.py
+asali/__init__.py
+temp.*
