@@ -137,7 +137,8 @@ NTBL_*
 # Extras
 database
 examples/files/output*
-src/plotters/__init__.py
-src/reactors/__init__.py
-src/utils/__init__.py
-src/__init__.py
+asali/plotters/__init__.py
+asali/reactors/__init__.py
+asali/utils/__init__.py
+asali/__init__.py
+temp.*

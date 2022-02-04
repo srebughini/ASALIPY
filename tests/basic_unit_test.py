@@ -2,6 +2,8 @@ from termcolor import colored
 
 import json
 import os
+import filecmp
+import yaml
 
 import numpy as np
 
@@ -15,6 +17,7 @@ class BasicUnitTest:
         self.cls = cls
         self.setting_dict = solution_dict[cls.__class__.__name__]
         self.function_to_check = self.setting_dict.keys()
+        self.keys_to_ignore_for_yaml = ["input-files", "date"]
 
     @staticmethod
     def _get_output(f, args, args_format):
@@ -64,6 +67,27 @@ class BasicUnitTest:
         outputs = self._get_output(f, args, args_format)
         return outputs == results, outputs
 
+    def _check_files(self, f, results, args, args_format):
+        outputs = self._get_output(f, args, args_format)
+        return filecmp.cmp(outputs, results, shallow=False), outputs
+
+    def _check_yaml(self, f, results, args, args_format):
+        outputs = self._get_output(f, args, args_format)
+        with open(outputs, 'r') as stream:
+            outputs_as_yaml = yaml.safe_load(stream)
+
+        with open(results, 'r') as stream:
+            results_as_yaml = yaml.safe_load(stream)
+
+        for key_to_remove in self.keys_to_ignore_for_yaml:
+            if key_to_remove in results_as_yaml.keys():
+                del results_as_yaml[key_to_remove]
+
+            if key_to_remove in outputs_as_yaml.keys():
+                del outputs_as_yaml[key_to_remove]
+
+        return outputs_as_yaml == results_as_yaml, outputs
+
     def check(self, f):
         args = self.setting_dict[f.__name__]["input"]["value"]
         results = self.setting_dict[f.__name__]["output"]["value"]
@@ -78,6 +102,10 @@ class BasicUnitTest:
             check, outputs = self._check_array(f, results, args, args_format)
         elif results_format == "enum":
             check, outputs = self._check_enum(f, results, args, args_format)
+        elif results_format == "file":
+            check, outputs = self._check_files(f, results, args, args_format)
+        elif results_format == "yaml":
+            check, outputs = self._check_yaml(f, results, args, args_format)
         else:
             check, outputs = self._check_others(f, results, args, args_format)
 
