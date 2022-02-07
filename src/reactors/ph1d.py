@@ -5,9 +5,11 @@ import numpy as np
 
 class PseudoHomogeneous1DReactor(BasicReactor):
     def __init__(self, cantera_input_file, gas_phase_name, surface_phase_name):
-        super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name, surface_phase_name=surface_phase_name)
+        super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name,
+                         surface_phase_name=surface_phase_name)
         self.reactor_type = ReactorType.PSEUDOHOMOGENEOUSPFR
         self.alg = None
+        self.gas_diffusion = False
 
     def _equations_steady_state(self, t, y):
         dy = np.zeros_like(y)
@@ -24,9 +26,11 @@ class PseudoHomogeneous1DReactor(BasicReactor):
         gas_reaction_rates_from_surface = self.surf.net_production_rates[:self.gas.n_species]
         coverage_reaction_rates = self.surf.net_production_rates[-self.surf.n_species:]
 
-        dy[:self.gas.n_species] = (self.gas.molecular_weights * gas_reaction_rates + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights) * self.area / self.inlet_mass_flow_rate
+        dy[:self.gas.n_species] = (
+                                          self.gas.molecular_weights * gas_reaction_rates + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights) * self.area / self.inlet_mass_flow_rate
 
-        dy[self.gas.n_species:self.gas.n_species + self.surf.n_species] = 1e03 * (coverage_reaction_rates / self.surf.site_density)
+        dy[self.gas.n_species:self.gas.n_species + self.surf.n_species] = 1e03 * (
+                coverage_reaction_rates / self.surf.site_density)
 
         if self.energy:
             if self.gas.n_reactions > 0:
@@ -39,18 +43,25 @@ class PseudoHomogeneous1DReactor(BasicReactor):
             else:
                 heat_from_reaction_from_surface = 0.
 
-            dy[-1] = (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) * self.area / (self.inlet_mass_flow_rate * self.gas.cp_mass)
+            dy[-1] = (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) * self.area / (
+                    self.inlet_mass_flow_rate * self.gas.cp_mass)
 
         return dy
 
     def _solve_steady_state(self):
-        self.length, self.sol = self._solve_ode(self._equations_steady_state, self._initial_conditions_steady_state(), self.length, atol=self.atol, rtol=self.rtol)
+        self.length, self.sol = self._solve_ode(self._equations_steady_state,
+                                                self._initial_conditions_steady_state(),
+                                                self.length,
+                                                atol=self.atol,
+                                                rtol=self.rtol,
+                                                verbosity=self.verbosity)
 
         self.y_sol = self.sol[:, :self.gas.n_species]
         self.x_sol = np.zeros_like(self.y_sol)
 
         for i in range(0, len(self.length)):
-            self.x_sol[i, :self.gas.n_species] = self._convert_mass_fraction_to_mole_fraction(self.y_sol[i, :self.gas.n_species])
+            self.x_sol[i, :self.gas.n_species] = self._convert_mass_fraction_to_mole_fraction(
+                self.y_sol[i, :self.gas.n_species])
 
         self.coverage_sol = self.sol[:, self.gas.n_species:self.gas.n_species + self.surf.n_species]
         self.temperature_sol = self.sol[:, -1]
@@ -63,6 +74,26 @@ class PseudoHomogeneous1DReactor(BasicReactor):
             self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
             self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
         return np.block([self.inlet_mass_fraction, self.initial_coverage, self.inlet_temperature])
+
+    def _inlet_conditions(self, omega, T):
+        return self.inlet_mass_fraction - omega[0, :], self.inlet_temperature - T[0]
+
+    def _outlet_conditions(self, omega, T, density):
+        if self.gas_diffusion:
+            if self.energy:
+                return omega[-1, :] - omega[-2, :], T[-1] - T[-2]
+
+            return omega[-1, :] - omega[-2, :], 0.
+
+        derivative_1st_omega = (omega[-1, :] - omega[-2, :]) / (self.length[-1] - self.length[-2])
+        omega_outlet = - self.inlet_mass_flow_rate * derivative_1st_omega / (self.area * density[1])
+
+        if self.energy:
+            derivative_1st_temperature = (T[-1] - T[-2]) / (self.length[-1] - self.length[-2])
+            temperature_outlet = - self.inlet_mass_flow_rate * derivative_1st_temperature / (self.area * density[1])
+            return omega_outlet, temperature_outlet
+
+        return omega_outlet, 0.
 
     def _equations_transient(self, t, y):
         NP = self.length.size
@@ -77,7 +108,7 @@ class PseudoHomogeneous1DReactor(BasicReactor):
         gas_reaction_rates = np.zeros([NP, self.gas.n_species], dtype=np.float64)
         gas_reaction_rates_from_surface = np.zeros([NP, self.gas.n_species], dtype=np.float64)
         coverage_reaction_rates = np.zeros([NP, self.surf.n_species], dtype=np.float64)
-        mix_diff_coeffs_mass = np.zeros([NP, self.surf.n_species], dtype=np.float64)
+        mix_diff_coeffs_mass = np.zeros([NP, self.gas.n_species], dtype=np.float64)
         heat_of_reaction_from_gas = np.zeros([NP], dtype=np.float64)
         heat_from_reaction_from_surface = np.zeros([NP], dtype=np.float64)
         density = np.zeros([NP], dtype=np.float64)
@@ -90,7 +121,8 @@ class PseudoHomogeneous1DReactor(BasicReactor):
             self.surf.coverages = z[i, :]
 
             gas_reaction_rates[i, :] = self.gas.net_production_rates * self.gas.molecular_weights
-            gas_reaction_rates_from_surface[i, :] = self.surf.net_production_rates[:self.gas.n_species] * self.gas.molecular_weights
+            gas_reaction_rates_from_surface[i, :] = self.surf.net_production_rates[
+                                                    :self.gas.n_species] * self.gas.molecular_weights
             coverage_reaction_rates[i, :] = self.surf.net_production_rates[-self.surf.n_species:]
 
             density[i] = self.gas.density
@@ -107,41 +139,47 @@ class PseudoHomogeneous1DReactor(BasicReactor):
                     heat_of_reaction_from_gas[i] = -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
 
                 if self.surf.n_reactions > 0:
-                    heat_from_reaction_from_surface[i] = -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
+                    heat_from_reaction_from_surface[i] = -np.dot(self.surf.net_rates_of_progress,
+                                                                 self.surf.delta_enthalpy)
 
         domega = np.zeros_like(omega)
         dT = np.zeros_like(T)
 
-        domega[0, :] = self.inlet_mass_fraction - omega[0, :]  # Outlet conditions
-        domega[-1, :] = omega[-1, :] - omega[-2, :]  # Outlet conditions
+        # Inlet and outlet conditions
+        domega[0, :], dT[0] = self._inlet_conditions(omega, T)
+        domega[-1, :], dT[-1] = self._outlet_conditions(omega, T, density)
 
-        dT[0] = self.inlet_temperature - T[0]  # Outlet conditions
-        dT[-1] = T[-1] - T[-2]  # Outlet conditions
-
-        derivative_1st_omega_forward = ((omega[2:, :] - omega[1:-1, :]).T / (self.length[2:] - self.length[1:-1])).T
-        derivative_1st_omega_backward = ((omega[1:-1, :] - omega[:-2, :]).T / (self.length[1:-1] - self.length[:-2])).T
-
-        diffusion_coefficient_forward = 0.5 * (mix_diff_coeffs_mass[2:, :] + mix_diff_coeffs_mass[1:-1, :])
-        diffusion_coefficient_backward = 0.5 * (mix_diff_coeffs_mass[1:-1, :] + mix_diff_coeffs_mass[:-2, :])
-
-        domega[1:-1, :] = - (derivative_1st_omega_backward.T * (self.inlet_mass_flow_rate / (self.area * density[1:-1]))).T
-        domega[1:-1, :] = domega[1:-1, :] + ((diffusion_coefficient_forward * derivative_1st_omega_forward - diffusion_coefficient_backward * derivative_1st_omega_backward).T / (0.5 * (self.length[2:] - self.length[:-2]))).T
+        # Equations for mass
+        d1st_omega_backward = ((omega[1:-1, :] - omega[:-2, :]).T / (self.length[1:-1] - self.length[:-2])).T
+        domega[1:-1, :] = - (d1st_omega_backward.T * (self.inlet_mass_flow_rate / (self.area * density[1:-1]))).T
         domega[1:-1, :] = domega[1:-1, :] + (gas_reaction_rates[1:-1, :].T / density[1:-1]).T
         domega[1:-1, :] = domega[1:-1, :] + self.alfa * (gas_reaction_rates_from_surface[1:-1, :].T / density[1:-1]).T
 
+        if self.gas_diffusion:
+            d1st_omega_forward = ((omega[2:, :] - omega[1:-1, :]).T / (self.length[2:] - self.length[1:-1])).T
+            diff_coeff_forward = 0.5 * (mix_diff_coeffs_mass[2:, :] + mix_diff_coeffs_mass[1:-1, :])
+            diff_coeff_backward = 0.5 * (mix_diff_coeffs_mass[1:-1, :] + mix_diff_coeffs_mass[:-2, :])
+            domega[1:-1, :] = domega[1:-1, :] + (
+                    (diff_coeff_forward * d1st_omega_forward - diff_coeff_backward * d1st_omega_backward).T / (
+                    0.5 * (self.length[2:] - self.length[:-2]))).T
+
+        # Equations for site fraction
         dz = coverage_reaction_rates / self.surf.density
 
+        # Equations for temperature
         if self.energy:
-            derivative_1st_temperature_forward = (T[2:] - T[1:-1]) / (self.length[2:] - self.length[1:-1])
-            derivative_1st_temperature_backward = (T[1:-1] - T[:-2]) / (self.length[1:-1] - self.length[:-2])
-
-            thermal_coefficient_forward = 0.5 * (thermal_conductivity[2:] + thermal_conductivity[1:-1])
-            thermal_coefficient_backward = 0.5 * (thermal_conductivity[1:-1] + thermal_conductivity[:-2])
-
-            dT[1:-1] = -(self.inlet_mass_flow_rate / (self.area * density[1:-1])) * derivative_1st_temperature_backward
-            dT[1:-1] = dT[1:-1] + (thermal_coefficient_forward * derivative_1st_temperature_forward - thermal_coefficient_backward * derivative_1st_temperature_backward) / (0.5 * (self.length[2:] - self.length[:-2]))
+            d1st_temperature_backward = (T[1:-1] - T[:-2]) / (self.length[1:-1] - self.length[:-2])
+            dT[1:-1] = -(self.inlet_mass_flow_rate / (self.area * density[1:-1])) * d1st_temperature_backward
             dT[1:-1] = dT[1:-1] + heat_of_reaction_from_gas[1:-1] / (density[1:-1] * cp_mass[1:-1])
             dT[1:-1] = dT[1:-1] + self.alfa * heat_from_reaction_from_surface[1:-1] / (density[1:-1] * cp_mass[1:-1])
+
+            if self.gas_diffusion:
+                d1st_temperature_forward = (T[2:] - T[1:-1]) / (self.length[2:] - self.length[1:-1])
+                thermal_coeff_forward = 0.5 * (thermal_conductivity[2:] + thermal_conductivity[1:-1])
+                thermal_coeff_backward = 0.5 * (thermal_conductivity[1:-1] + thermal_conductivity[:-2])
+                dT[1:-1] = dT[1:-1] + (
+                        thermal_coeff_forward * d1st_temperature_forward - thermal_coeff_backward * d1st_temperature_backward) / (
+                                   0.5 * (self.length[2:] - self.length[:-2]))
 
         dy_matrix = np.zeros_like(y_matrix)
 
@@ -161,9 +199,13 @@ class PseudoHomogeneous1DReactor(BasicReactor):
         alg_matrix = np.ones([NP, NV], dtype=int)
 
         alg_matrix[0, :self.gas.n_species] = 0
-        alg_matrix[0, -1] = 0
-        alg_matrix[-1, :self.gas.n_species] = 0
-        alg_matrix[-1, -1] = 0
+        if self.energy:
+            alg_matrix[0, -1] = 0
+
+        if self.gas_diffusion:
+            alg_matrix[-1, :self.gas.n_species] = 0
+            if self.energy:
+                alg_matrix[-1, -1] = 0
 
         return alg_matrix.flatten()
 
@@ -180,7 +222,10 @@ class PseudoHomogeneous1DReactor(BasicReactor):
                                                self._residuals_transient,
                                                self._initial_conditions_transient(),
                                                self.uc.convert_to_seconds(tspan, time_ud),
-                                               self.alg)
+                                               self.alg,
+                                               atol=self.atol,
+                                               rtol=self.rtol,
+                                               verbosity=self.verbosity)
 
         self.y_sol = np.zeros([self.tspan.size], dtype=np.ndarray)
         self.x_sol = np.zeros([self.tspan.size], dtype=np.ndarray)
@@ -241,3 +286,6 @@ class PseudoHomogeneous1DReactor(BasicReactor):
             return self._solve_steady_state()
 
         return self._solve_transient(tspan, time_ud)
+
+    def set_gas_diffusion(self, gas_diffusion):
+        self.gas_diffusion = self._true_parser(gas_diffusion)

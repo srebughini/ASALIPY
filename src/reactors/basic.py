@@ -64,8 +64,9 @@ class BasicReactor(ABC):
         self.initial_temperature = None
         self.initial_coverage = None
 
-        self.atol = 1.e-12
-        self.rtol = 1.e-07
+        self.atol = 1e-06
+        self.rtol = 1e-06
+        self.verbosity = 50
 
         self.reactor_type = None
         self.resolution_method = None
@@ -111,7 +112,7 @@ class BasicReactor(ABC):
         raise Exception("ASALI::ERROR::Unknown resolution method")
 
     @staticmethod
-    def _solve_ode(f, y0, tspan, atol=1e-12, rtol=1e-7, verbosity=50):
+    def _solve_ode(f, y0, tspan, atol, rtol, verbosity):
         ode = Explicit_Problem(f, y0)
 
         sim_ode = CVode(ode)
@@ -129,7 +130,7 @@ class BasicReactor(ABC):
         return tspan, sol
 
     @staticmethod
-    def _solve_dae(ode_equations, dae_equations, residuals, y0, tspan, alg, t_ode=1e06, atol=1e-12, rtol=1e-7, verbosity=50):
+    def _solve_dae(ode_equations, dae_equations, residuals, y0, tspan, alg, atol, rtol, verbosity):
         ode = Explicit_Problem(ode_equations, y0)
 
         sim_ode = CVode(ode)
@@ -137,7 +138,7 @@ class BasicReactor(ABC):
         sim_ode.rtol = rtol
         sim_ode.verbosity = verbosity
 
-        t, y_ode = sim_ode.simulate(t_ode, 2)
+        t, y_ode = sim_ode.simulate(1e06, 2)
 
         dae = Implicit_Problem(residuals, y_ode[-1, :], dae_equations(0., y_ode[-1, :]), 0.0)
 
@@ -211,9 +212,22 @@ class BasicReactor(ABC):
         self.energy = self._true_parser(value)
         return self.energy
 
-    def set_integration_parameters(self, atol, rtol):
+    def set_integration_parameters(self, atol, rtol, verbosity):
+        self.set_absolute_tolerance(atol)
+        self.set_relative_tolerance(rtol)
+        self.set_verbosity(verbosity)
+
+    def set_absolute_tolerance(self, atol):
         self.atol = atol
+
+    def set_relative_tolerance(self, rtol):
         self.rtol = rtol
+
+    def set_verbosity(self, verbosity):
+        if self._true_parser(verbosity):
+            self.verbosity = 20
+        else:
+            self.verbosity = 50
 
     def set_volume(self, value, unit_dimension):
         if self.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
@@ -237,7 +251,7 @@ class BasicReactor(ABC):
             print("ASALI::WARNING::Diameter ignored for CSTR reactor")
 
         diameter = self.uc.convert_to_meter(value, unit_dimension)
-        self.area = np.pi * 0.25 * diameter
+        self.area = np.pi * 0.25 * np.square(diameter)
         return diameter
 
     def set_length(self, value, unit_dimension):
@@ -247,16 +261,16 @@ class BasicReactor(ABC):
         if self.reactor_type == ReactorType.CSTR:
             print("ASALI::WARNING::Length ignored for CSTR reactor")
 
-        if not isinstance(value, list):
-            length = self.uc.convert_to_meter(value, unit_dimension)
-            self.length = np.linspace(0, length, num=10)
-        else:
+        if isinstance(value, list) or isinstance(value, np.ndarray):
             if value[0] != 0.:
                 length = np.zeros([len(value) + 1], dtype=np.float64)
                 length[1:] = value
                 self.length = self.uc.convert_to_meter(length, unit_dimension)
             else:
                 self.length = self.uc.convert_to_meter(value, unit_dimension)
+        else:
+            length = self.uc.convert_to_meter(value, unit_dimension)
+            self.length = np.linspace(0, length, num=10)
 
         return self.length
 

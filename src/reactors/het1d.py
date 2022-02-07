@@ -243,7 +243,10 @@ class Heterogeneous1DReactor(BasicReactor):
                                                self._residuals,
                                                self.initial_condition(),
                                                self.uc.convert_to_seconds(tspan, time_ud),
-                                               self.alg)
+                                               self.alg,
+                                               atol=self.atol,
+                                               rtol=self.rtol,
+                                               verbosity=self.verbosity)
 
         sol = np.copy(self.sol)
         self.y_sol = np.zeros([self.tspan.size], dtype=np.ndarray)

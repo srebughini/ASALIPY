@@ -53,7 +53,12 @@ class CstrReactor(BasicReactor):
         return np.block([self.initial_mass_fraction, self.initial_coverage, self.initial_temperature])
 
     def solve(self, tspan, time_ud):
-        self.tspan, self.sol = self._solve_ode(self.equations, self.initial_condition(), self.uc.convert_to_seconds(tspan, time_ud), atol=self.atol, rtol=self.rtol)
+        self.tspan, self.sol = self._solve_ode(self.equations,
+                                               self.initial_condition(),
+                                               self.uc.convert_to_seconds(tspan, time_ud),
+                                               atol=self.atol,
+                                               rtol=self.rtol,
+                                               verbosity=self.verbosity)
 
         self.y_sol = self.sol[:, :self.gas.n_species]
         self.x_sol = np.zeros_like(self.y_sol)

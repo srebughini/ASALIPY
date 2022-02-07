@@ -17,7 +17,11 @@ class ReactorPlotter(BasicPlotter):
             raise Exception("ASALI::ERROR::Nothing to plot, no solution found")
 
         cmap = matplotlib.cm.get_cmap(self.colormap)
-        self.colors = cmap(np.linspace(0.2, 1., num=self.cls.tspan.size))
+
+        if self.cls.tspan is None:
+            self.colors = cmap(np.linspace(0.2, 1., num=self.cls.length.size))
+        else:
+            self.colors = cmap(np.linspace(0.2, 1., num=self.cls.tspan.size))
 
     def _plot_species_mass_fraction_for_batch_and_cstr(self, species_names):
         self.nFig = self.nFig + 1
