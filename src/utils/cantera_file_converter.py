@@ -19,8 +19,8 @@ class CanteraFileConverter:
         _, extension = os.path.splitext(file_path)
         if extension is None:
             return file_path + new_extension
-        else:
-            return file_path.replace(extension, new_extension)
+
+        return file_path.replace(extension, new_extension)
 
     @staticmethod
     def check_file_extension(file_path, desired_extension):
@@ -46,11 +46,11 @@ class CanteraFileConverter:
                     "--thermo=" + thermodynamic_file_path,
                     "--surface=" + surface_file_path,
                     "--output=" + output_file_path], output_file_path
-        else:
-            return ["--input=" + kinetic_file_path,
-                    "--transport=" + transport_file_path,
-                    "--thermo=" + thermodynamic_file_path,
-                    "--output=" + output_file_path], output_file_path
+
+        return ["--input=" + kinetic_file_path,
+                "--transport=" + transport_file_path,
+                "--thermo=" + thermodynamic_file_path,
+                "--output=" + output_file_path], output_file_path
 
     @staticmethod
     def from_chemkin_to_cti(kinetic_file_path, thermodynamic_file_path, transport_file_path, surface_file_path=None,

@@ -262,7 +262,7 @@ class BasicReactor(ABC):
         if self.reactor_type == ReactorType.CSTR:
             print("ASALI::WARNING::Length ignored for CSTR reactor")
 
-        if isinstance(value, list) or isinstance(value, np.ndarray):
+        if isinstance(value, (list, np.ndarray)):
             if value[0] != 0.:
                 length = np.zeros([len(value) + 1], dtype=np.float64)
                 length[1:] = value
