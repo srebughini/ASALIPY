@@ -50,6 +50,7 @@ class BasicReactor(ABC):
         self.solid_cp = 0.
         self.solid_temperature = 0.
 
+        self.inert_specie_index = None
         self.inlet_mass_fraction = None
         self.inlet_mole_fraction = None
         self.sol = None
@@ -373,6 +374,16 @@ class BasicReactor(ABC):
 
         self.solid_k = self.uc.convert_to_watt_per_meter_per_kelvin(value, unit_dimension)
         return self.solid_k
+
+    def set_inert_specie(self, specie_name):
+        if self.reactor_type == ReactorType.BATCH:
+            print("ASALI::WARNING::Inert specie ignored for BATCH reactor")
+
+        if self.reactor_type == ReactorType.CSTR:
+            print("ASALI::WARNING::Inert specie ignored for CSTR reactor")
+
+        self.inert_specie_index = self.gas.species_index(specie_name)
+        return self.inert_specie_index
 
     def get_time(self, ud):
         return self.uc.convert_from_seconds(self.tspan, ud)

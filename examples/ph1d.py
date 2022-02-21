@@ -15,8 +15,10 @@ if __name__ == "__main__":
     p.set_initial_coverage({'Rh(s)': 1})
     p.set_energy(1)
     p.set_initial_mass_fraction({'AR': 1})
+    p.set_inert_specie('AR')
     p.set_initial_temperature(25, 'degC')
     p.set_resolution_method("TRANSIENT")
+    p.set_gas_diffusion(False)
     p.solve([0, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.1], 's')
 
     plt = ReactorPlotter(p, colormap="Greens")

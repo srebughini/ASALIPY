@@ -163,6 +163,10 @@ class PseudoHomogeneous1DReactor(BasicReactor):
                     (diff_coeff_forward * d1st_omega_forward - diff_coeff_backward * d1st_omega_backward).T / (
                     0.5 * (self.length[2:] - self.length[:-2]))).T
 
+
+        #Inert specie
+        domega[:, self.inert_specie_index] = 1. - np.sum(omega, axis=1)
+
         # Equations for site fraction
         dz = coverage_reaction_rates / self.surf.density
 
@@ -206,6 +210,8 @@ class PseudoHomogeneous1DReactor(BasicReactor):
             alg_matrix[-1, :self.gas.n_species] = 0
             if self.energy:
                 alg_matrix[-1, -1] = 0
+
+        alg_matrix[:, self.inert_specie_index] = 0
 
         return alg_matrix.flatten()
 

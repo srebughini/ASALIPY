@@ -62,6 +62,8 @@ if __name__ == "__main__":
     p.set_initial_coverage({'Rh(s)': 1})  # Set reactor initial coverage
     p.set_energy(1)  # Enable energy balance
     p.set_initial_mass_fraction({'AR': 1})  # Set reactor initial composition using mass fraction
+    p.set_inert_specie('AR') # Set inert specie
+    p.set_gas_diffusion(False) # Disable gas diffusion term
     p.set_initial_temperature(25, 'degC')  # Set reactor initial temperature in [°C]
     p.set_resolution_method("TRANSIENT")  # Set resolution method
     p.solve([0, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.1], 's')  # Solve for different time steps in [s]
