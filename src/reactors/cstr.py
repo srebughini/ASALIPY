@@ -5,10 +5,22 @@ import numpy as np
 
 class CstrReactor(BasicReactor):
     def __init__(self, cantera_input_file, gas_phase_name, surface_phase_name):
+        """
+        Class representing CSTR reactor model
+        :param cantera_input_file: Cantera file path
+        :param gas_phase_name: Cantera gas phase name
+        :param surface_phase_name: Cantera interface phase name
+        """
         super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name, surface_phase_name=surface_phase_name)
         self.reactor_type = ReactorType.CSTR
 
     def equations(self, t, y):
+        """
+        Function representing the model
+        :param t: Independent variable - Time
+        :param y: Dependent variable - Species composition, coverage and temperature
+        :return:
+        """
         dy = np.zeros_like(y)
 
         omega = y[:self.gas.n_species]
@@ -46,6 +58,10 @@ class CstrReactor(BasicReactor):
         return dy
 
     def initial_condition(self):
+        """
+        Generate initial conditions
+        :return: Vector/Matrix representing the initial conditions
+        """
         if not self.is_mass_flow_rate:
             self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
             self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
@@ -53,6 +69,12 @@ class CstrReactor(BasicReactor):
         return np.block([self.initial_mass_fraction, self.initial_coverage, self.initial_temperature])
 
     def solve(self, tspan, time_ud):
+        """
+        Solve model
+        :param tspan: Vector representing the integration time
+        :param time_ud: Time unit dimension
+        :return: Vector/Matrix representing the results
+        """
         self.tspan, self.sol = self._solve_ode(self.equations,
                                                self.initial_condition(),
                                                self.uc.convert_to_seconds(tspan, time_ud),
