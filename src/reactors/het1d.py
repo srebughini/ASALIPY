@@ -12,7 +12,8 @@ class ReactorModel(IntEnum):
 
 class Heterogeneous1DReactor(BasicReactor):
     def __init__(self, cantera_input_file, gas_phase_name, surface_phase_name):
-        super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name, surface_phase_name=surface_phase_name)
+        super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name,
+                         surface_phase_name=surface_phase_name)
         self.reactor_type = ReactorType.HETEROGENEOUSPRF
         self.reactor_model = None
         self.alg = None
@@ -30,7 +31,8 @@ class Heterogeneous1DReactor(BasicReactor):
 
     def _estimate_mass_transfer_coefficient(self, viscosity, density, diffusivity):
         if self.reactor_model == ReactorModel.PACKEDBED:
-            reynolds_real = self.inlet_mass_flow_rate * self.particle_diameter / (viscosity * 0.25 * np.square(self.tube_diameter))
+            reynolds_real = self.inlet_mass_flow_rate * self.particle_diameter / (
+                        viscosity * 0.25 * np.square(self.tube_diameter))
             reynolds = reynolds_real / ((1. - self.void_fraction) * 6)
 
             laminar_flow = np.logical_and(reynolds < 50, reynolds > 0)
@@ -44,18 +46,21 @@ class Heterogeneous1DReactor(BasicReactor):
 
             return ((j_mass * reynolds_real) * (np.power(Sc, 1. / 3.) * diffusivity).T).T / self.particle_diameter
 
-        reynolds_real = self.inlet_mass_flow_rate * self.tube_diameter / (viscosity * self.void_fraction * 0.25 * np.square(self.tube_diameter))
+        reynolds_real = self.inlet_mass_flow_rate * self.tube_diameter / (
+                    viscosity * self.void_fraction * 0.25 * np.square(self.tube_diameter))
         Sc = ((viscosity / density) / diffusivity.T).T
 
         z_star = np.fabs(np.maximum(1e-06, self.length)) / (self.tube_diameter * reynolds_real)
 
         z_star = (z_star / Sc.T).T
 
-        return ((self.Sherwood + 6.874 * np.power(1000 * z_star, -0.488) * np.exp(-57.2 * z_star)) * diffusivity) / self.tube_diameter
+        return ((self.Sherwood + 6.874 * np.power(1000 * z_star, -0.488) * np.exp(
+            -57.2 * z_star)) * diffusivity) / self.tube_diameter
 
     def _estimate_heat_transfer_coefficient(self, viscosity, conductivity, specific_heat):
         if self.reactor_model == ReactorModel.PACKEDBED:
-            reynolds_real = self.inlet_mass_flow_rate * self.particle_diameter / (viscosity * 0.25 * np.square(self.tube_diameter))
+            reynolds_real = self.inlet_mass_flow_rate * self.particle_diameter / (
+                        viscosity * 0.25 * np.square(self.tube_diameter))
             reynolds = reynolds_real / ((1. - self.void_fraction) * 6)
 
             laminar_flow = np.logical_and(reynolds < 50, reynolds > 0)
@@ -69,10 +74,12 @@ class Heterogeneous1DReactor(BasicReactor):
 
             return j_heat * reynolds_real * np.power(Pr, 1. / 3.) * conductivity / self.particle_diameter
 
-        reynolds_real = self.inlet_mass_flow_rate * self.tube_diameter / (viscosity * self.void_fraction * 0.25 * np.square(self.tube_diameter))
+        reynolds_real = self.inlet_mass_flow_rate * self.tube_diameter / (
+                    viscosity * self.void_fraction * 0.25 * np.square(self.tube_diameter))
         Pr = specific_heat * viscosity / conductivity
         z_star = np.fabs(np.maximum(1e-06, self.length)) / (self.tube_diameter * reynolds_real * Pr)
-        return ((self.Nusselt + 8.827 * np.power(1000 * z_star, -0.545) * np.exp(-48.2 * z_star)) * conductivity) / self.tube_diameter
+        return ((self.Nusselt + 8.827 * np.power(1000 * z_star, -0.545) * np.exp(
+            -48.2 * z_star)) * conductivity) / self.tube_diameter
 
     def _ode_equations(self, t, y):
         return self.equations(t, y) * np.fabs(np.round(self.alg - 1))
@@ -108,7 +115,8 @@ class Heterogeneous1DReactor(BasicReactor):
 
         omega_bulk = y_matrix[:, :self.gas.n_species]
         omega_wall = y_matrix[:, self.gas.n_species:self.gas.n_species + self.gas.n_species]
-        z = y_matrix[:, self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species]
+        z = y_matrix[:,
+            self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species]
         T_bulk = y_matrix[:, -2]
         T_wall = y_matrix[:, -1]
 
@@ -145,12 +153,14 @@ class Heterogeneous1DReactor(BasicReactor):
             self.gas.TPY = T_wall[i], self.pressure, omega_wall[i, :]
             self.surf.TP = T_wall[i], self.pressure
             self.surf.coverages = z[i, :]
-            gas_reaction_rates_from_surface[i, :] = self.surf.net_production_rates[:self.gas.n_species] * self.gas.molecular_weights
+            gas_reaction_rates_from_surface[i, :] = self.surf.net_production_rates[
+                                                    :self.gas.n_species] * self.gas.molecular_weights
             coverage_reaction_rates[i, :] = self.surf.net_production_rates[-self.surf.n_species:]
 
             if self.energy:
                 if self.surf.n_reactions > 0:
-                    heat_from_reaction_from_surface[i] = -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
+                    heat_from_reaction_from_surface[i] = -np.dot(self.surf.net_rates_of_progress,
+                                                                 self.surf.delta_enthalpy)
 
         k_mat = self._estimate_mass_transfer_coefficient(viscosity, density, mix_diff_coeffs_mass)
         k_heat = self._estimate_heat_transfer_coefficient(viscosity, thermal_conductivity, cp_mass)
@@ -168,36 +178,47 @@ class Heterogeneous1DReactor(BasicReactor):
 
         delta_omega = self.specific_area * (density * (k_mat * (omega_bulk - omega_wall)).T).T
 
-        derivative_1st_omega_backward = ((omega_bulk[1:, :] - omega_bulk[:-1, :]).T / (self.length[1:] - self.length[:-1])).T
+        derivative_1st_omega_backward = (
+                    (omega_bulk[1:, :] - omega_bulk[:-1, :]).T / (self.length[1:] - self.length[:-1])).T
 
-        domega_bulk[1:, :] = - (derivative_1st_omega_backward.T * (self.inlet_mass_flow_rate / (self.area * density[1:]))).T
+        domega_bulk[1:, :] = - (
+                    derivative_1st_omega_backward.T * (self.inlet_mass_flow_rate / (self.area * density[1:]))).T
         domega_bulk[1:, :] = domega_bulk[1:, :] + (gas_reaction_rates[1:, :].T / density[1:]).T
         domega_bulk[1:, :] = domega_bulk[1:, :] - delta_omega[1:, :] / self.void_fraction
 
         domega_wall = delta_omega * self.void_fraction + self.alfa * self.void_fraction * gas_reaction_rates_from_surface
 
-        dz = coverage_reaction_rates / self.surf.density
+        dz = coverage_reaction_rates / self.surf.site_density
 
         if self.energy:
-            derivative_1st_temperature_bulk_forward = (T_bulk[2:] - T_bulk[1:-1]) / (self.length[2:] - self.length[1:-1])
-            derivative_1st_temperature_bulk_backward = (T_bulk[1:-1] - T_bulk[:-2]) / (self.length[1:-1] - self.length[:-2])
+            derivative_1st_temperature_bulk_forward = (T_bulk[2:] - T_bulk[1:-1]) / (
+                        self.length[2:] - self.length[1:-1])
+            derivative_1st_temperature_bulk_backward = (T_bulk[1:-1] - T_bulk[:-2]) / (
+                        self.length[1:-1] - self.length[:-2])
 
             thermal_coefficient_forward = 0.5 * (thermal_conductivity[2:] + thermal_conductivity[1:-1])
             thermal_coefficient_backward = 0.5 * (thermal_conductivity[1:-1] + thermal_conductivity[:-2])
 
             delta_T = k_heat * self.specific_area * (T_bulk - T_wall)
 
-            dT_bulk[1:-1] = -(self.inlet_mass_flow_rate / (self.area * density[1:-1])) * derivative_1st_temperature_bulk_backward
-            dT_bulk[1:-1] = dT_bulk[1:-1] + (thermal_coefficient_forward * derivative_1st_temperature_bulk_forward - thermal_coefficient_backward * derivative_1st_temperature_bulk_backward) / (
-                    0.5 * (self.length[2:] - self.length[:-2]) * density[1:-1] * cp_mass[1:-1])
+            dT_bulk[1:-1] = -(self.inlet_mass_flow_rate / (
+                        self.area * density[1:-1])) * derivative_1st_temperature_bulk_backward
+            dT_bulk[1:-1] = dT_bulk[1:-1] + (
+                        thermal_coefficient_forward * derivative_1st_temperature_bulk_forward - thermal_coefficient_backward * derivative_1st_temperature_bulk_backward) / (
+                                    0.5 * (self.length[2:] - self.length[:-2]) * density[1:-1] * cp_mass[1:-1])
             dT_bulk[1:-1] = dT_bulk[1:-1] + heat_of_reaction_from_gas[1:-1] / (density[1:-1] * cp_mass[1:-1])
             dT_bulk[1:-1] = dT_bulk[1:-1] - delta_T[1:-1] / (self.void_fraction * density[1:-1] * cp_mass[1:-1])
 
-            derivative_1st_temperature_wall_forward = (T_wall[2:] - T_wall[1:-1]) / (self.length[2:] - self.length[1:-1])
-            derivative_1st_temperature_wall_backward = (T_wall[1:-1] - T_wall[:-2]) / (self.length[1:-1] - self.length[:-2])
+            derivative_1st_temperature_wall_forward = (T_wall[2:] - T_wall[1:-1]) / (
+                        self.length[2:] - self.length[1:-1])
+            derivative_1st_temperature_wall_backward = (T_wall[1:-1] - T_wall[:-2]) / (
+                        self.length[1:-1] - self.length[:-2])
 
-            dT_wall[1:-1] = (self.solid_k / (self.solid_cp * self.solid_rho)) * (derivative_1st_temperature_wall_forward - derivative_1st_temperature_wall_backward) / (0.5 * (self.length[2:] - self.length[:-2]))
-            dT_wall[1:-1] = dT_wall[1:-1] + self.alfa * heat_from_reaction_from_surface[1:-1] / (self.solid_cp * self.solid_rho * (1 - self.void_fraction))
+            dT_wall[1:-1] = (self.solid_k / (self.solid_cp * self.solid_rho)) * (
+                        derivative_1st_temperature_wall_forward - derivative_1st_temperature_wall_backward) / (
+                                        0.5 * (self.length[2:] - self.length[:-2]))
+            dT_wall[1:-1] = dT_wall[1:-1] + self.alfa * heat_from_reaction_from_surface[1:-1] / (
+                        self.solid_cp * self.solid_rho * (1 - self.void_fraction))
             dT_wall[1:-1] = dT_wall[1:-1] + delta_T[1:-1] / (self.solid_cp * self.solid_rho * (1 - self.void_fraction))
 
         dy_matrix = np.zeros_like(y_matrix)
@@ -205,7 +226,8 @@ class Heterogeneous1DReactor(BasicReactor):
         dy_matrix[:, :self.gas.n_species] = domega_bulk
 
         dy_matrix[:, self.gas.n_species:self.gas.n_species + self.surf.n_species] = domega_wall
-        dy_matrix[:, self.gas.n_species + self.surf.n_species:self.gas.n_species + self.surf.n_species + self.surf.n_species] = dz
+        dy_matrix[:,
+        self.gas.n_species + self.surf.n_species:self.gas.n_species + self.surf.n_species + self.surf.n_species] = dz
         dy_matrix[:, -2] = dT_bulk
         dy_matrix[:, -1] = dT_wall
 
@@ -219,7 +241,8 @@ class Heterogeneous1DReactor(BasicReactor):
 
         y0_matrix[:, :self.gas.n_species] = self.initial_mass_fraction
         y0_matrix[:, self.gas.n_species:self.gas.n_species + self.gas.n_species] = self.initial_mass_fraction
-        y0_matrix[:, self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species] = self.initial_coverage
+        y0_matrix[:,
+        self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species] = self.initial_coverage
         y0_matrix[:, -2] = self.initial_temperature
         y0_matrix[:, -1] = self.solid_temperature
 
@@ -264,7 +287,8 @@ class Heterogeneous1DReactor(BasicReactor):
             sol_for_time = sol[i, :].reshape(NP, NV)
             self.y_sol[i] = sol_for_time[:, :self.gas.n_species]
             self.y_sol_wall[i] = sol_for_time[:, self.gas.n_species:self.gas.n_species + self.gas.n_species]
-            self.coverage_sol[i] = sol_for_time[:, self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species]
+            self.coverage_sol[i] = sol_for_time[:,
+                                   self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species]
             self.temperature_sol_wall[i] = sol_for_time[:, -2]
             self.temperature_sol[i] = sol_for_time[:, -1]
             self.x_sol[i] = np.zeros_like(self.y_sol[i])
@@ -315,7 +339,8 @@ class Heterogeneous1DReactor(BasicReactor):
         self.reactor_model = ReactorModel.HONEYCOMB
         return [self.tube_diameter, self.void_fraction, self.particle_diameter, self.specific_area, self.area]
 
-    def set_packed_bed_reactor(self, particle_diameter, particle_diameter_ud, tube_diameter, tube_diameter_ud, void_fraction):
+    def set_packed_bed_reactor(self, particle_diameter, particle_diameter_ud, tube_diameter, tube_diameter_ud,
+                               void_fraction):
         self.tube_diameter = self.uc.convert_to_meter(tube_diameter, tube_diameter_ud)
         self.void_fraction = void_fraction
         self.particle_diameter = self.uc.convert_to_meter(particle_diameter, particle_diameter_ud)

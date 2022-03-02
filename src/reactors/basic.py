@@ -114,6 +114,17 @@ class BasicReactor(ABC):
 
     @staticmethod
     def _solve_ode(f, y0, tspan, atol, rtol, verbosity):
+        """
+        Solve ODE system
+        :param f: Function describing the ODE system
+        :param y0: Initial condition vector
+        :param tspan: Integration vector
+        :param atol: Absolute tolerance
+        :param rtol: Relative tolerance
+        :param verbosity: Verbosity for ASSIMULO
+        :return: tspan: Independent variable vector
+                 sol: Solved dependent variable matrix
+        """
         ode = Explicit_Problem(f, y0)
 
         sim_ode = CVode(ode)
@@ -132,6 +143,20 @@ class BasicReactor(ABC):
 
     @staticmethod
     def _solve_dae(ode_equations, dae_equations, residuals, y0, tspan, alg, atol, rtol, verbosity):
+        """
+        Solve DAE system
+        :param ode_equations: Function describing the ODE system for initial conditions estimation
+        :param dae_equations: Function describing the DAE system
+        :param residuals: Function describing the DAE system residuals
+        :param y0: Initial condition vector
+        :param tspan: Integration vector
+        :param alg: Algebraic/Differential equation vector
+        :param atol: Absolute tolerance
+        :param rtol: Relative tolerance
+        :param verbosity: Verbosity for ASSIMULO
+        :return: tspan: Independent variable vector
+                 sol: Solved dependent variable matrix
+        """
         ode = Explicit_Problem(ode_equations, y0)
 
         sim_ode = CVode(ode)
