@@ -8,6 +8,11 @@ import numpy as np
 
 class ReactorPlotter(BasicPlotter):
     def __init__(self, reactor_cls, colormap="Blues"):
+        """
+        Class to plot reactor results
+        :param reactor_cls: Reactor class object
+        :param colormap: String representing the color map
+        """
         super().__init__(cls=reactor_cls, colormap=colormap)
 
         if self.cls.reactor_type not in [r for r in ReactorType]:
@@ -24,6 +29,11 @@ class ReactorPlotter(BasicPlotter):
             self.colors = cmap(np.linspace(0.2, 1., num=self.cls.tspan.size))
 
     def _plot_species_mass_fraction_for_batch_and_cstr(self, species_names):
+        """
+        Plotting mass fraction of BATCH and CSTR reactor
+        :param species_names: List of species to be plotted
+        :return:
+        """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         for s in species_names:
@@ -34,6 +44,11 @@ class ReactorPlotter(BasicPlotter):
         plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
 
     def _plot_species_mole_fraction_for_batch_and_cstr(self, species_names):
+        """
+        Plotting mole fraction of BATCH and CSTR reactor
+        :param species_names: List of species to be plotted
+        :return:
+        """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
 
@@ -45,6 +60,11 @@ class ReactorPlotter(BasicPlotter):
         plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
 
     def _plot_coverage_for_batch_and_cstr(self, coverage_names):
+        """
+        Plotting coverage of BATCH and CSTR reactor
+        :param coverage_names: List of coverage species to be plotted
+        :return:
+        """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
 
@@ -56,6 +76,10 @@ class ReactorPlotter(BasicPlotter):
         plt.legend(coverage_names, loc='best').get_frame().set_linewidth(0.0)
 
     def _plot_temperature_for_batch_and_cstr(self):
+        """
+        Plotting temperature of BATCH and CSTR reactor
+        :return:
+        """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         plt.plot(self.cls.tspan, self.cls.temperature_sol)
@@ -64,6 +88,11 @@ class ReactorPlotter(BasicPlotter):
         plt.xlabel('Time [s]')
 
     def _plot_species_mass_fraction_pseudo_homogeneous_steady_state(self, species_names):
+        """
+        Plotting mass fraction of PSEUDO HOMOGENEOUS reactor STEADY STATE
+        :param species_names: List of species to be plotted
+        :return:
+        """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         for s in species_names:
@@ -74,6 +103,11 @@ class ReactorPlotter(BasicPlotter):
         plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
 
     def _plot_species_mole_fraction_pseudo_homogeneous_steady_state(self, species_names):
+        """
+        Plotting mole fraction of PSEUDO HOMOGENEOUS reactor STEADY STATE
+        :param species_names: List of species to be plotted
+        :return:
+        """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
 
@@ -85,6 +119,11 @@ class ReactorPlotter(BasicPlotter):
         plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
 
     def _plot_coverage_pseudo_homogeneous_steady_state(self, coverage_names):
+        """
+        Plotting coverage of PSEUDO HOMOGENEOUS reactor STEADY STATE
+        :param coverage_names: List of coverage species to be plotted
+        :return:
+        """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         for s in coverage_names:
@@ -95,6 +134,10 @@ class ReactorPlotter(BasicPlotter):
         plt.legend(coverage_names, loc='best').get_frame().set_linewidth(0.0)
 
     def _plot_temperature_pseudo_homogeneous_steady_state(self):
+        """
+        Plotting temperature of PSEUDO HOMOGENEOUS reactor STEADY STATE
+        :return:
+        """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         plt.plot(self.cls.length, self.cls.temperature_sol)
@@ -103,6 +146,11 @@ class ReactorPlotter(BasicPlotter):
         plt.xlabel('Length [m]')
 
     def _plot_species_mass_fraction_pseudo_homogeneous_transient(self, species_names):
+        """
+        Plotting mass fraction of PSEUDO HOMOGENEOUS reactor TRANSIENT
+        :param species_names: List of species to be plotted
+        :return:
+        """
         for s in species_names:
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
@@ -117,6 +165,11 @@ class ReactorPlotter(BasicPlotter):
             plt.title(s, loc='center')
 
     def _plot_species_mole_fraction_pseudo_homogeneous_transient(self, species_names):
+        """
+        Plotting mole fraction of PSEUDO HOMOGENEOUS reactor TRANSIENT
+        :param species_names: List of species to be plotted
+        :return:
+        """
         for s in species_names:
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
@@ -130,13 +183,19 @@ class ReactorPlotter(BasicPlotter):
             plt.legend(legend, loc='best').get_frame().set_linewidth(0.0)
             plt.title(s, loc='center')
 
-    def _plot_coverage_pseudo_homogeneous_transient(self, coverage_names):
+    def _plot_coverage_pseudo_homogeneous_transient_and_heterogeneous(self, coverage_names):
+        """
+        Plotting coverage of PSEUDO HOMOGENEOUS reactor TRANSIENT and HETEROGENEOUS reactor
+        :param coverage_names: List of coverage species to be plotted
+        :return:
+        """
         for s in coverage_names:
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
             legend = list()
             for k, t in enumerate(self.cls.tspan):
-                plt.plot(self.cls.length, self.cls.coverage_sol[k][:, self.cls.surf.species_index(s)], color=self.colors[k])
+                plt.plot(self.cls.length, self.cls.coverage_sol[k][:, self.cls.surf.species_index(s)],
+                         color=self.colors[k])
                 legend.append("Time: " + str(round(t, 3)) + " s")
 
             plt.ylabel('Site fraction')
@@ -145,6 +204,10 @@ class ReactorPlotter(BasicPlotter):
             plt.title(s, loc='center')
 
     def _plot_temperature_pseudo_homogeneous_transient(self):
+        """
+        Plotting temperature of PSEUDO HOMOGENEOUS reactor TRANSIENT
+        :return:
+        """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         legend = list()
@@ -157,6 +220,11 @@ class ReactorPlotter(BasicPlotter):
         plt.legend(legend, loc='best').get_frame().set_linewidth(0.0)
 
     def _plot_species_mass_fraction_heterogeneous(self, species_names):
+        """
+        Plotting mass fraction of HETEROGENEOUS reactor
+        :param species_names: List of species to be plotted
+        :return:
+        """
         for s in species_names:
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
@@ -174,7 +242,8 @@ class ReactorPlotter(BasicPlotter):
             plt.figure(self.nFig)
             legend = list()
             for k, t in enumerate(self.cls.tspan):
-                plt.plot(self.cls.length, self.cls.y_sol_wall[k][:, self.cls.gas.species_index(s)], color=self.colors[k])
+                plt.plot(self.cls.length, self.cls.y_sol_wall[k][:, self.cls.gas.species_index(s)],
+                         color=self.colors[k])
                 legend.append("Time: " + str(round(t, 3)) + " s")
 
             plt.ylabel('Solid mass fraction')
@@ -183,6 +252,11 @@ class ReactorPlotter(BasicPlotter):
             plt.title(s, loc='center')
 
     def _plot_species_mole_fraction_heterogeneous(self, species_names):
+        """
+        Plotting mole fraction of HETEROGENEOUS reactor
+        :param species_names: List of species to be plotted
+        :return:
+        """
         for s in species_names:
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
@@ -200,7 +274,8 @@ class ReactorPlotter(BasicPlotter):
             plt.figure(self.nFig)
             legend = list()
             for k, t in enumerate(self.cls.tspan):
-                plt.plot(self.cls.length, self.cls.x_sol_wall[k][:, self.cls.gas.species_index(s)], color=self.colors[k])
+                plt.plot(self.cls.length, self.cls.x_sol_wall[k][:, self.cls.gas.species_index(s)],
+                         color=self.colors[k])
                 legend.append("Time: " + str(round(t, 3)) + " s")
 
             plt.ylabel('Solid mole fraction')
@@ -209,6 +284,10 @@ class ReactorPlotter(BasicPlotter):
             plt.title(s, loc='center')
 
     def _plot_temperature_heterogeneous(self):
+        """
+        Plotting temperature of HETEROGENEOUS reactor
+        :return:
+        """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         legend = list()
@@ -232,6 +311,11 @@ class ReactorPlotter(BasicPlotter):
         plt.legend(legend, loc='best').get_frame().set_linewidth(0.0)
 
     def plot_species_mass_fraction(self, species_names):
+        """
+        Plotting mass fraction
+        :param species_names: List of species to be plotted
+        :return:
+        """
         if self.cls.reactor_type == ReactorType.BATCH or self.cls.reactor_type == ReactorType.CSTR:
             self._plot_species_mass_fraction_for_batch_and_cstr(species_names)
         elif self.cls.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
@@ -243,6 +327,11 @@ class ReactorPlotter(BasicPlotter):
             self._plot_species_mass_fraction_heterogeneous(species_names)
 
     def plot_species_mole_fraction(self, species_names):
+        """
+        Plotting mole fraction
+        :param species_names: List of species to be plotted
+        :return:
+        """
         if self.cls.reactor_type == ReactorType.BATCH or self.cls.reactor_type == ReactorType.CSTR:
             self._plot_species_mole_fraction_for_batch_and_cstr(species_names)
         elif self.cls.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
@@ -254,17 +343,26 @@ class ReactorPlotter(BasicPlotter):
             self._plot_species_mole_fraction_heterogeneous(species_names)
 
     def plot_coverage(self, coverage_names):
+        """
+        Plotting coverage
+        :param coverage_names: List of coverage species to be plotted
+        :return:
+        """
         if self.cls.reactor_type == ReactorType.BATCH or self.cls.reactor_type == ReactorType.CSTR:
             self._plot_coverage_for_batch_and_cstr(coverage_names)
         elif self.cls.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
             if self.cls.resolution_method == ResolutionMethod.STEADYSTATE:
                 self._plot_coverage_pseudo_homogeneous_steady_state(coverage_names)
             elif self.cls.resolution_method == ResolutionMethod.TRANSIENT:
-                self._plot_coverage_pseudo_homogeneous_transient(coverage_names)
+                self._plot_coverage_pseudo_homogeneous_transient_and_heterogeneous(coverage_names)
         elif self.cls.reactor_type == ReactorType.HETEROGENEOUSPRF:
-            self._plot_coverage_pseudo_homogeneous_transient(coverage_names)
+            self._plot_coverage_pseudo_homogeneous_transient_and_heterogeneous(coverage_names)
 
     def plot_temperature(self):
+        """
+        Plotting temperature
+        :return:
+        """
         if self.cls.reactor_type == ReactorType.BATCH or self.cls.reactor_type == ReactorType.CSTR:
             self._plot_temperature_for_batch_and_cstr()
         elif self.cls.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
@@ -277,4 +375,8 @@ class ReactorPlotter(BasicPlotter):
 
     @staticmethod
     def show():
+        """
+        Show plots
+        :return:
+        """
         plt.show()
