@@ -225,9 +225,9 @@ class Heterogeneous1DReactor(BasicReactor):
 
         dy_matrix[:, :self.gas.n_species] = domega_bulk
 
-        dy_matrix[:, self.gas.n_species:self.gas.n_species + self.surf.n_species] = domega_wall
+        dy_matrix[:, self.gas.n_species:self.gas.n_species + self.gas.n_species] = domega_wall
         dy_matrix[:,
-        self.gas.n_species + self.surf.n_species:self.gas.n_species + self.surf.n_species + self.surf.n_species] = dz
+        self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species] = dz
         dy_matrix[:, -2] = dT_bulk
         dy_matrix[:, -1] = dT_wall
 
