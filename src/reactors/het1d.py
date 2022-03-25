@@ -123,7 +123,7 @@ class Heterogeneous1DReactor(BasicReactor):
         gas_reaction_rates = np.zeros([NP, self.gas.n_species], dtype=np.float64)
         gas_reaction_rates_from_surface = np.zeros([NP, self.gas.n_species], dtype=np.float64)
         coverage_reaction_rates = np.zeros([NP, self.surf.n_species], dtype=np.float64)
-        mix_diff_coeffs_mass = np.zeros([NP, self.surf.n_species], dtype=np.float64)
+        mix_diff_coeffs_mass = np.zeros([NP, self.gas.n_species], dtype=np.float64)
         heat_of_reaction_from_gas = np.zeros([NP], dtype=np.float64)
         heat_from_reaction_from_surface = np.zeros([NP], dtype=np.float64)
         density = np.zeros([NP], dtype=np.float64)

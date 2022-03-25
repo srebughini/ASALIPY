@@ -146,7 +146,6 @@ class BasicReactor(ABC):
 
         BasicReactor._raise_error("Unknown resolution method")
 
-
     @staticmethod
     def _section_parser(method):
         """
@@ -185,13 +184,7 @@ class BasicReactor(ABC):
         sim_ode.rtol = rtol
         sim_ode.verbosity = verbosity
 
-        sol = np.zeros([len(tspan), y0.size], dtype=np.float64)
-
-        sol[0, :] = y0
-        for i, t in enumerate(tspan):
-            _, y = sim_ode.simulate(t, 2)
-            sol[i, :] = y[-1, :]
-
+        _, sol = sim_ode.simulate(tspan[-1], 0, tspan)
         return tspan, sol
 
     @staticmethod
@@ -216,6 +209,7 @@ class BasicReactor(ABC):
         sim_ode.atol = atol
         sim_ode.rtol = rtol
         sim_ode.verbosity = verbosity
+        sim_ode.linear_solver = 'SPGMR'
 
         t, y_ode = sim_ode.simulate(1e06, 2)
 
@@ -227,13 +221,14 @@ class BasicReactor(ABC):
         sim_dae.atol = atol
         sim_dae.rtol = rtol
         sim_dae.verbosity = verbosity
+        sim_dae.suppress_alg = True
+        sim_dae.dqtype = 'FORWARD'
+        sim_dae.make_consistent('IDA_YA_YDP_INIT')
 
-        sol = np.zeros([len(tspan), y_ode[-1, :].size], dtype=np.float64)
+        _, y, _ = sim_dae.simulate(tspan[-1], 0, tspan)
 
+        sol = np.asarray(y)
         sol[0, :] = y0
-        for i, t in enumerate(tspan):
-            _, y, _ = sim_dae.simulate(t, 2)
-            sol[i, :] = y[-1, :]
 
         return tspan, sol
 
