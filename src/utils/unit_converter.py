@@ -10,8 +10,17 @@ class UnitConverter:
         Class to convert Unit dimensions
         """
         self.unit_register = UnitRegistry(system='mks')
-        self.unit_register.load_definitions(os.path.join(os.path.dirname(__file__), 'ud.asali'))
-        self.unit_quality = self.unit_register.Quantity
+        self.unit_register.load_definitions(['hour = 60 * minute = h = hr = H',
+                                             'kmol = 1000 * mole',
+                                             'mbar = 0.001 * bar',
+                                             'dm = decimeter',
+                                             'cm = centimeter',
+                                             'mm = millimeter',
+                                             'm3 = m ** 3',
+                                             'dm3 = dm ** 3',
+                                             'cm3 = cm ** 3',
+                                             'mm3 = mm ** 3',
+                                             ])
 
     @staticmethod
     def value_type_handler(value, converter):
@@ -37,7 +46,8 @@ class UnitConverter:
         :param final_ud: Value final unit dimension
         :return: Value in the new unit dimension
         """
-        converter = self.unit_quality(1., self.unit_register.parse_expression(start_ud)).to(final_ud).magnitude
+        parsed_start_ud = 1. * self.unit_register.parse_expression(start_ud)
+        converter = parsed_start_ud.to(final_ud).magnitude
         return UnitConverter.value_type_handler(value, converter)
 
     def convert_to_seconds(self, value, ud):
@@ -110,15 +120,16 @@ class UnitConverter:
         :param ud: Value initial unit dimension
         :return: Value in K
         """
-        converter = self.unit_quality(0., self.unit_register.parse_expression(ud)).to('kelvin').magnitude
+        parsed_start_ud = self.unit_register.parse_expression(ud)
 
         if isinstance(value, float):
-            return value + converter
+            return self.unit_register.Quantity(value, parsed_start_ud).to('kelvin').magnitude
 
         if isinstance(value, int):
-            return value + converter
+            return self.unit_register.Quantity(value, parsed_start_ud).to('kelvin').magnitude
 
-        return np.asarray(value) + converter
+        return np.asarray(
+            [self.unit_register(self.unit_register.Quantity(v, parsed_start_ud)).to('kelvin').magnitude for v in value])
 
     def convert_to_kg_per_cubic_meter(self, value, ud):
         """
