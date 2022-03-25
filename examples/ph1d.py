@@ -16,6 +16,7 @@ if __name__ == "__main__":
     p.set_energy(1)
     p.set_initial_mass_fraction({'AR': 1})
     p.set_inert_specie('AR')
+    p.set_inert_coverage('Rh(s)')
     p.set_initial_temperature(25, 'degC')
     p.set_resolution_method("TRANSIENT")
     p.set_gas_diffusion(False)

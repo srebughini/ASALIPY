@@ -66,7 +66,8 @@ class BasicReactor(ABC):
         self.solid_cp = 0.
         self.solid_temperature = 0.
 
-        self.inert_specie_index = None
+        self.inert_specie_index = 0
+        self.inert_coverage_index_index = 0
         self.inlet_mass_fraction = None
         self.inlet_mole_fraction = None
         self.sol = None
@@ -485,6 +486,15 @@ class BasicReactor(ABC):
         """
         self.inert_specie_index = self.gas.species_index(specie_name)
         return self.inert_specie_index
+
+    def set_inert_coverage(self, coverage_name):
+        """
+        Set inert coverage species
+        :param coverage_name: Coverage specie name
+        :return: Coverage specie index
+        """
+        self.inert_coverage_index = self.surf.species_index(coverage_name)
+        return self.inert_coverage_index
 
     def set_integration_parameters(self, atol, rtol, verbosity):
         """

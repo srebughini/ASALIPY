@@ -63,6 +63,7 @@ if __name__ == "__main__":
     p.set_energy(1)  # Enable energy balance
     p.set_initial_mass_fraction({'AR': 1})  # Set reactor initial composition using mass fraction
     p.set_inert_specie('AR') # Set inert specie
+    p.set_inert_coverage('Rh(s)') # Set inert coverage
     p.set_gas_diffusion(False) # Disable gas diffusion term
     p.set_initial_temperature(25, 'degC')  # Set reactor initial temperature in [°C]
     p.set_resolution_method("TRANSIENT")  # Set resolution method
@@ -91,8 +92,7 @@ if __name__ == "__main__":
     h.set_solid_thermal_conductivity(2.5, 'W/m/degK')  # Set catalyst thermal conductivity in [W/m/K]
     h.set_initial_solid_temperature(250, 'degC')  # Set initial catalyst temperature in [°C]
     h.set_energy(True)  # Enable energy balance
-    h.set_initial_mass_fraction(
-        {'O2': 0.4, 'AR': 0.5, 'H2': 0.1})  # Set reactor initial composition using mass fraction
+    h.set_initial_mass_fraction({'O2': 0.4, 'AR': 0.5, 'H2': 0.1})  # Set reactor initial composition using mass fraction
     h.set_initial_temperature(250, 'degC')  # Set reactor initial temperature in [°C]
     h.set_packed_bed_reactor(0.3, 'mm', 1, 'cm', 0.75)  # Set packed bed reactor properties
     h.solve([0, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0, 2.0, 4.0, 10., 20.], 's')  # Solve for different time steps in [s]
