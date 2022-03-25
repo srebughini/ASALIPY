@@ -109,10 +109,14 @@ class BasicUnitTest:
         :return: True/False output of the test, Function results
         """
         outputs = self._get_output(f, args, args_format)
-        try:
+
+        outputs_as_array = np.asarray(outputs)
+        results_as_array = np.asarray(results)
+
+        if outputs_as_array.shape == results_as_array.shape:
             return np.allclose(outputs, results, atol=atol, rtol=rtol), outputs
-        except:
-            return False, outputs
+
+        return False, outputs
 
     def _check_enum(self, f, results, args, args_format):
         """
