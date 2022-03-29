@@ -100,7 +100,7 @@ class BasicUnitTest:
         :return: True/False output of the test, Function results
         """
         outputs = self._get_output(f, args, args_format)
-        return np.fabs(outputs - results) < 1.e-12, outputs
+        return np.fabs(outputs - results) < 1.e-12, outputs, results
 
     def _check_array(self, f, results, args, args_format, atol=1.e-02, rtol=1.e-02):
         """
@@ -119,9 +119,9 @@ class BasicUnitTest:
         results_as_array = np.asarray(results)
 
         if outputs_as_array.shape == results_as_array.shape:
-            return np.allclose(outputs, results, atol=atol, rtol=rtol), outputs
+            return np.allclose(outputs, results, atol=atol, rtol=rtol), outputs, results
 
-        return False, outputs
+        return False, outputs, results
 
     def _check_enum(self, f, results, args, args_format):
         """
@@ -133,7 +133,7 @@ class BasicUnitTest:
         :return: True/False output of the test, Function results
         """
         outputs = self._get_output(f, args, args_format)
-        return int(outputs) == results, outputs
+        return int(outputs) == results, outputs, results
 
     def _check_others(self, f, results, args, args_format):
         """
@@ -145,7 +145,7 @@ class BasicUnitTest:
         :return: True/False output of the test, Function results
         """
         outputs = self._get_output(f, args, args_format)
-        return outputs == results, outputs
+        return outputs == results, outputs, results
 
     def _check_files(self, f, results, args, args_format):
         """
@@ -157,7 +157,18 @@ class BasicUnitTest:
         :return: True/False output of the test, Function results
         """
         outputs = self._get_output(f, args, args_format)
-        return filecmp.cmp(outputs, results, shallow=False), outputs
+
+        output_file_as_list = [line.strip() for line in open(outputs)]
+        results_file_as_list = [line.strip() for line in open(results)]
+
+        if len(output_file_as_list) == len(results_file_as_list):
+            for i in range(0, len(output_file_as_list)):
+                if output_file_as_list[i] != results_file_as_list[i]:
+                    return False, '\n'.join(output_file_as_list), '\n'.join(results_file_as_list)
+
+            return True, '\n'.join(output_file_as_list), '\n'.join(results_file_as_list)
+
+        return False, '\n'.join(output_file_as_list), '\n'.join(results_file_as_list)
 
     def _check_yaml(self, f, results, args, args_format):
         """
@@ -182,7 +193,7 @@ class BasicUnitTest:
             if key_to_remove in outputs_as_yaml.keys():
                 del outputs_as_yaml[key_to_remove]
 
-        return outputs_as_yaml == results_as_yaml, outputs
+        return outputs_as_yaml == results_as_yaml, outputs, results
 
     def check_function(self, f):
         """
@@ -198,17 +209,17 @@ class BasicUnitTest:
         results, results_format = self._convert_path(f, results, results_format)
 
         if results_format == "float":
-            check, outputs = self._check_float(f, results, args, args_format)
+            check, outputs, results = self._check_float(f, results, args, args_format)
         elif results_format == "array":
-            check, outputs = self._check_array(f, results, args, args_format)
+            check, outputs, results  = self._check_array(f, results, args, args_format)
         elif results_format == "enum":
-            check, outputs = self._check_enum(f, results, args, args_format)
+            check, outputs, results  = self._check_enum(f, results, args, args_format)
         elif results_format == "file":
-            check, outputs = self._check_files(f, results, args, args_format)
+            check, outputs, results  = self._check_files(f, results, args, args_format)
         elif results_format == "yaml":
-            check, outputs = self._check_yaml(f, results, args, args_format)
+            check, outputs, results  = self._check_yaml(f, results, args, args_format)
         else:
-            check, outputs = self._check_others(f, results, args, args_format)
+            check, outputs, results  = self._check_others(f, results, args, args_format)
 
         if check:
             self._print_on_screen(f, "OK", "green")

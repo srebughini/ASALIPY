@@ -127,4 +127,4 @@ if __name__ == "__main__":
     elif class_to_check == "inputparser":
         input_parser()
     else:
-        print(colored("ASALI::ERROR::Unknown class", "red"))
+        print(colored("ASALI::ERROR::UNKNOWN CLASS", "red"))
