@@ -8,7 +8,7 @@ import os
 
 
 class ReactorUnitTest(BasicUnitTest):
-    def __init__(self, cls, file_name, folder_path="tests/"):
+    def __init__(self, cls, file_name, is_local, folder_path="tests/"):
         """
         Derived class for unit test of ASALIPY reactor models
         :param cls: Class to be tested
@@ -16,6 +16,7 @@ class ReactorUnitTest(BasicUnitTest):
         :param folder_path: Folder path where input can be found
         """
         super().__init__(cls=cls, file_name=file_name, folder_path=folder_path)
+        self.is_local = is_local
 
     def _convert_path(self, f, results, results_format):
         """
@@ -67,19 +68,22 @@ class ReactorUnitTest(BasicUnitTest):
         :return:
         """
 
-        example_module_format = 'tests.{}.example'
+        if self.is_local:
+            example_module_format = 'tests.{}.example'
 
-        mod = import_module(example_module_format.format(self.cls.__class__.__name__))
-        results = mod.main(self.cls.cantera_input_file, self.cls.gas_phase_name, self.cls.surface_phase_name)
-        outputs = np.loadtxt(os.path.join(self.folder_path, self.cls.__class__.__name__, "example.asali"))
+            mod = import_module(example_module_format.format(self.cls.__class__.__name__))
+            results = mod.main(self.cls.cantera_input_file, self.cls.gas_phase_name, self.cls.surface_phase_name)
+            outputs = np.loadtxt(os.path.join(self.folder_path, self.cls.__class__.__name__, "example.asali"))
 
-        if outputs.shape == results.shape:
-            check = np.allclose(outputs, results, atol=atol, rtol=rtol)
+            if outputs.shape == results.shape:
+                check = np.allclose(outputs, results, atol=atol, rtol=rtol)
+            else:
+                check = False
+
+            if check:
+                self._print_on_screen("example", "OK", "green")
+            else:
+                self._print_on_screen("example", "ASALI::ERROR", "red")
+                self._print_comparison_on_screen(outputs, results, "array")
         else:
-            check = False
-
-        if check:
-            self._print_on_screen("example", "OK", "green")
-        else:
-            self._print_on_screen("example", "ASALI::ERROR", "red")
-            self._print_comparison_on_screen(outputs, results, "array")
+            self._print_on_screen("example", "ASALI::WARNING::NOT PERFORMED", "yellow")

@@ -45,46 +45,50 @@ def input_parser():
     print(" ")
 
 
-def batch_reactor():
+def batch_reactor(is_local):
     """
     Run unit test for BatchReactor
+    :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
     br = BatchReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
-    ut = ReactorUnitTest(br, "reactors.json")
+    ut = ReactorUnitTest(br, "reactors.json", is_local)
     ut.check_all()
     print(" ")
 
 
-def cstr_reactor():
+def cstr_reactor(is_local):
     """
     Run unit test for CstrReactor
+    :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
     cr = CstrReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
-    ut = ReactorUnitTest(cr, "reactors.json")
+    ut = ReactorUnitTest(cr, "reactors.json", is_local)
     ut.check_all()
     print(" ")
 
 
-def pseudohomogeneous_reactor():
+def pseudohomogeneous_reactor(is_local):
     """
     Run unit test for PseudoHomogeneous1DReactor
+    :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
     pfr = PseudoHomogeneous1DReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
-    ut = ReactorUnitTest(pfr, "reactors.json")
+    ut = ReactorUnitTest(pfr, "reactors.json", is_local)
     ut.check_all()
     print(" ")
 
 
-def heterogeneous_reactor():
+def heterogeneous_reactor(is_local):
     """
     Run unit test for Heterogeneous1DReactor
+    :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
     pfr = Heterogeneous1DReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
-    ut = ReactorUnitTest(pfr, "reactors.json")
+    ut = ReactorUnitTest(pfr, "reactors.json", is_local)
     ut.check_all()
     print(" ")
 
@@ -92,6 +96,7 @@ def heterogeneous_reactor():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--class', dest='class_to_check', help='Class to be check')
+    parser.add_argument('--local', action='store_true', dest='is_local', help='Is the test performed locally')
     args = parser.parse_args()
 
     if args.class_to_check is None:
@@ -103,20 +108,20 @@ if __name__ == "__main__":
         input_parser()
         unit_converter()
         cantera_file_converter()
-        batch_reactor()
-        cstr_reactor()
-        pseudohomogeneous_reactor()
-        heterogeneous_reactor()
+        batch_reactor(args.is_local)
+        cstr_reactor(args.is_local)
+        pseudohomogeneous_reactor(args.is_local)
+        heterogeneous_reactor(args.is_local)
     elif class_to_check == "unitconverter":
         unit_converter()
     elif class_to_check == "batchreactor":
-        batch_reactor()
+        batch_reactor(args.is_local)
     elif class_to_check == "cstrreactor":
-        cstr_reactor()
+        cstr_reactor(args.is_local)
     elif class_to_check == "pseudohomogeneous1dreactor":
-        pseudohomogeneous_reactor()
+        pseudohomogeneous_reactor(args.is_local)
     elif class_to_check == "heterogeneous1dreactor":
-        heterogeneous_reactor()
+        heterogeneous_reactor(args.is_local)
     elif class_to_check == "canterafileconverter":
         cantera_file_converter()
     elif class_to_check == "inputparser":

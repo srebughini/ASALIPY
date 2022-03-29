@@ -102,7 +102,7 @@ class BasicUnitTest:
         outputs = self._get_output(f, args, args_format)
         return np.fabs(outputs - results) < 1.e-12, outputs
 
-    def _check_array(self, f, results, args, args_format, atol=1.e-04, rtol=1.e-04):
+    def _check_array(self, f, results, args, args_format, atol=1.e-02, rtol=1.e-02):
         """
         Function to check array outputs
         :param f: Function to be tested
