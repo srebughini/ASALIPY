@@ -17,6 +17,9 @@ class BasicReactor(ABC):
         :param surface_phase_name: Cantera interface phase name
         """
         self.uc = UnitConverter()
+        self.cantera_input_file = cantera_input_file
+        self.gas_phase_name = gas_phase_name
+        self.surface_phase_name = surface_phase_name
         self.gas = ct.Solution(cantera_input_file, gas_phase_name)
         self.surf = ct.Interface(cantera_input_file, surface_phase_name, [self.gas])
         self.numerical_solver = NumericalSolvers()

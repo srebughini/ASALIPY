@@ -1,14 +1,10 @@
 from asali.utils.input_parser import ResolutionMethod, ReactorType
 from tests.basic_unit_test import BasicUnitTest
+from importlib import import_module
 
 import numpy as np
 
 import os
-
-import examples.batch as batch
-import examples.cstr as cstr
-import examples.ph1d as ph1d
-import examples.het1d as het1d
 
 
 class ReactorUnitTest(BasicUnitTest):
@@ -62,27 +58,19 @@ class ReactorUnitTest(BasicUnitTest):
                 self.check_function(f)
 
     def run_example(self,
-                    kinetic_file_path=os.path.join("examples", "files", "H2-O2-Rh.xml"),
                     atol=1.e-04,
                     rtol=1.e-04):
         """
         Function to run the examples as Unit Test
-        :param kinetic_file_path: Kinetic file path
         :param atol: Comparison absolute tolerance
         :param rtol: Comparison relative tolerance
         :return:
         """
-        if self.cls.solution_parser.reactor_type == ReactorType.BATCH:
-            results = batch.main(kinetic_file_path, plot=False)
-        elif self.cls.solution_parser.reactor_type == ReactorType.CSTR:
-            results = cstr.main(kinetic_file_path, plot=False)
-        elif self.cls.solution_parser.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
-            results = ph1d.main(kinetic_file_path, plot=False)
-        elif self.cls.solution_parser.reactor_type == ReactorType.HETEROGENEOUSPRF:
-            results = het1d.main(kinetic_file_path, plot=False)
-        else:
-            results = np.asarray([])
 
+        example_module_format = 'tests.{}.example'
+
+        mod = import_module(example_module_format.format(self.cls.__class__.__name__))
+        results = mod.main(self.cls.cantera_input_file, self.cls.gas_phase_name, self.cls.surface_phase_name)
         outputs = np.loadtxt(os.path.join(self.folder_path, self.cls.__class__.__name__, "example.asali"))
 
         if outputs.shape == results.shape:

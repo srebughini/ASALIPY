@@ -1,4 +1,3 @@
-from enum import Enum
 from termcolor import colored
 
 import json
@@ -7,8 +6,6 @@ import filecmp
 import yaml
 
 import numpy as np
-
-import examples.het1d as het1d
 
 
 class BasicUnitTest:
