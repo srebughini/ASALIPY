@@ -2,6 +2,7 @@ from asali.reactors.batch import BatchReactor
 from asali.reactors.cstr import CstrReactor
 from asali.reactors.het1d import Heterogeneous1DReactor
 from asali.reactors.ph1d import PseudoHomogeneous1DReactor
+from asali.utils.input_parser import InputParser
 from tests.basic_unit_test import BasicUnitTest
 from tests.reactor_unit_test import ReactorUnitTest
 from asali.utils.unit_converter import UnitConverter
@@ -12,6 +13,10 @@ import argparse
 
 
 def unit_converter():
+    """
+    Run unit test for UnitConverter
+    :return:
+    """
     uc = UnitConverter()
     ut = BasicUnitTest(uc, "utils.json")
     ut.check_all()
@@ -19,13 +24,32 @@ def unit_converter():
 
 
 def cantera_file_converter():
+    """
+    Run unit test for CanteraFileConverter
+    :return:
+    """
     cfc = CanteraFileConverter()
     ut = BasicUnitTest(cfc, "utils.json")
     ut.check_all()
     print(" ")
 
 
+def input_parser():
+    """
+    Run unit test for InputParser
+    :return:
+    """
+    ip = InputParser()
+    ut = BasicUnitTest(ip, "utils.json")
+    ut.check_all()
+    print(" ")
+
+
 def batch_reactor():
+    """
+    Run unit test for BatchReactor
+    :return:
+    """
     br = BatchReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(br, "reactors.json")
     ut.check_all()
@@ -33,6 +57,10 @@ def batch_reactor():
 
 
 def cstr_reactor():
+    """
+    Run unit test for CstrReactor
+    :return:
+    """
     cr = CstrReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(cr, "reactors.json")
     ut.check_all()
@@ -40,6 +68,10 @@ def cstr_reactor():
 
 
 def pseudohomogeneous_reactor():
+    """
+    Run unit test for PseudoHomogeneous1DReactor
+    :return:
+    """
     pfr = PseudoHomogeneous1DReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(pfr, "reactors.json")
     ut.check_all()
@@ -47,6 +79,10 @@ def pseudohomogeneous_reactor():
 
 
 def heterogeneous_reactor():
+    """
+    Run unit test for Heterogeneous1DReactor
+    :return:
+    """
     pfr = Heterogeneous1DReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(pfr, "reactors.json")
     ut.check_all()
@@ -64,6 +100,7 @@ if __name__ == "__main__":
         class_to_check = args.class_to_check.lower()
 
     if class_to_check == "all":
+        input_parser()
         unit_converter()
         cantera_file_converter()
         batch_reactor()
@@ -82,5 +119,7 @@ if __name__ == "__main__":
         heterogeneous_reactor()
     elif class_to_check == "canterafileconverter":
         cantera_file_converter()
+    elif class_to_check == "inputparser":
+        input_parser()
     else:
         print(colored("ASALI::ERROR::Unknown class", "red"))

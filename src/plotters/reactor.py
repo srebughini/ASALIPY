@@ -1,9 +1,10 @@
-from asali.reactors.basic import ReactorType, ResolutionMethod
 from asali.plotters.basic import BasicPlotter
 
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
+
+from asali.utils.input_parser import ReactorType, ResolutionMethod
 
 
 class ReactorPlotter(BasicPlotter):
@@ -15,135 +16,90 @@ class ReactorPlotter(BasicPlotter):
         """
         super().__init__(cls=reactor_cls, colormap=colormap)
 
-        if self.cls.reactor_type not in [r for r in ReactorType]:
+        if self.cls.solution_parser.reactor_type not in [r for r in ReactorType]:
             raise Exception("ASALI::ERROR::Unknown class type: ", str(type(self.cls)))
 
-        if not self.cls.is_solved:
+        if not self.cls.solution_parser.is_solved:
             raise Exception("ASALI::ERROR::Nothing to plot, no solution found")
 
         cmap = matplotlib.cm.get_cmap(self.colormap)
 
-        if self.cls.tspan is None:
-            self.colors = cmap(np.linspace(0.2, 1., num=self.cls.length.size))
-        else:
-            self.colors = cmap(np.linspace(0.2, 1., num=self.cls.tspan.size))
+        self.colors = cmap(np.linspace(0.2, 1., num=self.cls.solution_parser.x.size))
 
-    def _plot_species_mass_fraction_for_batch_and_cstr(self, species_names):
+        self.mass_fraction = self.cls.solution_parser.get_mass_fraction()
+        self.mole_fraction = self.cls.solution_parser.get_mole_fraction()
+        self.coverage = self.cls.solution_parser.get_coverage()
+        self.temperature = self.cls.solution_parser.get_temperature()
+
+        self.mass_fraction_wall = self.cls.solution_parser.get_mass_fraction_wall()
+        self.mole_fraction_wall = self.cls.solution_parser.get_mole_fraction_wall()
+        self.temperature_wall = self.cls.solution_parser.get_temperature_wall()
+
+        self.x = self.cls.solution_parser.x
+        self.length = self.cls.solution_parser.length
+
+    def _plot_species_mass_fraction_without_discretization(self, species_names, xlabel):
         """
         Plotting mass fraction of BATCH and CSTR reactor
         :param species_names: List of species to be plotted
+        :param xlabel: x-axis label
         :return:
         """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         for s in species_names:
-            plt.plot(self.cls.tspan, self.cls.y_sol[:, self.cls.gas.species_index(s)])
+            plt.plot(self.x, self.mass_fraction[:, self.cls.gas.species_index(s)])
 
         plt.ylabel('Mass fraction')
-        plt.xlabel('Time [s]')
+        plt.xlabel(xlabel)
         plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
 
-    def _plot_species_mole_fraction_for_batch_and_cstr(self, species_names):
+    def _plot_species_mole_fraction_without_discretization(self, species_names, xlabel):
         """
         Plotting mole fraction of BATCH and CSTR reactor
         :param species_names: List of species to be plotted
+        :param xlabel: x-axis label
         :return:
         """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
 
         for s in species_names:
-            plt.plot(self.cls.tspan, self.cls.x_sol[:, self.cls.gas.species_index(s)])
+            plt.plot(self.x, self.mole_fraction[:, self.cls.gas.species_index(s)])
 
         plt.ylabel('Mole fraction')
-        plt.xlabel('Time [s]')
+        plt.xlabel(xlabel)
         plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
 
-    def _plot_coverage_for_batch_and_cstr(self, coverage_names):
+    def _plot_coverage_without_discretization(self, coverage_names, xlabel):
         """
         Plotting coverage of BATCH and CSTR reactor
         :param coverage_names: List of coverage species to be plotted
+        :param xlabel: x-axis label
         :return:
         """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
 
         for s in coverage_names:
-            plt.plot(self.cls.tspan, self.cls.coverage_sol[:, self.cls.surf.species_index(s)])
+            plt.plot(self.x, self.coverage[:, self.cls.surf.species_index(s)])
 
         plt.ylabel('Site fraction')
-        plt.xlabel('Time [s]')
+        plt.xlabel(xlabel)
         plt.legend(coverage_names, loc='best').get_frame().set_linewidth(0.0)
 
-    def _plot_temperature_for_batch_and_cstr(self):
+    def _plot_temperature_without_discretization(self, xlabel):
         """
         Plotting temperature of BATCH and CSTR reactor
+        :param xlabel: x-axis label
         :return:
         """
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
-        plt.plot(self.cls.tspan, self.cls.temperature_sol)
+        plt.plot(self.x, self.temperature)
 
         plt.ylabel('Temperature [K]')
-        plt.xlabel('Time [s]')
-
-    def _plot_species_mass_fraction_pseudo_homogeneous_steady_state(self, species_names):
-        """
-        Plotting mass fraction of PSEUDO HOMOGENEOUS reactor STEADY STATE
-        :param species_names: List of species to be plotted
-        :return:
-        """
-        self.nFig = self.nFig + 1
-        plt.figure(self.nFig)
-        for s in species_names:
-            plt.plot(self.cls.length, self.cls.y_sol[:, self.cls.gas.species_index(s)])
-
-        plt.ylabel('Mass fraction')
-        plt.xlabel('Length [m]')
-        plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
-
-    def _plot_species_mole_fraction_pseudo_homogeneous_steady_state(self, species_names):
-        """
-        Plotting mole fraction of PSEUDO HOMOGENEOUS reactor STEADY STATE
-        :param species_names: List of species to be plotted
-        :return:
-        """
-        self.nFig = self.nFig + 1
-        plt.figure(self.nFig)
-
-        for s in species_names:
-            plt.plot(self.cls.length, self.cls.x_sol[:, self.cls.gas.species_index(s)])
-
-        plt.ylabel('Mole fraction')
-        plt.xlabel('Length [m]')
-        plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
-
-    def _plot_coverage_pseudo_homogeneous_steady_state(self, coverage_names):
-        """
-        Plotting coverage of PSEUDO HOMOGENEOUS reactor STEADY STATE
-        :param coverage_names: List of coverage species to be plotted
-        :return:
-        """
-        self.nFig = self.nFig + 1
-        plt.figure(self.nFig)
-        for s in coverage_names:
-            plt.plot(self.cls.length, self.cls.coverage_sol[:, self.cls.surf.species_index(s)])
-
-        plt.ylabel('Site fraction')
-        plt.xlabel('Length [m]')
-        plt.legend(coverage_names, loc='best').get_frame().set_linewidth(0.0)
-
-    def _plot_temperature_pseudo_homogeneous_steady_state(self):
-        """
-        Plotting temperature of PSEUDO HOMOGENEOUS reactor STEADY STATE
-        :return:
-        """
-        self.nFig = self.nFig + 1
-        plt.figure(self.nFig)
-        plt.plot(self.cls.length, self.cls.temperature_sol)
-
-        plt.ylabel('Temperature [K]')
-        plt.xlabel('Length [m]')
+        plt.xlabel(xlabel)
 
     def _plot_species_mass_fraction_pseudo_homogeneous_transient(self, species_names):
         """
@@ -155,8 +111,8 @@ class ReactorPlotter(BasicPlotter):
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
             legend = list()
-            for k, t in enumerate(self.cls.tspan):
-                plt.plot(self.cls.length, self.cls.y_sol[k][:, self.cls.gas.species_index(s)], color=self.colors[k])
+            for k, t in enumerate(self.x):
+                plt.plot(self.length, self.mass_fraction[k][:, self.cls.gas.species_index(s)], color=self.colors[k])
                 legend.append("Time: " + str(round(t, 3)) + " s")
 
             plt.ylabel('Mass fraction')
@@ -174,8 +130,8 @@ class ReactorPlotter(BasicPlotter):
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
             legend = list()
-            for k, t in enumerate(self.cls.tspan):
-                plt.plot(self.cls.length, self.cls.x_sol[k][:, self.cls.gas.species_index(s)], color=self.colors[k])
+            for k, t in enumerate(self.x):
+                plt.plot(self.length, self.mole_fraction[k][:, self.cls.gas.species_index(s)], color=self.colors[k])
                 legend.append("Time: " + str(round(t, 3)) + " s")
 
             plt.ylabel('Mole fraction')
@@ -193,8 +149,8 @@ class ReactorPlotter(BasicPlotter):
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
             legend = list()
-            for k, t in enumerate(self.cls.tspan):
-                plt.plot(self.cls.length, self.cls.coverage_sol[k][:, self.cls.surf.species_index(s)],
+            for k, t in enumerate(self.x):
+                plt.plot(self.length, self.coverage[k][:, self.cls.surf.species_index(s)],
                          color=self.colors[k])
                 legend.append("Time: " + str(round(t, 3)) + " s")
 
@@ -211,8 +167,8 @@ class ReactorPlotter(BasicPlotter):
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         legend = list()
-        for k, t in enumerate(self.cls.tspan):
-            plt.plot(self.cls.length, self.cls.temperature_sol[k], color=self.colors[k])
+        for k, t in enumerate(self.x):
+            plt.plot(self.length, self.temperature[k], color=self.colors[k])
             legend.append("Time: " + str(round(t, 3)) + " s")
 
         plt.ylabel('Temperature [K]')
@@ -229,8 +185,9 @@ class ReactorPlotter(BasicPlotter):
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
             legend = list()
-            for k, t in enumerate(self.cls.tspan):
-                plt.plot(self.cls.length, self.cls.y_sol[k][:, self.cls.gas.species_index(s)], color=self.colors[k])
+
+            for k, t in enumerate(self.x):
+                plt.plot(self.length, self.mass_fraction[k][:, self.cls.gas.species_index(s)], color=self.colors[k])
                 legend.append("Time: " + str(round(t, 3)) + " s")
 
             plt.ylabel('Gas mass fraction')
@@ -241,8 +198,8 @@ class ReactorPlotter(BasicPlotter):
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
             legend = list()
-            for k, t in enumerate(self.cls.tspan):
-                plt.plot(self.cls.length, self.cls.y_sol_wall[k][:, self.cls.gas.species_index(s)],
+            for k, t in enumerate(self.x):
+                plt.plot(self.length, self.mass_fraction_wall[k][:, self.cls.gas.species_index(s)],
                          color=self.colors[k])
                 legend.append("Time: " + str(round(t, 3)) + " s")
 
@@ -261,8 +218,8 @@ class ReactorPlotter(BasicPlotter):
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
             legend = list()
-            for k, t in enumerate(self.cls.tspan):
-                plt.plot(self.cls.length, self.cls.x_sol[k][:, self.cls.gas.species_index(s)], color=self.colors[k])
+            for k, t in enumerate(self.x):
+                plt.plot(self.length, self.mole_fraction[k][:, self.cls.gas.species_index(s)], color=self.colors[k])
                 legend.append("Time: " + str(round(t, 3)) + " s")
 
             plt.ylabel('Gas mole fraction')
@@ -273,8 +230,8 @@ class ReactorPlotter(BasicPlotter):
             self.nFig = self.nFig + 1
             plt.figure(self.nFig)
             legend = list()
-            for k, t in enumerate(self.cls.tspan):
-                plt.plot(self.cls.length, self.cls.x_sol_wall[k][:, self.cls.gas.species_index(s)],
+            for k, t in enumerate(self.x):
+                plt.plot(self.length, self.mole_fraction_wall[k][:, self.cls.gas.species_index(s)],
                          color=self.colors[k])
                 legend.append("Time: " + str(round(t, 3)) + " s")
 
@@ -291,8 +248,8 @@ class ReactorPlotter(BasicPlotter):
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         legend = list()
-        for k, t in enumerate(self.cls.tspan):
-            plt.plot(self.cls.length, self.cls.temperature_sol[k], color=self.colors[k])
+        for k, t in enumerate(self.x):
+            plt.plot(self.length, self.temperature[k], color=self.colors[k])
             legend.append("Time: " + str(round(t, 3)) + " s")
 
         plt.ylabel('Gas temperature [K]')
@@ -302,8 +259,8 @@ class ReactorPlotter(BasicPlotter):
         self.nFig = self.nFig + 1
         plt.figure(self.nFig)
         legend = list()
-        for k, t in enumerate(self.cls.tspan):
-            plt.plot(self.cls.length, self.cls.temperature_sol_wall[k], color=self.colors[k])
+        for k, t in enumerate(self.x):
+            plt.plot(self.length, self.temperature_wall[k], color=self.colors[k])
             legend.append("Time: " + str(round(t, 3)) + " s")
 
         plt.ylabel('Solid temperature [K]')
@@ -316,14 +273,14 @@ class ReactorPlotter(BasicPlotter):
         :param species_names: List of species to be plotted
         :return:
         """
-        if self.cls.reactor_type == ReactorType.BATCH or self.cls.reactor_type == ReactorType.CSTR:
-            self._plot_species_mass_fraction_for_batch_and_cstr(species_names)
-        elif self.cls.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
-            if self.cls.resolution_method == ResolutionMethod.STEADYSTATE:
-                self._plot_species_mass_fraction_pseudo_homogeneous_steady_state(species_names)
-            elif self.cls.resolution_method == ResolutionMethod.TRANSIENT:
+        if self.cls.solution_parser.reactor_type == ReactorType.BATCH or self.cls.solution_parser.reactor_type == ReactorType.CSTR:
+            self._plot_species_mass_fraction_without_discretization(species_names, 'Time [s]')
+        elif self.cls.solution_parser.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
+            if self.cls.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+                self._plot_species_mass_fraction_without_discretization(species_names, 'Length [m]')
+            elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
                 self._plot_species_mass_fraction_pseudo_homogeneous_transient(species_names)
-        elif self.cls.reactor_type == ReactorType.HETEROGENEOUSPRF:
+        elif self.cls.solution_parser.reactor_type == ReactorType.HETEROGENEOUSPRF:
             self._plot_species_mass_fraction_heterogeneous(species_names)
 
     def plot_species_mole_fraction(self, species_names):
@@ -332,14 +289,14 @@ class ReactorPlotter(BasicPlotter):
         :param species_names: List of species to be plotted
         :return:
         """
-        if self.cls.reactor_type == ReactorType.BATCH or self.cls.reactor_type == ReactorType.CSTR:
-            self._plot_species_mole_fraction_for_batch_and_cstr(species_names)
-        elif self.cls.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
-            if self.cls.resolution_method == ResolutionMethod.STEADYSTATE:
-                self._plot_species_mole_fraction_pseudo_homogeneous_steady_state(species_names)
-            elif self.cls.resolution_method == ResolutionMethod.TRANSIENT:
+        if self.cls.solution_parser.reactor_type == ReactorType.BATCH or self.cls.solution_parser.reactor_type == ReactorType.CSTR:
+            self._plot_species_mole_fraction_without_discretization(species_names, 'Time [s]')
+        elif self.cls.solution_parser.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
+            if self.cls.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+                self._plot_species_mole_fraction_without_discretization(species_names, 'Length [m]')
+            elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
                 self._plot_species_mole_fraction_pseudo_homogeneous_transient(species_names)
-        elif self.cls.reactor_type == ReactorType.HETEROGENEOUSPRF:
+        elif self.cls.solution_parser.reactor_type == ReactorType.HETEROGENEOUSPRF:
             self._plot_species_mole_fraction_heterogeneous(species_names)
 
     def plot_coverage(self, coverage_names):
@@ -348,14 +305,14 @@ class ReactorPlotter(BasicPlotter):
         :param coverage_names: List of coverage species to be plotted
         :return:
         """
-        if self.cls.reactor_type == ReactorType.BATCH or self.cls.reactor_type == ReactorType.CSTR:
-            self._plot_coverage_for_batch_and_cstr(coverage_names)
-        elif self.cls.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
-            if self.cls.resolution_method == ResolutionMethod.STEADYSTATE:
-                self._plot_coverage_pseudo_homogeneous_steady_state(coverage_names)
-            elif self.cls.resolution_method == ResolutionMethod.TRANSIENT:
+        if self.cls.solution_parser.reactor_type == ReactorType.BATCH or self.cls.solution_parser.reactor_type == ReactorType.CSTR:
+            self._plot_coverage_without_discretization(coverage_names, 'Time [s]')
+        elif self.cls.solution_parser.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
+            if self.cls.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+                self._plot_coverage_without_discretization(coverage_names, 'Length [m]')
+            elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
                 self._plot_coverage_pseudo_homogeneous_transient_and_heterogeneous(coverage_names)
-        elif self.cls.reactor_type == ReactorType.HETEROGENEOUSPRF:
+        elif self.cls.solution_parser.reactor_type == ReactorType.HETEROGENEOUSPRF:
             self._plot_coverage_pseudo_homogeneous_transient_and_heterogeneous(coverage_names)
 
     def plot_temperature(self):
@@ -363,14 +320,14 @@ class ReactorPlotter(BasicPlotter):
         Plotting temperature
         :return:
         """
-        if self.cls.reactor_type == ReactorType.BATCH or self.cls.reactor_type == ReactorType.CSTR:
-            self._plot_temperature_for_batch_and_cstr()
-        elif self.cls.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
-            if self.cls.resolution_method == ResolutionMethod.STEADYSTATE:
-                self._plot_temperature_pseudo_homogeneous_steady_state()
-            elif self.cls.resolution_method == ResolutionMethod.TRANSIENT:
+        if self.cls.solution_parser.reactor_type == ReactorType.BATCH or self.cls.solution_parser.reactor_type == ReactorType.CSTR:
+            self._plot_temperature_without_discretization('Time [s]')
+        elif self.cls.solution_parser.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
+            if self.cls.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+                self._plot_temperature_without_discretization('Length [m]')
+            elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
                 self._plot_temperature_pseudo_homogeneous_transient()
-        elif self.cls.reactor_type == ReactorType.HETEROGENEOUSPRF:
+        elif self.cls.solution_parser.reactor_type == ReactorType.HETEROGENEOUSPRF:
             self._plot_temperature_heterogeneous()
 
     @staticmethod

@@ -1,13 +1,21 @@
 {
   "BatchReactor": {
-    "_true_parser": {
+    "set_integration_parameters": {
       "input": {
-        "value": "y",
-        "format": "string"
+        "value": [
+          1e-04,
+          1e-04,
+          false
+        ],
+        "format": "tuple"
       },
       "output": {
-        "value": true,
-        "format": "bool"
+        "value": [
+          1e-04,
+          1e-04,
+          50
+        ],
+        "format": "array"
       }
     },
     "set_volume": {
@@ -230,17 +238,26 @@
         "value": null,
         "format": "path"
       }
-    }
+    },
+    "example": null
   },
   "CstrReactor": {
-    "_true_parser": {
+    "set_integration_parameters": {
       "input": {
-        "value": "y",
-        "format": "string"
+        "value": [
+          1e-06,
+          1e-06,
+          false
+        ],
+        "format": "tuple"
       },
       "output": {
-        "value": true,
-        "format": "bool"
+        "value": [
+          1e-06,
+          1e-06,
+          50
+        ],
+        "format": "array"
       }
     },
     "set_volume": {
@@ -543,17 +560,26 @@
         "value": null,
         "format": "path"
       }
-    }
+    },
+    "example": null
   },
   "PseudoHomogeneous1DReactor": {
-    "_true_parser": {
+    "set_integration_parameters": {
       "input": {
-        "value": "y",
-        "format": "string"
+        "value": [
+          1e-06,
+          1e-06,
+          false
+        ],
+        "format": "tuple"
       },
       "output": {
-        "value": true,
-        "format": "bool"
+        "value": [
+          1e-06,
+          1e-06,
+          50
+        ],
+        "format": "array"
       }
     },
     "set_length": {
@@ -714,6 +740,26 @@
         "format": "array"
       }
     },
+    "set_inert_specie": {
+      "input": {
+        "value": "AR",
+        "format": "string"
+      },
+      "output": {
+        "value": 3,
+        "format": "int"
+      }
+    },
+    "set_inert_coverage": {
+      "input": {
+        "value": "Rh(s)",
+        "format": "string"
+      },
+      "output": {
+        "value": 0,
+        "format": "int"
+      }
+    },
     "set_energy": {
       "input": {
         "value": 1,
@@ -824,17 +870,26 @@
         "value": null,
         "format": "path"
       }
-    }
+    },
+    "example": null
   },
   "Heterogeneous1DReactor": {
-    "_true_parser": {
+    "set_integration_parameters": {
       "input": {
-        "value": "y",
-        "format": "string"
+        "value": [
+          1e-06,
+          1e-06,
+          false
+        ],
+        "format": "tuple"
       },
       "output": {
-        "value": true,
-        "format": "bool"
+        "value": [
+          1e-06,
+          1e-06,
+          50
+        ],
+        "format": "array"
       }
     },
     "set_length": {
@@ -1109,6 +1164,26 @@
         "format": "array"
       }
     },
+    "set_inert_specie": {
+      "input": {
+        "value": "AR",
+        "format": "string"
+      },
+      "output": {
+        "value": 3,
+        "format": "int"
+      }
+    },
+    "set_inert_coverage": {
+      "input": {
+        "value": "Rh(s)",
+        "format": "string"
+      },
+      "output": {
+        "value": 0,
+        "format": "int"
+      }
+    },
     "initial_condition": {
       "input": {
         "value": null,
@@ -1213,6 +1288,7 @@
         "value": null,
         "format": "path"
       }
-    }
+    },
+    "example": null
   }
 }

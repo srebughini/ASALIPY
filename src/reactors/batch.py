@@ -1,5 +1,7 @@
-from asali.reactors.basic import ReactorType, BasicReactor
+from asali.reactors.basic import BasicReactor
 import numpy as np
+
+from asali.utils.input_parser import ReactorType
 
 
 class BatchReactor(BasicReactor):
@@ -12,9 +14,18 @@ class BatchReactor(BasicReactor):
         """
         super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name,
                          surface_phase_name=surface_phase_name)
-        self.mass_sol = None
-        self.reactor_type = ReactorType.BATCH
-        self.initial_mass = None
+        self.solution_parser.reactor_type = ReactorType.BATCH
+        self.volume = 0.
+
+    def set_volume(self, value, unit_dimension):
+        """
+        Set volume
+        :param value: Volume value
+        :param unit_dimension: Volume unit dimension
+        :return: Volume in [m3]
+        """
+        self.volume = self.uc.convert_to_cubic_meter(value, unit_dimension)
+        return self.volume
 
     def equations(self, t, y):
         """
@@ -38,16 +49,15 @@ class BatchReactor(BasicReactor):
         gas_reaction_rates_from_surface = self.surf.net_production_rates[:self.gas.n_species]
         coverage_reaction_rates = self.surf.net_production_rates[-self.surf.n_species:]
 
-        dy[self.gas.n_species] = self.volume * self.alfa * np.dot(gas_reaction_rates_from_surface,
-                                                                  self.gas.molecular_weights)
+        dmass = self.volume * self.alfa * np.dot(gas_reaction_rates_from_surface, self.gas.molecular_weights)
 
-        dy[:self.gas.n_species] = self.gas.molecular_weights * gas_reaction_rates / self.gas.density + (
+        domega = self.gas.molecular_weights * gas_reaction_rates / self.gas.density + (
                 -omega * dy[self.gas.n_species] + (
-                    mass / self.gas.density) * self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights) / mass
+                mass / self.gas.density) * self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights) / mass
 
-        dy[
-        self.gas.n_species + 1:self.gas.n_species + 1 + self.surf.n_species] = coverage_reaction_rates / self.surf.site_density
+        dz = coverage_reaction_rates / self.surf.site_density
 
+        dT = 0
         if self.energy:
             if self.gas.n_reactions > 0:
                 heat_of_reaction_from_gas = -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
@@ -59,8 +69,13 @@ class BatchReactor(BasicReactor):
             else:
                 heat_from_reaction_from_surface = 0.
 
-            dy[-1] = (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) / (
-                        self.gas.density * self.gas.cp_mass)
+            dT = (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) / (
+                    self.gas.density * self.gas.cp_mass)
+
+        dy[:self.gas.n_species] = domega
+        dy[self.gas.n_species] = dmass
+        dy[self.gas.n_species + 1:self.gas.n_species + 1 + self.surf.n_species] = dz
+        dy[-1] = dT
 
         return dy
 
@@ -69,11 +84,10 @@ class BatchReactor(BasicReactor):
         Generate initial conditions
         :return: Vector/Matrix representing the initial conditions
         """
-        if self.initial_mass is None:
-            self.initial_mass = self.gas.density * self.volume
-
-        return np.block(
-            [self.initial_mass_fraction, self.initial_mass, self.initial_coverage, self.initial_temperature])
+        return np.block([self.initial_mass_fraction,
+                         self.gas.density * self.volume,
+                         self.initial_coverage,
+                         self.initial_temperature])
 
     def solve(self, tspan, time_ud):
         """
@@ -82,23 +96,11 @@ class BatchReactor(BasicReactor):
         :param time_ud: Time unit dimension
         :return: Vector/Matrix representing the results
         """
-        self.tspan, self.sol = self._solve_ode(self.equations,
+        x, y = self.numerical_solver.solve_ode(self.equations,
                                                self.initial_condition(),
-                                               self.uc.convert_to_seconds(tspan, time_ud),
-                                               atol=self.atol,
-                                               rtol=self.rtol,
-                                               verbosity=self.verbosity)
+                                               self.uc.convert_to_seconds(tspan, time_ud))
 
-        self.y_sol = self.sol[:, :self.gas.n_species]
-        self.x_sol = np.zeros_like(self.y_sol)
-
-        for i in range(0, len(self.tspan)):
-            self.x_sol[i, :self.gas.n_species] = self._convert_mass_fraction_to_mole_fraction(
-                self.y_sol[i, :self.gas.n_species])
-
-        self.mass_sol = self.sol[:, self.gas.n_species]
-        self.coverage_sol = self.sol[:, self.gas.n_species + 1:self.gas.n_species + 1 + self.surf.n_species]
-        self.temperature_sol = self.sol[:, -1]
-
-        self.is_solved = True
-        return self.sol
+        self.solution_parser.x = x
+        self.solution_parser.y = y
+        self.solution_parser.is_solved = True
+        return y

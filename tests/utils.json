@@ -255,5 +255,37 @@
         "format": "yaml"
       }
     }
+  },
+  "InputParser": {
+    "true_parser": {
+      "input": {
+        "value": "y",
+        "format": "string"
+      },
+      "output": {
+        "value": true,
+        "format": "bool"
+      }
+    },
+    "resolution_parser": {
+      "input": {
+        "value": "steadystate",
+        "format": "string"
+      },
+      "output": {
+        "value": 0,
+        "format": "enum"
+      }
+    },
+    "section_parser": {
+      "input": {
+        "value": "circle",
+        "format": "string"
+      },
+      "output": {
+        "value": 0,
+        "format": "enum"
+      }
+    }
   }
 }

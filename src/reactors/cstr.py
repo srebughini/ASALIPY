@@ -1,6 +1,9 @@
-from asali.reactors.basic import ReactorType, BasicReactor
+from asali.reactors.basic import BasicReactor
 
 import numpy as np
+
+from asali.utils.input_parser import ReactorType
+from asali.utils.numerical_solvers import NumericalSolvers
 
 
 class CstrReactor(BasicReactor):
@@ -11,8 +14,85 @@ class CstrReactor(BasicReactor):
         :param gas_phase_name: Cantera gas phase name
         :param surface_phase_name: Cantera interface phase name
         """
-        super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name, surface_phase_name=surface_phase_name)
-        self.reactor_type = ReactorType.CSTR
+        super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name,
+                         surface_phase_name=surface_phase_name)
+        self.solution_parser.reactor_type = ReactorType.CSTR
+
+        self.is_mass_flow_rate = True
+
+        self.volume = 0.
+        self.inlet_mass_flow_rate = 0.
+        self.inlet_volumetric_flow_rate = 0.
+        self.inlet_temperature = 0.
+
+        self.inlet_mass_fraction = None
+        self.inlet_mole_fraction = None
+
+    def set_volume(self, value, unit_dimension):
+        """
+        Set volume
+        :param value: Volume value
+        :param unit_dimension: Volume unit dimension
+        :return: Volume in [m3]
+        """
+        self.volume = self.uc.convert_to_cubic_meter(value, unit_dimension)
+        return self.volume
+
+    def set_mass_flow_rate(self, value, unit_dimension):
+        """
+        Set mass flow rate
+        :param value: Mass flow rate value
+        :param unit_dimension: Mass flow rate unit dimension
+        :return: Mass flow rate in [kg/s]
+        """
+        self.inlet_mass_flow_rate = self.uc.convert_to_kg_per_seconds(value, unit_dimension)
+        self.inlet_volumetric_flow_rate = 0.
+        self.is_mass_flow_rate = True
+        return self.inlet_mass_flow_rate
+
+    def set_volumetric_flow_rate(self, value, unit_dimension):
+        """
+        Set volumetric flow rate
+        :param value: Volumetric flow rate value
+        :param unit_dimension: Volumetric flow rate unit dimension
+        :return: Volumetric flow rate in [m3/s]
+        """
+        self.inlet_volumetric_flow_rate = self.uc.convert_to_cubic_meter_per_seconds(value, unit_dimension)
+        self.inlet_mass_flow_rate = 0.
+        self.is_mass_flow_rate = False
+        return self.inlet_volumetric_flow_rate
+
+    def set_inlet_mass_fraction(self, value):
+        """
+        Set inlet mass fraction
+        :param value: Mass fraction
+        :return: Inlet mass fraction
+        """
+        self.gas.Y = value
+        self.inlet_mass_fraction = self.gas.Y
+        self.inlet_mole_fraction = self.gas.X
+        return self.inlet_mass_fraction
+
+    def set_inlet_mole_fraction(self, value):
+        """
+        Set inlet mole fraction
+        :param value: Mole fraction
+        :return: Inlet mole fraction
+        """
+        self.gas.X = value
+        self.inlet_mass_fraction = self.gas.Y
+        self.inlet_mole_fraction = self.gas.X
+        return self.inlet_mole_fraction
+
+    def set_inlet_temperature(self, value, unit_dimension):
+        """
+        Set inlet temperature
+        :param value: Temperature value
+        :param unit_dimension: Temperature unit dimension
+        :return: Temperature in [K]
+        """
+        self.inlet_temperature = self.uc.convert_to_kelvin(value, unit_dimension)
+        return self.inlet_temperature
 
     def equations(self, t, y):
         """
@@ -38,7 +118,8 @@ class CstrReactor(BasicReactor):
         dy[:self.gas.n_species] = (self.inlet_mass_flow_rate / self.volume) * (
                 self.inlet_mass_fraction - omega) + self.gas.molecular_weights * gas_reaction_rates / self.gas.density + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights / self.gas.density
 
-        dy[self.gas.n_species:self.gas.n_species + self.surf.n_species] = coverage_reaction_rates / self.surf.site_density
+        dy[
+        self.gas.n_species:self.gas.n_species + self.surf.n_species] = coverage_reaction_rates / self.surf.site_density
 
         if self.energy:
             if self.gas.n_reactions > 0:
@@ -53,7 +134,9 @@ class CstrReactor(BasicReactor):
             else:
                 heat_from_reaction_from_surface = 0.
 
-            dy[-1] = (self.inlet_mass_flow_rate / self.volume) * (self.inlet_temperature - T) + (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) / (self.gas.density * self.gas.cp_mass)
+            dy[-1] = (self.inlet_mass_flow_rate / self.volume) * (self.inlet_temperature - T) + (
+                    heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) / (
+                             self.gas.density * self.gas.cp_mass)
 
         return dy
 
@@ -66,7 +149,9 @@ class CstrReactor(BasicReactor):
             self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
             self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
 
-        return np.block([self.initial_mass_fraction, self.initial_coverage, self.initial_temperature])
+        return np.block([self.initial_mass_fraction,
+                         self.initial_coverage,
+                         self.initial_temperature])
 
     def solve(self, tspan, time_ud):
         """
@@ -75,21 +160,11 @@ class CstrReactor(BasicReactor):
         :param time_ud: Time unit dimension
         :return: Vector/Matrix representing the results
         """
-        self.tspan, self.sol = self._solve_ode(self.equations,
+        x, y = self.numerical_solver.solve_ode(self.equations,
                                                self.initial_condition(),
-                                               self.uc.convert_to_seconds(tspan, time_ud),
-                                               atol=self.atol,
-                                               rtol=self.rtol,
-                                               verbosity=self.verbosity)
+                                               self.uc.convert_to_seconds(tspan, time_ud))
 
-        self.y_sol = self.sol[:, :self.gas.n_species]
-        self.x_sol = np.zeros_like(self.y_sol)
-
-        for i in range(0, len(self.tspan)):
-            self.x_sol[i, :self.gas.n_species] = self._convert_mass_fraction_to_mole_fraction(self.y_sol[i, :self.gas.n_species])
-
-        self.coverage_sol = self.sol[:, self.gas.n_species:self.gas.n_species + self.surf.n_species]
-        self.temperature_sol = self.sol[:, -1]
-
-        self.is_solved = True
-        return self.sol
+        self.solution_parser.x = x
+        self.solution_parser.y = y
+        self.solution_parser.is_solved = True
+        return y

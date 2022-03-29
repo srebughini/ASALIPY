@@ -1,3 +1,4 @@
+from enum import Enum
 from termcolor import colored
 
 import json
@@ -6,6 +7,8 @@ import filecmp
 import yaml
 
 import numpy as np
+
+import examples.het1d as het1d
 
 
 class BasicUnitTest:
@@ -65,7 +68,12 @@ class BasicUnitTest:
         :param color: Color to be used
         :return:
         """
-        tested_function = '{}::{}'.format(self.cls.__class__.__name__, f.__name__)
+        if not isinstance(f, str):
+            function_name = f.__name__
+        else:
+            function_name = f
+
+        tested_function = '{}::{}'.format(self.cls.__class__.__name__, function_name)
         msg = 'ASALI::{}{} --> {}'.format(tested_function, ' ' * (60 - len(tested_function)), output)
         print(colored(msg, color))
 
