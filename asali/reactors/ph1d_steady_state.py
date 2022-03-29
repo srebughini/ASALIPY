@@ -38,29 +38,31 @@ class SteadyStatePseudoHomogeneous1DReactor:
         self.surf.TP = T, self.pressure
         self.surf.coverages = z
 
-        gas_reaction_rates = self.gas.net_production_rates
-        gas_reaction_rates_from_surface = self.surf.net_production_rates[:self.gas.n_species]
-        coverage_reaction_rates = self.surf.net_production_rates[-self.surf.n_species:]
+        r_gas = self.gas.net_production_rates
+        r_from_surface = self.surf.net_production_rates[:self.gas.n_species]
+        r_surface = self.surf.net_production_rates[-self.surf.n_species:]
 
-        dy[:self.gas.n_species] = (
-                                              self.gas.molecular_weights * gas_reaction_rates + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights) * self.area / self.inlet_mass_flow_rate
+        # Equation of mass
+        dy[:self.gas.n_species] = self.gas.molecular_weights * r_gas
+        dy[:self.gas.n_species] = dy[:self.gas.n_species] + self.alfa * r_from_surface * self.gas.molecular_weights
+        dy[:self.gas.n_species] = dy[:self.gas.n_species] * self.area / self.inlet_mass_flow_rate
 
-        dy[self.gas.n_species:self.gas.n_species + self.surf.n_species] = 1e03 * (
-                coverage_reaction_rates / self.surf.site_density)
+        # Equation of coverage
+        dy[self.gas.n_species:self.gas.n_species + self.surf.n_species] = 1e03 * (r_surface / self.surf.site_density)
 
         if self.energy:
             if self.gas.n_reactions > 0:
-                heat_of_reaction_from_gas = -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
+                q_gas = -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
             else:
-                heat_of_reaction_from_gas = 0.
+                q_gas = 0.
 
             if self.surf.n_reactions > 0:
-                heat_from_reaction_from_surface = -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
+                q_from_surface = -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
             else:
-                heat_from_reaction_from_surface = 0.
+                q_from_surface = 0.
 
-            dy[-1] = (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) * self.area / (
-                    self.inlet_mass_flow_rate * self.gas.cp_mass)
+            # Equation of energy
+            dy[-1] = (q_gas + self.alfa * q_from_surface) * self.area / (self.inlet_mass_flow_rate * self.gas.cp_mass)
 
         return dy
 

@@ -19,7 +19,7 @@ if __name__ == "__main__":
     p.set_inert_coverage('Rh(s)')
     p.set_initial_temperature(240, 'degC')
     p.set_resolution_method("TRANSIENT")
-    p.set_gas_diffusion(False)
+    p.set_gas_diffusion(True)
     p.set_verbosity(False)
     p.set_relative_tolerance(1.e-04)
     p.set_absolute_tolerance(1.e-04)

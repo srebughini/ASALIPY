@@ -41,7 +41,7 @@ test:
     - run_tests.py
 
   commands:
-    - python run_tests.py
+    - python run_tests.py --local
 
 about:
   home: https://srebughini.github.io/ASALI/
