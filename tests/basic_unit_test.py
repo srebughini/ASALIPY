@@ -162,8 +162,8 @@ class BasicUnitTest:
         results_file_as_list = [line.strip() for line in open(results)]
 
         if len(output_file_as_list) == len(results_file_as_list):
-            for i in range(0, len(output_file_as_list)):
-                if output_file_as_list[i] != results_file_as_list[i]:
+            for i, output_line in enumerate(output_file_as_list):
+                if output_line != results_file_as_list[i]:
                     return False, '\n'.join(output_file_as_list), '\n'.join(results_file_as_list)
 
             return True, '\n'.join(output_file_as_list), '\n'.join(results_file_as_list)
@@ -211,15 +211,15 @@ class BasicUnitTest:
         if results_format == "float":
             check, outputs, results = self._check_float(f, results, args, args_format)
         elif results_format == "array":
-            check, outputs, results  = self._check_array(f, results, args, args_format)
+            check, outputs, results = self._check_array(f, results, args, args_format)
         elif results_format == "enum":
-            check, outputs, results  = self._check_enum(f, results, args, args_format)
+            check, outputs, results = self._check_enum(f, results, args, args_format)
         elif results_format == "file":
-            check, outputs, results  = self._check_files(f, results, args, args_format)
+            check, outputs, results = self._check_files(f, results, args, args_format)
         elif results_format == "yaml":
-            check, outputs, results  = self._check_yaml(f, results, args, args_format)
+            check, outputs, results = self._check_yaml(f, results, args, args_format)
         else:
-            check, outputs, results  = self._check_others(f, results, args, args_format)
+            check, outputs, results = self._check_others(f, results, args, args_format)
 
         if check:
             self._print_on_screen(f, "OK", "green")
