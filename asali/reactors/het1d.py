@@ -2,9 +2,11 @@ from asali.reactors.basic import BasicReactor
 
 import numpy as np
 
+from asali.reactors.het1d_steady_state import SteadyStateHeterogeneous1DReactor
+from asali.reactors.het1d_transient import TransientHeterogeneous1DReactor
 from asali.reactors.shapes.honeycomb import HoneyCombReactorShape
 from asali.reactors.shapes.packed_bed import PackedBedReactorShape
-from asali.utils.input_parser import ReactorModel, ReactorSection, ReactorType, InputParser
+from asali.utils.input_parser import ReactorModel, ReactorSection, ReactorType, InputParser, ResolutionMethod
 from asali.utils.solid_material import SolidMaterial
 from asali.reactors.shapes.tubular import TubularReactorShape
 
@@ -46,6 +48,15 @@ class Heterogeneous1DReactor(BasicReactor):
         :return: Bool for gas diffusion
         """
         self.gas_diffusion = InputParser.true_parser(value)
+
+    def set_resolution_method(self, method):
+        """
+        Set resolution method
+        :param method: Resolution method as string
+        :return: ResolutionMethod object
+        """
+        self.solution_parser.resolution_method = InputParser.resolution_parser(method)
+        return self.solution_parser.resolution_method
 
     def set_reactor_section(self, method):
         """
@@ -253,280 +264,56 @@ class Heterogeneous1DReactor(BasicReactor):
                 self.reactor_shape_object.specific_area,
                 self.reactor_shape_object.section_area]
 
-    def estimate_mass_transfer_coefficient(self, viscosity, density, diffusivity):
-        """
-        Estimate mass transfer coefficient based on ReactorModel
-        :param viscosity: Gas viscosity in [Pas]
-        :param density: Gas density in [kg/m3]
-        :param diffusivity: Gas mixture diffusivity in [m2/s]
-        :return: Mass transfer coefficient
-        """
-
-        self.reactor_shape_object.length = self.length
-        return self.reactor_shape_object.estimate_mass_transfer_coefficient(self.inlet_mass_flow_rate,
-                                                                            viscosity,
-                                                                            density,
-                                                                            diffusivity)
-
-    def estimate_heat_transfer_coefficient(self, viscosity, conductivity, specific_heat):
-        """
-        Estimate heat transfer coefficient based on ReactorModel
-        :param viscosity: Gas viscosity in [Pas]
-        :param conductivity: Gas thermal conductivity in [W/m/K]
-        :param specific_heat: Gas specific heat in [J/kg/K]
-        :return: Heat transfer coefficient
-        """
-        self.reactor_shape_object.length = self.length
-        return self.reactor_shape_object.estimate_heat_transfer_coefficient(self.inlet_mass_flow_rate,
-                                                                            viscosity,
-                                                                            conductivity,
-                                                                            specific_heat)
-
-    def ode_equations(self, t, y):
-        """
-        Function representing the ODE system to estimate the DAE initial conditions
-        :param t: Independent variable - Time
-        :param y: Dependent variable - Species composition, coverage and temperature as function of reactor length
-        :return: Dependent variable variations based on independent variable
-        """
-        return self.equations(t, y) * np.fabs(np.round(self.alg - 1))
-
-    def algebraic_equations(self):
-        """
-        Generate the vector describing algebraic (0) and differential (1) equations
-        :return: Vector on 0/1 describing algebraic/differential equations
-        """
-        n_p = self.length.size
-        n_s = self.gas.n_species
-        n_surf = self.surf.n_species
-        n_v = n_s + n_s + n_surf + 1 + 1
-
-        alg_matrix = np.ones([n_p, n_v], dtype=int)
-
-        # Inlet conditions
-        alg_matrix[0, :self.gas.n_species] = 0
-        if self.energy:
-            alg_matrix[0, -1] = 0
-
-        # Outlet conditions
-        if self.gas_diffusion:
-            alg_matrix[-1, :self.gas.n_species] = 0
-            if self.energy:
-                alg_matrix[-1, -1] = 0
-
-        # Inlet conditions
-        alg_matrix[0, :n_s] = 0
-        if self.energy:
-            alg_matrix[0, -2] = 0
-            alg_matrix[0, -1] = 0
-
-        # Equations of WALL mass
-        alg_matrix[:, n_s:n_s + n_s] = 0
-
-        # Inert species
-        alg_matrix[:, self.inert_specie_index] = 0
-        alg_matrix[:, n_s + self.inert_specie_index] = 0
-        alg_matrix[:, n_s + n_s + self.inert_coverage_index] = 0
-
-        # Outlet conditions
-        if self.gas_diffusion:
-            alg_matrix[-1, :n_s] = 0
-
-        if self.energy:
-            if self.gas_diffusion:
-                alg_matrix[-1, -2] = 0
-            alg_matrix[-1, -1] = 0
-
-        return alg_matrix.flatten()
-
-    def residuals(self, t, y, dy):
-        """
-        Residuals required by the DAE solver
-        :param t: Independent variable - Time
-        :param y: Dependent variable - Species composition, coverage and temperature as function of reactor length
-        :param dy: Dependent variable variations based on independent variable
-        :return: Residuals - y - dy
-        """
-        res = self.equations(t, y)
-        diff_mask = self.alg == 1
-        res[diff_mask] = res[diff_mask] - dy[diff_mask]
-        return res
-
     def equations(self, t, y):
-        """
-        Function representing the Reactor model equations
-        :param t: Independent variable - Time
-        :param y: Dependent variable - Species composition, coverage and temperature as function of reactor length
-        :return: Dependent variable variations based on independent variable
-        """
-        n_p = self.length.size
-        n_s = self.gas.n_species
-        n_surf = self.surf.n_species
-        n_v = n_s + n_s + n_surf + 1 + 1
-
-        # Extraction of geometrical properties
-        void_fraction = self.reactor_shape_object.void_fraction
-        area = self.reactor_shape_object.section_area
-        specific_area = self.reactor_shape_object.specific_area
-
-        # Extraction of solid properties
-        solid_k = self.solid.thermal_conductivity
-        solid_cp = self.solid.specific_heat
-        solid_rho = self.solid.density
-
-        y_matrix = y.reshape(n_p, n_v)
-
-        omegab = y_matrix[:, :n_s]
-        omegaw = y_matrix[:, n_s:n_s + n_s]
-        z = y_matrix[:, n_s + n_s:n_s + n_s + n_surf]
-        Tb = y_matrix[:, -2]
-        Tw = y_matrix[:, -1]
-
-        r_gas = np.zeros([n_p, n_s], dtype=np.float64)
-        r_from_surface = np.zeros([n_p, n_s], dtype=np.float64)
-        r_surface = np.zeros([n_p, n_surf], dtype=np.float64)
-        gas_mix_diff = np.zeros([n_p, n_s], dtype=np.float64)
-        q_gas = np.zeros([n_p], dtype=np.float64)
-        q_surface = np.zeros([n_p], dtype=np.float64)
-        gas_rho = np.zeros([n_p], dtype=np.float64)
-        gas_cp = np.zeros([n_p], dtype=np.float64)
-        gas_k = np.zeros([n_p], dtype=np.float64)
-        gas_mu = np.zeros([n_p], dtype=np.float64)
-
-        for i in range(0, n_p):
-            self.gas.TPY = Tb[i], self.pressure, omegab[i, :]
-
-            r_gas[i, :] = self.gas.net_production_rates * self.gas.molecular_weights
-
-            gas_rho[i] = self.gas.density
-            gas_mu[i] = self.gas.viscosity
-            gas_cp[i] = self.gas.cp_mass
-            gas_k[i] = self.gas.thermal_conductivity
-
-            diff_mix = self.gas.mix_diff_coeffs_mass
-            diff_mix_zero = diff_mix == 0
-            diff_mix[diff_mix_zero] = self.gas.binary_diff_coeffs[diff_mix_zero, diff_mix_zero]
-            gas_mix_diff[i, :] = diff_mix
-
-            if self.energy:
-                if self.gas.n_reactions > 0:
-                    q_gas[i] = -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
-
-            self.gas.TPY = Tw[i], self.pressure, omegaw[i, :]
-            self.surf.TP = Tw[i], self.pressure
-            self.surf.coverages = z[i, :]
-            r_from_surface[i, :] = self.surf.net_production_rates[:n_s] * self.gas.molecular_weights
-            r_surface[i, :] = self.surf.net_production_rates[-n_surf:]
-
-            if self.energy:
-                if self.surf.n_reactions > 0:
-                    q_surface[i] = -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
-
-        k_mat = self.estimate_mass_transfer_coefficient(gas_mu, gas_rho, gas_mix_diff)
-        k_heat = self.estimate_heat_transfer_coefficient(gas_mu, gas_k, gas_cp)
-
-        domegab = np.zeros_like(omegab)
-        dTb = np.zeros_like(Tb)
-        dTw = np.zeros_like(Tw)
-
-        delta_omega = specific_area * (gas_rho * (k_mat * (omegab - omegaw)).T).T
-        delta_T = k_heat * specific_area * (Tb - Tw)
-        d1st_length_backward = self.length[1:-1] - self.length[:-2]
-        d1st_length_forward = self.length[2:] - self.length[1:-1]
-        d2nd_length = 0.5 * (self.length[2:] - self.length[:-2])
-
-        # Inlet conditions
-        domegab[0, :] = self.inlet_mass_fraction - omegab[0, :]
-        if self.energy:
-            dTb[0] = self.inlet_temperature - Tb[0]
-            dTw[0] = Tw[1] - Tw[0]
-
-        # Outlet conditions
-        if self.gas_diffusion:
-            domegab[-1, :] = omegab[-1, :] - omegab[-2, :]
-        else:
-            d1st_omegab_outlet = (omegab[-1, :] - omegab[-2, :]) / (self.length[-1] - self.length[-2])
-            domegab[-1, :] = - self.inlet_mass_flow_rate * d1st_omegab_outlet / (area * gas_rho[-1])
-            domegab[-1, :] = domegab[-1, :] + r_gas[-1, :] / gas_rho[-1]
-            domegab[-1, :] = domegab[-1, :] - delta_omega[-1, :] / void_fraction
-
-        if self.energy:
-            if self.gas_diffusion:
-                dTb[-1] = Tb[-1] - Tb[-2]
-            else:
-                d1st_Tb_outlet = (Tb[-1] - Tb[-2]) / (self.length[-1] - self.length[-2])
-                dTb[-1] = -(self.inlet_mass_flow_rate / (area * gas_rho[-1])) * d1st_Tb_outlet
-                dTb[-1] = dTb[-1] + q_gas[-1] / (gas_rho[-1] * gas_cp[-1])
-                dTb[-1] = dTb[-1] - delta_T[-1] / (void_fraction * gas_rho[-1] * gas_cp[-1])
-
-            dTw[-1] = Tw[-1] - Tw[-2]
-
-        # Equations for BULK mass
-        d1st_omegab_backward = (omegab[1:-1, :] - omegab[:-2, :]) / d1st_length_backward[:, np.newaxis]
-        domegab[1:-1, :] = d1st_omegab_backward / gas_rho[1:-1, np.newaxis]
-        domegab[1:-1, :] = - (self.inlet_mass_flow_rate / area) * domegab[1:-1, :]
-        domegab[1:-1, :] = domegab[1:-1, :] + (r_gas[1:-1, :] / gas_rho[1:-1, np.newaxis])
-        domegab[1:-1, :] = domegab[1:-1, :] - delta_omega[1:-1, :] / void_fraction
-
-        if self.gas_diffusion:
-            d1st_omegab_forward = (omegab[2:, :] - omegab[1:-1, :]) / d1st_length_forward[:, np.newaxis]
-            gas_diff_forward = 0.5 * (gas_mix_diff[2:, :] + gas_mix_diff[1:-1, :])
-            gas_diff_backward = 0.5 * (gas_mix_diff[1:-1, :] + gas_mix_diff[:-2, :])
-            domegab[1:-1, :] = domegab[1:-1, :] + gas_diff_forward * d1st_omegab_forward / d2nd_length[:,
-                                                                                           np.newaxis]
-            domegab[1:-1, :] = domegab[1:-1, :] - gas_diff_backward * d1st_omegab_backward / d2nd_length[:,
-                                                                                             np.newaxis]
-
-        # Equations of WALL mass
-        domega_wall = delta_omega * void_fraction + self.alfa * void_fraction * r_from_surface
-
-        # Inert specie
-        domegab[:, self.inert_specie_index] = 1. - np.sum(omegab, axis=1)
-        domega_wall[:, self.inert_specie_index] = 1. - np.sum(omegaw, axis=1)
-
-        # Equations for site fraction
-        dz = r_surface / self.surf.site_density
-
-        # Inert specie
-        dz[:, self.inert_coverage_index] = 1. - np.sum(z, axis=1)
-
-        if self.energy:
-            # Equations of BULK energy
-            d1st_Tb_backward = (Tb[1:-1] - Tb[:-2]) / d1st_length_backward
-            dTb[1:-1] = -(self.inlet_mass_flow_rate / (area * gas_rho[1:-1])) * d1st_Tb_backward
-            dTb[1:-1] = dTb[1:-1] + q_gas[1:-1] / (gas_rho[1:-1] * gas_cp[1:-1])
-            dTb[1:-1] = dTb[1:-1] - delta_T[1:-1] / (void_fraction * gas_rho[1:-1] * gas_cp[1:-1])
-
-            if self.gas_diffusion:
-                d1st_Tb_forward = (Tb[2:] - Tb[1:-1]) / d1st_length_forward
-                gas_k_forward = 0.5 * (gas_k[2:] + gas_k[1:-1]) / (gas_rho[1:-1] * gas_cp[1:-1])
-                gas_k_backward = 0.5 * (gas_k[1:-1] + gas_k[:-2]) / (gas_rho[1:-1] * gas_cp[1:-1])
-                dTb[1:-1] = dTb[1:-1] + gas_k_forward * d1st_Tb_forward / d2nd_length
-                dTb[1:-1] = dTb[1:-1] - gas_k_backward * d1st_Tb_backward / d2nd_length
-
-            # Equations of WALL energy
-            d1st_Tw_forward = (Tw[2:] - Tw[1:-1]) / d1st_length_forward
-            d1st_Tw_backward = (Tw[1:-1] - Tw[:-2]) / d1st_length_backward
-
-            dTw[1:-1] = (solid_k / (solid_cp * solid_rho)) * (d1st_Tw_forward - d1st_Tw_backward) / d2nd_length
-            dTw[1:-1] = dTw[1:-1] + self.alfa * q_surface[1:-1] / (solid_cp * solid_rho * (1 - void_fraction))
-            dTw[1:-1] = dTw[1:-1] + delta_T[1:-1] / (solid_cp * solid_rho * (1 - void_fraction))
-
-        dy_matrix = np.zeros_like(y_matrix)
-
-        dy_matrix[:, :n_s] = domegab
-        dy_matrix[:, n_s:n_s + n_s] = domega_wall
-        dy_matrix[:, n_s + n_s:n_s + n_s + n_surf] = dz
-
-        if self.energy:
-            dy_matrix[:, -2] = dTb
-            dy_matrix[:, -1] = dTw
-
-        return dy_matrix.flatten()
+        pass
 
     def initial_condition(self):
         """
-        Generate initial conditions for Reactor model
+        Generate initial conditions for the selected model
+        :return: Vector/Matrix representing the initial conditions
+        """
+        if self.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+            return self.initial_condition_steady_state()
+
+        return self.initial_condition_transient()
+
+    def initial_condition_steady_state(self):
+        """
+        Function creating the initial condition of the Steady State solution
+        :return: Matrix representing the initial mass fraction, coverage and temperature
+        """
+        n_p = self.length.size
+        n_s = self.gas.n_species
+        n_surf = self.surf.n_species
+        n_v = n_s + n_s + n_surf + 1 + 1
+
+        self.initial_mass_fraction = self.inlet_mass_fraction
+        self.initial_temperature = self.inlet_temperature
+
+        y0_matrix = np.zeros([n_p, n_v], dtype=np.float64)
+
+        y0_matrix[:, :n_s] = self.initial_mass_fraction
+        y0_matrix[:, n_s:n_s + n_s] = self.initial_mass_fraction
+        y0_matrix[:, n_s + n_s:n_s + n_s + n_surf] = self.initial_coverage
+        y0_matrix[:, -2] = self.initial_temperature
+        y0_matrix[:, -1] = self.initial_solid_temperature
+
+        if not self.energy:
+            self.inlet_temperature = self.initial_temperature
+            y0_matrix[:, -1] = self.initial_temperature
+
+        y0_matrix[0, :n_s] = self.inlet_mass_fraction
+        y0_matrix[0, -1] = self.inlet_temperature
+
+        if not self.is_mass_flow_rate:
+            self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
+            self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
+
+        return y0_matrix.flatten()
+
+    def initial_condition_transient(self):
+        """
+        Function creating the initial condition of the Transient solution
         :return: Vector/Matrix representing the initial conditions
         """
         n_p = self.length.size
@@ -555,26 +342,65 @@ class Heterogeneous1DReactor(BasicReactor):
 
         return y0_matrix.flatten()
 
-    def solve(self, tspan, time_ud):
+    def solve(self, tspan=None, time_ud=None):
         """
         Solve selected model
         :param tspan: Vector representing the integration time
         :param time_ud: Time unit dimension
         :return: Vector/Matrix representing the results
         """
-        self.alg = self.algebraic_equations()
-        x, y = self.numerical_solver.solve_dae(self.ode_equations,
-                                               self.equations,
-                                               self.residuals,
-                                               self.initial_condition(),
-                                               self.uc.convert_to_seconds(tspan, time_ud),
-                                               self.alg)
+        if self.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+            y0 = self.initial_condition_steady_state()
+            reactor_object = SteadyStateHeterogeneous1DReactor(self.gas,
+                                                               self.surf,
+                                                               self.pressure,
+                                                               self.alfa,
+                                                               self.energy,
+                                                               self.inlet_mass_flow_rate,
+                                                               self.gas_diffusion,
+                                                               self.inlet_temperature,
+                                                               self.inlet_mass_fraction,
+                                                               self.length,
+                                                               self.inert_specie_index,
+                                                               self.inert_coverage_index,
+                                                               self.reactor_shape_object,
+                                                               self.solid)
+            x, y = reactor_object.solve(self.numerical_solver,
+                                        y0)
 
-        self.solution_parser.x = x
-        self.solution_parser.y = y
-        self.solution_parser.is_solved = True
-        self.solution_parser.length = self.length
-        return y
+            self.solution_parser.x = x
+            self.solution_parser.y = y
+            self.solution_parser.length = self.length
+            self.solution_parser.is_solved = True
+            return y
+
+        if self.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
+            y0 = self.initial_condition_transient()
+            reactor_object = TransientHeterogeneous1DReactor(self.gas,
+                                                             self.surf,
+                                                             self.pressure,
+                                                             self.alfa,
+                                                             self.energy,
+                                                             self.inlet_mass_flow_rate,
+                                                             self.gas_diffusion,
+                                                             self.inlet_temperature,
+                                                             self.inlet_mass_fraction,
+                                                             self.length,
+                                                             self.inert_specie_index,
+                                                             self.inert_coverage_index,
+                                                             self.reactor_shape_object,
+                                                             self.solid)
+            x, y = reactor_object.solve(self.numerical_solver,
+                                        self.uc.convert_to_seconds(tspan, time_ud),
+                                        y0)
+
+            self.solution_parser.x = x
+            self.solution_parser.y = y
+            self.solution_parser.length = self.length
+            self.solution_parser.is_solved = True
+            return y
+
+        return None
 
     def get_solid_mass_fraction(self, index=None):
         """

@@ -175,9 +175,9 @@ class ReactorPlotter(BasicPlotter):
         plt.xlabel('Length [m]')
         plt.legend(legend, loc='best').get_frame().set_linewidth(0.0)
 
-    def _plot_species_mass_fraction_heterogeneous(self, species_names):
+    def _plot_species_mass_fraction_heterogeneous_transient(self, species_names):
         """
-        Plotting mass fraction of HETEROGENEOUS reactor
+        Plotting mass fraction of HETEROGENEOUS reactor TRANSIENT
         :param species_names: List of species to be plotted
         :return:
         """
@@ -208,9 +208,9 @@ class ReactorPlotter(BasicPlotter):
             plt.legend(legend, loc='best').get_frame().set_linewidth(0.0)
             plt.title(s, loc='center')
 
-    def _plot_species_mole_fraction_heterogeneous(self, species_names):
+    def _plot_species_mole_fraction_heterogeneous_transient(self, species_names):
         """
-        Plotting mole fraction of HETEROGENEOUS reactor
+        Plotting mole fraction of HETEROGENEOUS reactor TRANSIENT
         :param species_names: List of species to be plotted
         :return:
         """
@@ -240,9 +240,9 @@ class ReactorPlotter(BasicPlotter):
             plt.legend(legend, loc='best').get_frame().set_linewidth(0.0)
             plt.title(s, loc='center')
 
-    def _plot_temperature_heterogeneous(self):
+    def _plot_temperature_heterogeneous_transient(self):
         """
-        Plotting temperature of HETEROGENEOUS reactor
+        Plotting temperature of HETEROGENEOUS reactor TRANSIENT
         :return:
         """
         self.nFig = self.nFig + 1
@@ -267,6 +267,77 @@ class ReactorPlotter(BasicPlotter):
         plt.xlabel('Length [m]')
         plt.legend(legend, loc='best').get_frame().set_linewidth(0.0)
 
+    def _plot_species_mass_fraction_heterogeneous_steady_state(self, species_names):
+        """
+        Plotting mass fraction of HETEROGENEOUS reactor STEADY STATE
+        :param species_names: List of species to be plotted
+        :return:
+        """
+        self.nFig = self.nFig + 1
+        plt.figure(self.nFig)
+
+        for s in species_names:
+            plt.plot(self.x, self.mass_fraction[:, self.cls.gas.species_index(s)])
+
+        plt.ylabel('Gas mass fraction')
+        plt.xlabel('Length [m]')
+        plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
+
+        self.nFig = self.nFig + 1
+        plt.figure(self.nFig)
+
+        for s in species_names:
+            plt.plot(self.x, self.mass_fraction_wall[:, self.cls.gas.species_index(s)])
+
+        plt.ylabel('Solid mass fraction')
+        plt.xlabel('Length [m]')
+        plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
+
+    def _plot_species_mole_fraction_heterogeneous_steady_state(self, species_names):
+        """
+        Plotting mole fraction of HETEROGENEOUS reactor STEADY STATE
+        :param species_names: List of species to be plotted
+        :return:
+        """
+        self.nFig = self.nFig + 1
+        plt.figure(self.nFig)
+
+        for s in species_names:
+            plt.plot(self.x, self.mole_fraction[:, self.cls.gas.species_index(s)])
+
+        plt.ylabel('Gas mole fraction')
+        plt.xlabel('Length [m]')
+        plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
+
+        self.nFig = self.nFig + 1
+        plt.figure(self.nFig)
+
+        for s in species_names:
+            plt.plot(self.x, self.mole_fraction_wall[:, self.cls.gas.species_index(s)])
+
+        plt.ylabel('Solid mole fraction')
+        plt.xlabel('Length [m]')
+        plt.legend(species_names, loc='best').get_frame().set_linewidth(0.0)
+
+    def _plot_temperature_heterogeneous_steady_state(self):
+        """
+        Plotting temperature of HETEROGENEOUS reactor STEADY STATE
+        :return:
+        """
+        self.nFig = self.nFig + 1
+        plt.figure(self.nFig)
+        plt.plot(self.x, self.temperature)
+
+        plt.ylabel('Gas temperature [K]')
+        plt.xlabel('Length [m]')
+
+        self.nFig = self.nFig + 1
+        plt.figure(self.nFig)
+        plt.plot(self.x, self.temperature_wall)
+
+        plt.ylabel('Solid temperature [K]')
+        plt.xlabel('Length [m]')
+
     def plot_species_mass_fraction(self, species_names):
         """
         Plotting mass fraction
@@ -281,7 +352,10 @@ class ReactorPlotter(BasicPlotter):
             elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
                 self._plot_species_mass_fraction_pseudo_homogeneous_transient(species_names)
         elif self.cls.solution_parser.reactor_type == ReactorType.HETEROGENEOUSPRF:
-            self._plot_species_mass_fraction_heterogeneous(species_names)
+            if self.cls.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+                self._plot_species_mass_fraction_heterogeneous_steady_state(species_names)
+            elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
+                self._plot_species_mass_fraction_heterogeneous_transient(species_names)
 
     def plot_species_mole_fraction(self, species_names):
         """
@@ -297,7 +371,10 @@ class ReactorPlotter(BasicPlotter):
             elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
                 self._plot_species_mole_fraction_pseudo_homogeneous_transient(species_names)
         elif self.cls.solution_parser.reactor_type == ReactorType.HETEROGENEOUSPRF:
-            self._plot_species_mole_fraction_heterogeneous(species_names)
+            if self.cls.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+                self._plot_species_mole_fraction_heterogeneous_steady_state(species_names)
+            elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
+                self._plot_species_mole_fraction_heterogeneous_transient(species_names)
 
     def plot_coverage(self, coverage_names):
         """
@@ -313,7 +390,10 @@ class ReactorPlotter(BasicPlotter):
             elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
                 self._plot_coverage_pseudo_homogeneous_transient_and_heterogeneous(coverage_names)
         elif self.cls.solution_parser.reactor_type == ReactorType.HETEROGENEOUSPRF:
-            self._plot_coverage_pseudo_homogeneous_transient_and_heterogeneous(coverage_names)
+            if self.cls.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+                self._plot_coverage_without_discretization(coverage_names, 'Length [m]')
+            elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
+                self._plot_coverage_pseudo_homogeneous_transient_and_heterogeneous(coverage_names)
 
     def plot_temperature(self):
         """
@@ -328,7 +408,10 @@ class ReactorPlotter(BasicPlotter):
             elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
                 self._plot_temperature_pseudo_homogeneous_transient()
         elif self.cls.solution_parser.reactor_type == ReactorType.HETEROGENEOUSPRF:
-            self._plot_temperature_heterogeneous()
+            if self.cls.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+                self._plot_temperature_heterogeneous_steady_state()
+            elif self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
+                self._plot_temperature_heterogeneous_transient()
 
     @staticmethod
     def show():

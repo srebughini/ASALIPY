@@ -159,7 +159,7 @@ class PseudoHomogeneous1DReactor(BasicReactor):
         self.inert_coverage_index = self.surf.species_index(coverage_name)
         return self.inert_coverage_index
 
-    def initial_conditions_steady_state(self):
+    def initial_condition_steady_state(self):
         """
         Function creating the initial condition of the Steady State solution
         :return: Matrix representing the initial mass fraction, coverage and temperature
@@ -169,7 +169,7 @@ class PseudoHomogeneous1DReactor(BasicReactor):
             self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
         return np.block([self.inlet_mass_fraction, self.initial_coverage, self.inlet_temperature])
 
-    def initial_conditions_transient(self):
+    def initial_condition_transient(self):
         """
         Generate initial conditions for TRANSIENT model
         :return: Vector/Matrix representing the initial conditions
@@ -203,9 +203,9 @@ class PseudoHomogeneous1DReactor(BasicReactor):
         :return: Vector/Matrix representing the initial conditions
         """
         if self.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
-            return self.initial_conditions_steady_state()
+            return self.initial_condition_steady_state()
 
-        return self.initial_conditions_transient()
+        return self.initial_condition_transient()
 
     def solve(self, tspan=None, time_ud=None):
         """
@@ -215,7 +215,7 @@ class PseudoHomogeneous1DReactor(BasicReactor):
         :return: Vector/Matrix representing the results
         """
         if self.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
-            y0 = self.initial_conditions_steady_state()
+            y0 = self.initial_condition_steady_state()
             reactor_object = SteadyStatePseudoHomogeneous1DReactor(self.gas,
                                                                    self.surf,
                                                                    self.pressure,
@@ -233,7 +233,7 @@ class PseudoHomogeneous1DReactor(BasicReactor):
             return y
 
         if self.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
-            y0 = self.initial_conditions_transient()
+            y0 = self.initial_condition_transient()
             reactor_object = TransientPseudoHomogeneous1DReactor(self.gas,
                                                                  self.surf,
                                                                  self.pressure,
