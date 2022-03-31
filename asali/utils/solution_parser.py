@@ -184,13 +184,17 @@ class SolutionParser:
                 return mass_fraction
 
         if self._reactor_type == ReactorType.HETEROGENEOUSPRF:
-            nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
-            mass_fraction = np.zeros([self._x.size], dtype=np.ndarray)
-            for i in range(0, self._y.shape[0]):
-                sol_for_time = self._y[i, :].reshape(-1, nv)
-                mass_fraction[i] = sol_for_time[:, :self.gas.n_species]
+            if self._resolution_method == ResolutionMethod.STEADYSTATE:
+                return self._y[:, :self.gas.n_species]
 
-            return mass_fraction
+            if self._resolution_method == ResolutionMethod.TRANSIENT:
+                nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
+                mass_fraction = np.zeros([self._x.size], dtype=np.ndarray)
+                for i in range(0, self._y.shape[0]):
+                    sol_for_time = self._y[i, :].reshape(-1, nv)
+                    mass_fraction[i] = sol_for_time[:, :self.gas.n_species]
+
+                return mass_fraction
 
     def get_mass_fraction_wall(self):
         """
@@ -198,13 +202,17 @@ class SolutionParser:
         :return: Vector/Matrix representing the resulting mass fraction
         """
         if self._reactor_type == ReactorType.HETEROGENEOUSPRF:
-            nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
-            mass_fraction = np.zeros([self._x.size], dtype=np.ndarray)
-            for i in range(0, self._y.shape[0]):
-                sol_for_time = self._y[i, :].reshape(-1, nv)
-                mass_fraction[i] = sol_for_time[:, self.gas.n_species:self.gas.n_species + self.gas.n_species]
+            if self._resolution_method == ResolutionMethod.STEADYSTATE:
+                return self._y[:, self.gas.n_species:self.gas.n_species + self.gas.n_species]
 
-            return mass_fraction
+            if self._resolution_method == ResolutionMethod.TRANSIENT:
+                nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
+                mass_fraction = np.zeros([self._x.size], dtype=np.ndarray)
+                for i in range(0, self._y.shape[0]):
+                    sol_for_time = self._y[i, :].reshape(-1, nv)
+                    mass_fraction[i] = sol_for_time[:, self.gas.n_species:self.gas.n_species + self.gas.n_species]
+
+                return mass_fraction
 
     def get_mole_fraction(self):
         """
@@ -245,17 +253,27 @@ class SolutionParser:
                 return mole_fraction
 
         if self._reactor_type == ReactorType.HETEROGENEOUSPRF:
-            mole_fraction = np.zeros([self._x.size], dtype=np.ndarray)
-            nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
-            for i in range(0, self._y.shape[0]):
-                sol_for_time = self._y[i, :].reshape(-1, nv)
-                mass_fraction_vector = sol_for_time[:, :self.gas.n_species]
-                mole_fraction[i] = np.zeros_like(mass_fraction_vector)
-                for j, mass_fraction in enumerate(mass_fraction_vector):
-                    self.gas.Y = mass_fraction
-                    mole_fraction[i][j, :] = self.gas.X
+            if self._resolution_method == ResolutionMethod.STEADYSTATE:
+                mole_fraction = np.zeros([len(self._x), self._gas.n_species], dtype=np.float64)
 
-            return mole_fraction
+                for i in range(0, len(self._x)):
+                    self._gas.Y = self._y[i, :self._gas.n_species]
+                    mole_fraction[i, :self._gas.n_species] = self._gas.X
+
+                return mole_fraction
+
+            if self._resolution_method == ResolutionMethod.TRANSIENT:
+                mole_fraction = np.zeros([self._x.size], dtype=np.ndarray)
+                nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
+                for i in range(0, self._y.shape[0]):
+                    sol_for_time = self._y[i, :].reshape(-1, nv)
+                    mass_fraction_vector = sol_for_time[:, :self.gas.n_species]
+                    mole_fraction[i] = np.zeros_like(mass_fraction_vector)
+                    for j, mass_fraction in enumerate(mass_fraction_vector):
+                        self.gas.Y = mass_fraction
+                        mole_fraction[i][j, :] = self.gas.X
+
+                return mole_fraction
 
     def get_mole_fraction_wall(self):
         """
@@ -263,17 +281,27 @@ class SolutionParser:
         :return: Vector/Matrix representing the resulting mass fraction
         """
         if self._reactor_type == ReactorType.HETEROGENEOUSPRF:
-            mole_fraction = np.zeros([self._x.size], dtype=np.ndarray)
-            nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
-            for i in range(0, self._y.shape[0]):
-                sol_for_time = self._y[i, :].reshape(-1, nv)
-                mass_fraction_vector = sol_for_time[:, self.gas.n_species:self.gas.n_species + self.gas.n_species]
-                mole_fraction[i] = np.zeros_like(mass_fraction_vector)
-                for j, mass_fraction in enumerate(mass_fraction_vector):
-                    self.gas.Y = mass_fraction
-                    mole_fraction[i][j, :] = self.gas.X
+            if self._resolution_method == ResolutionMethod.STEADYSTATE:
+                mole_fraction = np.zeros([len(self._x), self._gas.n_species], dtype=np.float64)
 
-            return mole_fraction
+                for i in range(0, len(self._x)):
+                    self._gas.Y = self._y[i, self.gas.n_species:self.gas.n_species + self.gas.n_species]
+                    mole_fraction[i, :self._gas.n_species] = self._gas.X
+
+                return mole_fraction
+
+            if self._resolution_method == ResolutionMethod.TRANSIENT:
+                mole_fraction = np.zeros([self._x.size], dtype=np.ndarray)
+                nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
+                for i in range(0, self._y.shape[0]):
+                    sol_for_time = self._y[i, :].reshape(-1, nv)
+                    mass_fraction_vector = sol_for_time[:, self.gas.n_species:self.gas.n_species + self.gas.n_species]
+                    mole_fraction[i] = np.zeros_like(mass_fraction_vector)
+                    for j, mass_fraction in enumerate(mass_fraction_vector):
+                        self.gas.Y = mass_fraction
+                        mole_fraction[i][j, :] = self.gas.X
+
+                return mole_fraction
 
     def get_temperature(self):
         """
@@ -298,14 +326,18 @@ class SolutionParser:
                 return temperature
 
         if self._reactor_type == ReactorType.HETEROGENEOUSPRF:
-            temperature = np.zeros([self._x.size], dtype=np.ndarray)
-            nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
+            if self._resolution_method == ResolutionMethod.STEADYSTATE:
+                return self._y[:, -2]
 
-            for i in range(0, self._y.shape[0]):
-                sol_for_time = self._y[i, :].reshape(-1, nv)
-                temperature[i] = sol_for_time[:, -2]
+            if self._resolution_method == ResolutionMethod.TRANSIENT:
+                temperature = np.zeros([self._x.size], dtype=np.ndarray)
+                nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
 
-            return temperature
+                for i in range(0, self._y.shape[0]):
+                    sol_for_time = self._y[i, :].reshape(-1, nv)
+                    temperature[i] = sol_for_time[:, -2]
+
+                return temperature
 
     def get_temperature_wall(self):
         """
@@ -313,14 +345,18 @@ class SolutionParser:
         :return: Vector/Matrix representing the resulting temperature at a fixed axial/time position
         """
         if self._reactor_type == ReactorType.HETEROGENEOUSPRF:
-            temperature = np.zeros([self._x.size], dtype=np.ndarray)
-            nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
+            if self._resolution_method == ResolutionMethod.STEADYSTATE:
+                return self._y[:, -1]
 
-            for i in range(0, self._y.shape[0]):
-                sol_for_time = self._y[i, :].reshape(-1, nv)
-                temperature[i] = sol_for_time[:, -1]
+            if self._resolution_method == ResolutionMethod.TRANSIENT:
+                temperature = np.zeros([self._x.size], dtype=np.ndarray)
+                nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
 
-            return temperature
+                for i in range(0, self._y.shape[0]):
+                    sol_for_time = self._y[i, :].reshape(-1, nv)
+                    temperature[i] = sol_for_time[:, -1]
+
+                return temperature
 
     def get_coverage(self):
         """
@@ -348,12 +384,17 @@ class SolutionParser:
                 return coverage
 
         if self._reactor_type == ReactorType.HETEROGENEOUSPRF:
-            coverage = np.zeros([self._x.size], dtype=np.ndarray)
-            nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
+            if self._resolution_method == ResolutionMethod.STEADYSTATE:
+                return self._y[:,
+                       self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species]
 
-            for i in range(0, self._y.shape[0]):
-                sol_for_time = self._y[i, :].reshape(-1, nv)
-                coverage[i] = sol_for_time[:,
-                              self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species]
+            if self._resolution_method == ResolutionMethod.TRANSIENT:
+                coverage = np.zeros([self._x.size], dtype=np.ndarray)
+                nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
 
-            return coverage
+                for i in range(0, self._y.shape[0]):
+                    sol_for_time = self._y[i, :].reshape(-1, nv)
+                    coverage[i] = sol_for_time[:,
+                                  self.gas.n_species + self.gas.n_species:self.gas.n_species + self.gas.n_species + self.surf.n_species]
+
+                return coverage

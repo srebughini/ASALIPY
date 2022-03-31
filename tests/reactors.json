@@ -1184,6 +1184,16 @@
         "format": "int"
       }
     },
+    "set_resolution_method": {
+      "input": {
+        "value": "transient",
+        "format": "string"
+      },
+      "output": {
+        "value": 1,
+        "format": "enum"
+      }
+    },
     "initial_condition": {
       "input": {
         "value": null,
