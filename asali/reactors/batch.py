@@ -34,7 +34,7 @@ class BatchReactor(BasicReactor):
         :param y: Dependent variable - Species composition, coverage and temperature
         :return:
         """
-        dy = np.zeros_like(y)
+        dy = np.zeros(shape=y.shape, dtype=np.float64)
 
         omega = y[:self.gas.n_species]
         mass = y[self.gas.n_species]
@@ -51,9 +51,12 @@ class BatchReactor(BasicReactor):
 
         dmass = self.volume * self.alfa * np.dot(gas_reaction_rates_from_surface, self.gas.molecular_weights)
 
-        domega = self.gas.molecular_weights * gas_reaction_rates / self.gas.density + (
-                -omega * dy[self.gas.n_species] + (
-                mass / self.gas.density) * self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights) / mass
+        domega = self.gas.molecular_weights * gas_reaction_rates / self.gas.density #+ (
+                #-omega * dy[self.gas.n_species] + (
+                #mass / self.gas.density) * self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights) / mass
+
+        domega = domega - omega * dy[self.gas.n_species]/mass
+        domega = domega + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights/ self.gas.density
 
         dz = coverage_reaction_rates / self.surf.site_density
 

@@ -18,7 +18,6 @@ requirements:
   host:
     - python {{ python }}
     - assimulo
-    - pint
     - cantera
     - termcolor
     - matplotlib
@@ -26,7 +25,6 @@ requirements:
   run:
     - python {{ python }}
     - assimulo
-    - pint
     - cantera
     - termcolor
     - matplotlib

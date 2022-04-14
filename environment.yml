@@ -5,7 +5,6 @@ channels:
   - omnia
 dependencies:
   - cantera
-  - pint
   - assimulo
   - termcolor
   - matplotlib

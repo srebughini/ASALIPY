@@ -242,7 +242,7 @@ class TransientHeterogeneous1DReactor:
             dTw[1:-1] = dTw[1:-1] + self.alfa * q_surface[1:-1] / (solid_cp * solid_rho * (1 - void_fraction))
             dTw[1:-1] = dTw[1:-1] + delta_T[1:-1] / (solid_cp * solid_rho * (1 - void_fraction))
 
-        dy_matrix = np.zeros_like(y_matrix)
+        dy_matrix = np.zeros(shape=y_matrix.shape, dtype=np.float64)
 
         dy_matrix[:, :self.n_s] = domegab
         dy_matrix[:, self.n_s:self.n_s + self.n_s] = domega_wall

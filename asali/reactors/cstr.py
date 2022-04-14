@@ -101,7 +101,7 @@ class CstrReactor(BasicReactor):
         :param y: Dependent variable - Species composition, coverage and temperature
         :return:
         """
-        dy = np.zeros_like(y)
+        dy = np.zeros(shape=y.shape, dtype=np.float64)
 
         omega = y[:self.gas.n_species]
         z = y[self.gas.n_species:self.gas.n_species + self.surf.n_species]

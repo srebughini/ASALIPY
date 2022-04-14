@@ -169,7 +169,7 @@ class TransientPseudoHomogeneous1DReactor:
                 dT[1:-1] = dT[1:-1] + gas_k_forward * d1st_T_forward / d2nd_length
                 dT[1:-1] = dT[1:-1] - gas_k_backward * d1st_T_backward / d2nd_length
 
-        dy_matrix = np.zeros_like(y_matrix)
+        dy_matrix = np.zeros(shape=y_matrix.shape, dtype=np.float64)
 
         dy_matrix[:, :self.gas.n_species] = domega
         dy_matrix[:, self.gas.n_species:self.gas.n_species + self.surf.n_species] = dz
