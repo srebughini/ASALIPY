@@ -111,33 +111,29 @@ class CstrReactor(BasicReactor):
         self.surf.TP = T, self.pressure
         self.surf.coverages = z
 
-        gas_reaction_rates = self.gas.net_production_rates
-        gas_reaction_rates_from_surface = self.surf.net_production_rates[:self.gas.n_species]
-        coverage_reaction_rates = self.surf.net_production_rates[-self.surf.n_species:]
+        gas_reaction_rates = self.get_homogeneous_gas_species_reaction_rates()
+        gas_reaction_rates_from_surface = self.get_heterogeneous_gas_species_reaction_rates()
+        coverage_reaction_rates = self.get_surface_species_reaction_rates()
 
-        dy[:self.gas.n_species] = (self.inlet_mass_flow_rate / self.volume) * (
-                self.inlet_mass_fraction - omega) + self.gas.molecular_weights * gas_reaction_rates / self.gas.density + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights / self.gas.density
+        domega = (self.inlet_mass_flow_rate / self.volume) * (self.inlet_mass_fraction - omega)
+        domega = domega + self.gas.molecular_weights * gas_reaction_rates
+        domega = domega + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights
+        domega = domega / self.gas.density
 
-        dy[
-        self.gas.n_species:self.gas.n_species + self.surf.n_species] = coverage_reaction_rates / self.surf.site_density
+        dz = coverage_reaction_rates / self.surf.site_density
 
+        dT = 0.0
         if self.energy:
-            if self.gas.n_reactions > 0:
-                heat_of_reaction_from_gas = -np.dot(
-                    self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
-            else:
-                heat_of_reaction_from_gas = 0.
+            heat_of_reaction_from_gas = self.get_homogeneous_heat_of_reaction()
+            heat_from_reaction_from_surface = self.get_heterogeneous_heat_of_reaction()
 
-            if self.surf.n_reactions > 0:
-                heat_from_reaction_from_surface = -np.dot(
-                    self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
-            else:
-                heat_from_reaction_from_surface = 0.
+            dT = (self.inlet_mass_flow_rate / self.volume) * (self.inlet_temperature - T) / self.gas.density
+            dT = dT + (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) / (
+                        self.gas.density * self.gas.cp_mass)
 
-            dy[-1] = (self.inlet_mass_flow_rate / self.volume) * (self.inlet_temperature - T) + (
-                    heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) / (
-                             self.gas.density * self.gas.cp_mass)
-
+        dy[:self.gas.n_species] = domega
+        dy[self.gas.n_species:self.gas.n_species + self.surf.n_species] = dz
+        dy[-1] = dT
         return dy
 
     def initial_condition(self):

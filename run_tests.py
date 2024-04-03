@@ -51,7 +51,7 @@ def batch_reactor(is_local):
     :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
-    br = BatchReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    br = BatchReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(br, "reactors.json", is_local)
     ut.check_all()
     print(" ")
@@ -63,7 +63,7 @@ def cstr_reactor(is_local):
     :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
-    cr = CstrReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    cr = CstrReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(cr, "reactors.json", is_local)
     ut.check_all()
     print(" ")
@@ -75,7 +75,7 @@ def pseudohomogeneous_reactor(is_local):
     :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
-    pfr = PseudoHomogeneous1DReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    pfr = PseudoHomogeneous1DReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(pfr, "reactors.json", is_local)
     ut.check_all()
     print(" ")
@@ -87,7 +87,7 @@ def heterogeneous_reactor(is_local):
     :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
-    pfr = Heterogeneous1DReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    pfr = Heterogeneous1DReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(pfr, "reactors.json", is_local)
     ut.check_all()
     print(" ")

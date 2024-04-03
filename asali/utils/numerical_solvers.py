@@ -87,7 +87,12 @@ class NumericalSolvers:
         sim_ode.rtol = self._rtol
         sim_ode.verbosity = self._verbosity
 
-        _, sol = sim_ode.simulate(tspan[-1], 0, tspan)
+        sol = np.zeros([len(tspan), len(y0)], dtype=np.float64)
+        for i, t in enumerate(tspan):
+            _, s = sim_ode.simulate(t)
+
+            sol[i, :] = s[-1]
+
         return tspan, sol
 
     def solve_dae(self, ode_equations, dae_equations, residuals, y0, tspan, alg):

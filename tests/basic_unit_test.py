@@ -180,6 +180,7 @@ class BasicUnitTest:
         :return: True/False output of the test, Function results
         """
         outputs = self._get_output(f, args, args_format)
+
         with open(outputs, 'r') as stream:
             outputs_as_yaml = yaml.safe_load(stream)
 

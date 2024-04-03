@@ -1,6 +1,4 @@
-from cantera import ck2cti
-from cantera import ctml_writer
-from cantera import ctml2yaml
+from cantera import ctml2yaml, ck2yaml
 from cantera import cti2yaml
 
 import os
@@ -75,33 +73,16 @@ class CanteraFileConverter:
                     "--transport=" + transport_file_path,
                     "--thermo=" + thermodynamic_file_path,
                     "--surface=" + surface_file_path,
-                    "--output=" + output_file_path], output_file_path
+                    "--output=" + output_file_path,
+                    "--quiet",
+                    "--permissive"], output_file_path
 
         return ["--input=" + kinetic_file_path,
                 "--transport=" + transport_file_path,
                 "--thermo=" + thermodynamic_file_path,
-                "--output=" + output_file_path], output_file_path
-
-    @staticmethod
-    def from_chemkin_to_cti(kinetic_file_path, thermodynamic_file_path, transport_file_path, surface_file_path=None,
-                            output_file_path=None):
-        """
-        Convert from CHEMKIN input files to Cantera .cti file
-        :param kinetic_file_path: CHEMKIN kinetic file path
-        :param thermodynamic_file_path: CHEMKIN thermodynamic file path
-        :param transport_file_path: CHEMKIN transport file path
-        :param surface_file_path: CHEMKIN surface kinetic file path
-        :param output_file_path: Output file path
-        :return: Cantera .cti output file path
-        """
-        input_list, file_path = CanteraFileConverter.parse_chemkin_inputs(kinetic_file_path,
-                                                                          thermodynamic_file_path,
-                                                                          transport_file_path,
-                                                                          surface_file_path,
-                                                                          output_file_path,
-                                                                          ".cti")
-        ck2cti.main(input_list)
-        return file_path
+                "--output=" + output_file_path,
+                "--quiet",
+                "--permissive"], output_file_path
 
     @staticmethod
     def from_chemkin_to_yaml(kinetic_file_path, thermodynamic_file_path, transport_file_path, surface_file_path=None,
@@ -114,36 +95,16 @@ class CanteraFileConverter:
         :param surface_file_path: CHEMKIN surface kinetic file path
         :param output_file_path: Output file path
         :return: Cantera .yaml output file path
-        TODO
-        ck2yaml.main(CanteraFileConverter.parse_chemkin_inputs(kinetic_file_path,
-                                                               thermodynamic_file_path,
-                                                               transport_file_path,
-                                                               surface_file_path,
-                                                               output_file_path,
-                                                               ".yaml"))
         """
-        file_path = CanteraFileConverter.from_chemkin_to_cti(kinetic_file_path,
-                                                             thermodynamic_file_path,
-                                                             transport_file_path,
-                                                             surface_file_path,
-                                                             output_file_path)
 
-        return CanteraFileConverter.from_cti_to_yaml(CanteraFileConverter.replace_extension(file_path, ".cti"),
-                                                     CanteraFileConverter.replace_extension(file_path, ".yaml"))
-
-    @staticmethod
-    def from_cti_to_xml(input_file_path, output_file_path):
-        """
-        Convert from Cantera .cti file to Cantera .xml file
-        :param input_file_path: Cantera .cti input file path
-        :param output_file_path: Cantera .xml output file path
-        :return: Cantera .xml output file path
-        """
-        CanteraFileConverter.check_if_file_exist(input_file_path)
-        CanteraFileConverter.check_file_extension(input_file_path, ".cti")
-
-        file_path = CanteraFileConverter.replace_extension(output_file_path, ".xml")
-        ctml_writer.convert(filename=input_file_path, outName=file_path)
+        input_list, _ = CanteraFileConverter.parse_chemkin_inputs(kinetic_file_path,
+                                                                  thermodynamic_file_path,
+                                                                  transport_file_path,
+                                                                  surface_file_path,
+                                                                  output_file_path,
+                                                                  ".yaml")
+        ck2yaml.main(input_list)
+        file_path = CanteraFileConverter.replace_extension(output_file_path, ".yaml")
         return file_path
 
     @staticmethod

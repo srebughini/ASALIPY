@@ -184,35 +184,6 @@
     }
   },
   "CanteraFileConverter": {
-    "from_chemkin_to_cti": {
-      "input": {
-        "value": [
-          "tests/CanteraFileConverter/kinetic.kin",
-          "tests/CanteraFileConverter/thermo.tdc",
-          "tests/CanteraFileConverter/transport.tra",
-          "tests/CanteraFileConverter/surface.sur",
-          "temp.cti"
-        ],
-        "format": "tuple"
-      },
-      "output": {
-        "value": "tests/CanteraFileConverter/from_chemkin_to_cti.cti",
-        "format": "file"
-      }
-    },
-    "from_cti_to_xml": {
-      "input": {
-        "value": [
-          "tests/CanteraFileConverter/from_chemkin_to_cti.cti",
-          "temp.xml"
-        ],
-        "format": "tuple"
-      },
-      "output": {
-        "value": "tests/CanteraFileConverter/from_cti_to_xml.xml",
-        "format": "file"
-      }
-    },
     "from_chemkin_to_yaml": {
       "input": {
         "value": [
@@ -226,32 +197,6 @@
       },
       "output": {
         "value": "tests/CanteraFileConverter/from_chemkin_to_yaml.yaml",
-        "format": "yaml"
-      }
-    },
-    "from_cti_to_yaml": {
-      "input": {
-        "value": [
-          "tests/CanteraFileConverter/from_chemkin_to_cti.cti",
-          "temp.yaml"
-        ],
-        "format": "tuple"
-      },
-      "output": {
-        "value": "tests/CanteraFileConverter/from_cti_to_yaml.yaml",
-        "format": "yaml"
-      }
-    },
-    "from_xml_to_yaml": {
-      "input": {
-        "value": [
-          "tests/CanteraFileConverter/from_cti_to_xml.xml",
-          "temp.xml"
-        ],
-        "format": "tuple"
-      },
-      "output": {
-        "value": "tests/CanteraFileConverter/from_xml_to_yaml.yaml",
         "format": "yaml"
       }
     }
