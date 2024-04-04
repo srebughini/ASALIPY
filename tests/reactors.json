@@ -563,7 +563,7 @@
     },
     "example": null
   },
-  "PseudoHomogeneous1DReactor": {
+  "SteadyStatePseudoHomogeneous1DReactor": {
     "set_integration_parameters": {
       "input": {
         "value": [
@@ -585,23 +585,23 @@
     "set_length": {
       "input": {
         "value": [
-          1,
+          2.5,
           "dm"
         ],
         "format": "tuple"
       },
       "output": {
         "value": [
-          0,
-          0.01111111,
-          0.02222222,
-          0.03333333,
-          0.04444444,
+          0.0,
+          0.02777778,
           0.05555556,
-          0.06666667,
-          0.07777778,
-          0.08888889,
-          0.1
+          0.08333333,
+          0.11111111,
+          0.13888889,
+          0.16666667,
+          0.19444444,
+          0.22222222,
+          0.25
         ],
         "format": "array"
       }
@@ -609,39 +609,39 @@
     "set_diameter": {
       "input": {
         "value": [
-          50,
-          "m"
+          10,
+          "mm"
         ],
         "format": "tuple"
       },
       "output": {
-        "value": 50,
+        "value": 0.01,
         "format": "float"
       }
     },
     "set_pressure": {
       "input": {
         "value": [
-          5,
+          20,
           "bar"
         ],
         "format": "tuple"
       },
       "output": {
-        "value": 5e05,
+        "value": 20e05,
         "format": "float"
       }
     },
     "set_catalytic_load": {
       "input": {
         "value": [
-          150,
+          75,
           "1/m"
         ],
         "format": "tuple"
       },
       "output": {
-        "value": 150,
+        "value": 75,
         "format": "float"
       }
     },
@@ -661,13 +661,13 @@
     "set_volumetric_flow_rate": {
       "input": {
         "value": [
-          1,
+          10,
           "m3/h"
         ],
         "format": "tuple"
       },
       "output": {
-        "value": 0.0002777777777777778,
+        "value": 0.002777777777777778,
         "format": "float"
       }
     },
@@ -712,13 +712,13 @@
     "set_inlet_temperature": {
       "input": {
         "value": [
-          120,
+          240,
           "degC"
         ],
         "format": "tuple"
       },
       "output": {
-        "value": 393.15,
+        "value": 513.15,
         "format": "float"
       }
     },
@@ -770,16 +770,6 @@
         "format": "bool"
       }
     },
-    "set_resolution_method": {
-      "input": {
-        "value": "steadystate",
-        "format": "string"
-      },
-      "output": {
-        "value": 0,
-        "format": "enum"
-      }
-    },
     "initial_condition": {
       "input": {
         "value": null,
@@ -796,24 +786,14 @@
           0,
           0,
           0,
-          393.15
+          513.15
         ],
         "format": "array"
       }
     },
     "solve": {
       "input": {
-        "value": [
-          [
-            0,
-            0.1,
-            0.5,
-            1,
-            2,
-            5
-          ],
-          "min"
-        ],
+        "value": [null, null],
         "format": "tuple"
       },
       "output": {

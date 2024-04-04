@@ -2,8 +2,7 @@ from asali.reactors.basic import BasicReactor
 
 import numpy as np
 
-from asali.reactors.ph1d_transient import TransientPseudoHomogeneous1DReactor
-from asali.utils.input_parser import InputParser, ReactorType, ResolutionMethod
+from asali.utils.input_parser import InputParser, ReactorType
 
 
 class PseudoHomogeneous1DReactor(BasicReactor):

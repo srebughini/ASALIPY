@@ -71,7 +71,7 @@ class BasicUnitTest:
             function_name = f
 
         tested_function = '{}::{}'.format(self.cls.__class__.__name__, function_name)
-        msg = 'ASALI::{}{} --> {}'.format(tested_function, ' ' * (60 - len(tested_function)), output)
+        msg = 'ASALI::{}{} --> {}'.format(tested_function, ' ' * (85 - len(tested_function)), output)
         print(colored(msg, color))
 
     def _convert_path(self, f, results, results_format):
