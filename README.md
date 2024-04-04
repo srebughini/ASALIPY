@@ -34,7 +34,7 @@ conda env create -f environment.yml
 conda activate asali
 ```  
 ## 3. Equations
-Equations solved for each reactor model can be found [here](https://github.com/srebughini/ASALIPY/tree/main/asali/reactors/EQUATIONS.md)
+Equations solved for each reactor model can be found [here](EQUATIONS.md)
 
 ## 4. Examples
 Examples on how to use reactor models can be found [here](https://github.com/srebughini/ASALIPY/tree/main/examples).
