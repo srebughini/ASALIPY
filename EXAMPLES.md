@@ -8,7 +8,7 @@ import os
 from asali.reactors.batch import BatchReactor
 
 if __name__ == "__main__":
-    b = BatchReactor(os.path.join('examples/files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')  # Initialize reactor class
+    b = BatchReactor(os.path.join('examples/files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')  # Initialize reactor class
     b.set_volume(10., 'mm3')  # Set reactor volume in [mm3]
     b.set_pressure(5, 'bar')  # Set reactor pressure in [bar]
     b.set_catalytic_load(15, '1/m')  # Set catalytic load in [1/m]
@@ -30,7 +30,7 @@ import os
 from asali.reactors.cstr import CstrReactor
 
 if __name__ == "__main__":
-    c = CstrReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')  # Initialize reactor class
+    c = CstrReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')  # Initialize reactor class
     c.set_volume(5., 'dm3')  # Set reactor volume in [dm3]
     c.set_pressure(5, 'bar')  # Set reactor pressure in [bar]
     c.set_catalytic_load(150, '1/m')  # Set catalytic load in [1/m]
@@ -56,7 +56,7 @@ import os
 from asali.reactors.ph1d import PseudoHomogeneous1DReactor
 
 if __name__ == "__main__":
-    p = PseudoHomogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')  # Initialize reactor class
+    p = PseudoHomogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')  # Initialize reactor class
     p.set_length(2.5, 'm')  # Set reactor length in [m]
     p.set_diameter(10., 'mm')  # Set reactor diameter in [mm]
     p.set_pressure(20, 'bar')  # Set reactor pressure in [bar]
@@ -117,7 +117,7 @@ import os
 from asali.reactors.het1d import Heterogeneous1DReactor
 
 if __name__ == "__main__":
-    h = Heterogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')  # Initialize reactor class
+    h = Heterogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')  # Initialize reactor class
     h.set_length([0, 0.05, 0.1, 0.15, 0.2, 0.6, 0.65], 'm')  # Set reactor length in [m]
     h.set_pressure(5, 'bar')  # Set reactor pressure in [bar]
     h.set_catalytic_load(10, '1/m')  # Set catalytic load in [1/m]
@@ -144,7 +144,7 @@ import os
 from asali.reactors.het1d import Heterogeneous1DReactor
 
 if __name__ == "__main__":
-    h = Heterogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')  # Initialize reactor class
+    h = Heterogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')  # Initialize reactor class
     h.set_length([0, 0.05, 0.1, 0.15, 0.2, 0.6, 0.65], 'm')  # Set reactor length in [m]
     h.set_pressure(5, 'bar')  # Set reactor pressure in [bar]
     h.set_catalytic_load(10, '1/m')  # Set catalytic load in [1/m]
@@ -172,7 +172,7 @@ from asali.reactors.het1d import Heterogeneous1DReactor
 from asali.plotters.reactor import ReactorPlotter
 
 if __name__ == "__main__":
-    h = Heterogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')
+    h = Heterogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')
     h.set_length([0, 0.05, 0.1, 0.15, 0.2, 0.6, 0.65], 'm')
     h.set_pressure(5, 'bar')
     h.set_catalytic_load(10, '1/m')
