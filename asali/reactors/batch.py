@@ -89,9 +89,6 @@ class BatchReactor(BasicReactor):
         :param time_ud: Time unit dimension
         :return: Vector/Matrix representing the results
         """
-
-        print(self.equations(0, self.initial_condition().flatten()))
-
         x, y = self.numerical_solver.solve_ode(self.equations,
                                                self.initial_condition(),
                                                self.uc.convert_to_seconds(tspan, time_ud))

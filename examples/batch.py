@@ -11,7 +11,7 @@ if __name__ == "__main__":
     b.set_initial_mole_fraction({'O2': 0.4, 'AR': 0.5, 'H2': 0.1})
     b.set_initial_temperature(120, 'degC')
     b.set_initial_coverage({'Rh(s)': 1})
-    b.set_energy(0)
+    b.set_energy(1)
     b.solve([0, 0.1, 0.5, 5], 's')
 
     plt = ReactorPlotter(b)
