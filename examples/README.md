@@ -30,17 +30,17 @@ from asali.reactors.cstr import CstrReactor
 
 if __name__ == "__main__":
     c = CstrReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')  # Initialize reactor class
-    c.set_volume(5., 'm3')  # Set reactor volume in [m3]
+    c.set_volume(5., 'dm3')  # Set reactor volume in [dm3]
     c.set_pressure(5, 'bar')  # Set reactor pressure in [bar]
     c.set_catalytic_load(150, '1/m')  # Set catalytic load in [1/m]
     c.set_volumetric_flow_rate(1, 'm3/h')  # Set volumetric flow rate in [m3/h]
     c.set_inlet_temperature(120, 'degC')  # Set inlet gas temperature in [°C]
     c.set_inlet_mass_fraction({'O2': 0.4, 'AR': 0.5, 'H2': 0.1})  # Set inlet gas composition using mass fraction
     c.set_initial_mass_fraction({'AR': 1})  # Set reactor initial composition using mass fraction
-    c.set_initial_temperature(25, 'degC')  # Set reactor initial temperature in [°C]
+    c.set_initial_temperature(50, 'degC')  # Set reactor initial temperature in [°C]
     c.set_initial_coverage({'Rh(s)': 1})  # Set reactor initial coverage
     c.set_energy(1)  # Enable energy balance
-    c.solve([0, 0.1, 0.5, 1, 2, 5], 'min')  # Solve for different time steps in [min]
+    c.solve(list(range(0, 30, 1)), 's')  # Solve for different time steps in [s]
 ```
 
 ## **1-D Pseudo-Homogeneous Plug Flow Reactor**
@@ -85,10 +85,10 @@ the [catalytic combustion of hydrogen over rhodium](https://www.detchem.com/mech
 
 ```python
 import os
-from asali.reactors.ph1d import PseudoHomogeneous1DReactor
+from asali.reactors.ph1d_steady_state import SteadyStatePseudoHomogeneous1DReactor
 
 if __name__ == "__main__":
-    p = PseudoHomogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')  # Initialize reactor class
+    p = SteadyStatePseudoHomogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')
     p.set_length(2.5, 'm')  # Set reactor length in [m]
     p.set_diameter(10., 'mm')  # Set reactor diameter in [mm]
     p.set_pressure(20, 'bar')  # Set reactor pressure in [bar]
@@ -100,7 +100,6 @@ if __name__ == "__main__":
     p.set_energy(True)  # Enable energy balance
     p.set_inert_specie('AR')  # Set inert specie
     p.set_inert_coverage('Rh(s)')  # Set inert coverage
-    p.set_resolution_method("STEADYSTATE")  # Set resolution method
     p.set_gas_diffusion(False)  # Disable gas diffusion
     p.set_verbosity(False)  # Disable solver verbosity
     p.solve()  # Solve

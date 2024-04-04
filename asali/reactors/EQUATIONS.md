@@ -38,6 +38,22 @@ In the following the list of the equations solved for each reactor model
 ```math
 \frac{\partial T}{\partial t} = \frac{\dot{m}(T^0 - T)}{V&rho;} + \frac{Q^{hom}}{&rho;c_{p}} + \frac{&alpha;Q^{het}}{&rho;c_{p}}
 ```
+
+## **1-D Pseudo-Homogeneous Plug Flow Reactor**
+### Steady-State
+#### Mass balance
+```math
+\frac{\partial &omega;_{i}}{\partial t} = \frac{\dot{m}(&omega;^0 - &omega;_i )}{V&rho;} + \frac{MW_{i}{R_{i}}^{hom}}{&rho;} + \frac{&alpha;MW_{i}{R_{i}}^{het}}{&rho;}
+```
+#### Coverage balance
+```math
+\frac{\partial &theta;_{j}}{\partial t} = \frac{{R_{j}}^{het}}{&Gamma;}
+```
+#### Energy balance
+```math
+\frac{\partial T}{\partial t} = \frac{\dot{m}(T^0 - T)}{V&rho;} + \frac{Q^{hom}}{&rho;c_{p}} + \frac{&alpha;Q^{het}}{&rho;c_{p}}
+```
+
 ## Symbols
 Here is the symbols meaning:
 |Symbol|Meaning|Unit dimension|
