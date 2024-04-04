@@ -6,8 +6,8 @@
   <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda (channel only)" src="https://img.shields.io/conda/vn/asalicode/asali?color=blue&style=popout-square"></a>
   <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda - License" src="https://img.shields.io/conda/l/asalicode/asali?style=popout-square"></a>
   <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/dn/asalicode/asali?style=popout-square"></a>
-  <a href="https://www.codefactor.io/repository/github/srebughini/asalipy"><img src="https://www.codefactor.io/repository/github/srebughini/asalipy/badge?style=popout-square" alt="CodeFactor" /></a>
-  <a href="https://github.com/srebughini/ASALI/stargazers"><img src="https://img.shields.io/github/stars/srebughini/ASALI.svg?style=popout-square"></a>
+  <img alt="CodeFactor Grade" src="https://img.shields.io/codefactor/grade/github/srebughini/ASALIPY?style=flat-square">
+  <a href="https://github.com/srebughini/ASALIPY/stargazers"><img src="https://img.shields.io/github/stars/srebughini/ASALIPY.svg?style=popout-square"></a>
 </p>
 
 ## 1. Introduction
