@@ -2,7 +2,6 @@ from asali.reactors.basic import BasicReactor
 
 import numpy as np
 
-from asali.reactors.ph1d_steady_state import SteadyStatePseudoHomogeneous1DReactor
 from asali.reactors.ph1d_transient import TransientPseudoHomogeneous1DReactor
 from asali.utils.input_parser import InputParser, ReactorType, ResolutionMethod
 
@@ -36,15 +35,6 @@ class PseudoHomogeneous1DReactor(BasicReactor):
         self.length = None
 
         self.reactor_equations = None
-
-    def set_resolution_method(self, method):
-        """
-        Set resolution method
-        :param method: Resolution method as string
-        :return: ResolutionMethod object
-        """
-        self.solution_parser.resolution_method = InputParser.resolution_parser(method)
-        return self.solution_parser.resolution_method
 
     def set_length(self, value, unit_dimension):
         """
@@ -159,102 +149,72 @@ class PseudoHomogeneous1DReactor(BasicReactor):
         self.inert_coverage_index = self.surf.species_index(coverage_name)
         return self.inert_coverage_index
 
-    def initial_condition_steady_state(self):
-        """
-        Function creating the initial condition of the Steady State solution
-        :return: Matrix representing the initial mass fraction, coverage and temperature
-        """
-        if not self.is_mass_flow_rate:
-            self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
-            self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
-        return np.block([self.inlet_mass_fraction, self.initial_coverage, self.inlet_temperature])
-
-    def initial_condition_transient(self):
-        """
-        Generate initial conditions for TRANSIENT model
-        :return: Vector/Matrix representing the initial conditions
-        """
-        NP = self.length.size
-        NV = self.gas.n_species + self.surf.n_species + 1
-        y0_matrix = np.zeros([NP, NV], dtype=np.float64)
-
-        y0_matrix[:, :self.gas.n_species] = self.gas.Y
-        y0_matrix[:, self.gas.n_species:self.gas.n_species + self.surf.n_species] = self.surf.coverages
-        y0_matrix[:, -1] = self.initial_temperature
-
-        if not self.energy:
-            self.inlet_temperature = self.initial_temperature
-
-        y0_matrix[0, :self.gas.n_species] = self.inlet_mass_fraction
-        y0_matrix[0, -1] = self.inlet_temperature
-
-        if not self.is_mass_flow_rate:
-            self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
-            self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
-
-        return y0_matrix.flatten()
+    # def initial_condition_transient(self):
+    #     """
+    #     Generate initial conditions for TRANSIENT model
+    #     :return: Vector/Matrix representing the initial conditions
+    #     """
+    #     NP = self.length.size
+    #     NV = self.gas.n_species + self.surf.n_species + 1
+    #     y0_matrix = np.zeros([NP, NV], dtype=np.float64)
+    #
+    #     y0_matrix[:, :self.gas.n_species] = self.gas.Y
+    #     y0_matrix[:, self.gas.n_species:self.gas.n_species + self.surf.n_species] = self.surf.coverages
+    #     y0_matrix[:, -1] = self.initial_temperature
+    #
+    #     if not self.energy:
+    #         self.inlet_temperature = self.initial_temperature
+    #
+    #     y0_matrix[0, :self.gas.n_species] = self.inlet_mass_fraction
+    #     y0_matrix[0, -1] = self.inlet_temperature
+    #
+    #     if not self.is_mass_flow_rate:
+    #         self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
+    #         self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
+    #
+    #     return y0_matrix.flatten()
 
     def equations(self, t, y):
         pass
 
     def initial_condition(self):
-        """
-        Generate initial conditions for the selected model
-        :return: Vector/Matrix representing the initial conditions
-        """
-        if self.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
-            return self.initial_condition_steady_state()
-
-        return self.initial_condition_transient()
+        pass
 
     def solve(self, tspan=None, time_ud=None):
-        """
-        Solve selected model
-        :param tspan: Vector representing the integration time
-        :param time_ud: Time unit dimension
-        :return: Vector/Matrix representing the results
-        """
-        if self.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
-            y0 = self.initial_condition_steady_state()
-            reactor_object = SteadyStatePseudoHomogeneous1DReactor(self.gas,
-                                                                   self.surf,
-                                                                   self.pressure,
-                                                                   self.alfa,
-                                                                   self.energy,
-                                                                   self.inlet_mass_flow_rate,
-                                                                   self.area)
-            x, y = reactor_object.solve(self.numerical_solver,
-                                        self.length,
-                                        y0)
-
-            self.solution_parser.x = x
-            self.solution_parser.y = y
-            self.solution_parser.is_solved = True
-            return y
-
-        if self.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
-            y0 = self.initial_condition_transient()
-            reactor_object = TransientPseudoHomogeneous1DReactor(self.gas,
-                                                                 self.surf,
-                                                                 self.pressure,
-                                                                 self.alfa,
-                                                                 self.energy,
-                                                                 self.inlet_mass_flow_rate,
-                                                                 self.area,
-                                                                 self.gas_diffusion,
-                                                                 self.inlet_temperature,
-                                                                 self.inlet_mass_fraction,
-                                                                 self.length,
-                                                                 self.inert_specie_index,
-                                                                 self.inert_coverage_index)
-            x, y = reactor_object.solve(self.numerical_solver,
-                                        self.uc.convert_to_seconds(tspan, time_ud),
-                                        y0)
-
-            self.solution_parser.x = x
-            self.solution_parser.y = y
-            self.solution_parser.length = self.length
-            self.solution_parser.is_solved = True
-            return y
-
-        return None
+        pass
+        # if self.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
+        #     x, y = self.numerical_solver.solve_ode(self.equations_steady_state,
+        #                                            self.initial_condition_steady_state(),
+        #                                            self.length)
+        #
+        #     self.solution_parser.x = x
+        #     self.solution_parser.y = y
+        #     self.solution_parser.is_solved = True
+        #     return y
+        #
+        # if self.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
+        #     y0 = self.initial_condition_transient()
+        #     reactor_object = TransientPseudoHomogeneous1DReactor(self.gas,
+        #                                                          self.surf,
+        #                                                          self.pressure,
+        #                                                          self.alfa,
+        #                                                          self.energy,
+        #                                                          self.inlet_mass_flow_rate,
+        #                                                          self.area,
+        #                                                          self.gas_diffusion,
+        #                                                          self.inlet_temperature,
+        #                                                          self.inlet_mass_fraction,
+        #                                                          self.length,
+        #                                                          self.inert_specie_index,
+        #                                                          self.inert_coverage_index)
+        #     x, y = reactor_object.solve(self.numerical_solver,
+        #                                 self.uc.convert_to_seconds(tspan, time_ud),
+        #                                 y0)
+        #
+        #     self.solution_parser.x = x
+        #     self.solution_parser.y = y
+        #     self.solution_parser.length = self.length
+        #     self.solution_parser.is_solved = True
+        #     return y
+        #
+        # return None

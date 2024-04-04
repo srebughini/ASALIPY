@@ -45,25 +45,24 @@ class BatchReactor(BasicReactor):
         self.surf.TP = T, self.pressure
         self.surf.coverages = z
 
-        gas_reaction_rates = self.get_homogeneous_gas_species_reaction_rates()
-        gas_reaction_rates_from_surface = self.get_heterogeneous_gas_species_reaction_rates()
-        coverage_reaction_rates = self.get_surface_species_reaction_rates()
+        r_gas = self.get_homogeneous_gas_species_reaction_rates()
+        r_from_surface = self.get_heterogeneous_gas_species_reaction_rates()
+        r_surface = self.get_surface_species_reaction_rates()
 
-        dmass = self.volume * self.alfa * np.dot(gas_reaction_rates_from_surface, self.gas.molecular_weights)
+        dmass = self.volume * self.alfa * np.dot(r_from_surface, self.gas.molecular_weights)
 
-        domega = self.gas.molecular_weights * gas_reaction_rates / self.gas.density
+        domega = self.gas.molecular_weights * r_gas / self.gas.density
         domega = domega - omega * dmass / mass
-        domega = domega + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights / self.gas.density
+        domega = domega + self.alfa * r_from_surface * self.gas.molecular_weights / self.gas.density
 
-        dz = coverage_reaction_rates / self.surf.site_density
+        dz = r_surface / self.surf.site_density
 
         dT = 0
         if self.energy:
-            heat_of_reaction_from_gas = self.get_homogeneous_heat_of_reaction()
-            heat_from_reaction_from_surface = self.get_heterogeneous_heat_of_reaction()
+            q_from_gas = self.get_homogeneous_heat_of_reaction()
+            q_from_surface = self.get_heterogeneous_heat_of_reaction()
 
-            dT = (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) / (
-                    self.gas.density * self.gas.cp_mass)
+            dT = (q_from_gas + self.alfa * q_from_surface) / (self.gas.density * self.gas.cp_mass)
 
         dy[:self.gas.n_species] = domega
         dy[self.gas.n_species] = dmass

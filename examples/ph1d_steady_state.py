@@ -1,10 +1,11 @@
 import os
 
-from asali.reactors.ph1d import PseudoHomogeneous1DReactor
+from asali.reactors.ph1d_steady_state import SteadyStatePseudoHomogeneous1DReactor
 from asali.plotters.reactor import ReactorPlotter
 
+
 if __name__ == "__main__":
-    p = PseudoHomogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')
+    p = SteadyStatePseudoHomogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')
     p.set_length(2.5, 'm')
     p.set_diameter(10., 'mm')
     p.set_pressure(20, 'bar')
@@ -16,7 +17,6 @@ if __name__ == "__main__":
     p.set_energy(True)
     p.set_inert_specie('AR')
     p.set_inert_coverage('Rh(s)')
-    p.set_resolution_method("STEADYSTATE")
     p.set_gas_diffusion(True)
     p.set_verbosity(False)
     p.solve()
