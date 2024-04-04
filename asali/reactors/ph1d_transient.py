@@ -1,56 +1,44 @@
 import numpy as np
 
+from asali.reactors.ph1d import PseudoHomogeneous1DReactor
+from asali.utils.input_parser import ResolutionMethod
 
-class TransientPseudoHomogeneous1DReactor:
-    def __init__(self,
-                 gas,
-                 surf,
-                 pressure,
-                 alfa,
-                 energy,
-                 inlet_mass_flow_rate,
-                 area,
-                 gas_diffusion,
-                 inlet_temperature,
-                 inlet_mass_fraction,
-                 length,
-                 inert_specie_index,
-                 inert_coverage_index):
+
+class TransientPseudoHomogeneous1DReactor(PseudoHomogeneous1DReactor):
+    def __init__(self, cantera_input_file, gas_phase_name, surface_phase_name):
         """
-        Class representing PseudoHomogeneous 1D reactor model
-        :param gas: Cantera gas phase object
-        :param surf: Cantera surface phase object
-        :param pressure: Reactor pressure
-        :param alfa: Reactor catalytic load
-        :param energy: Enable/Disable energy balance
-        :param inlet_mass_flow_rate: Reactor inlet mass flow rate
-        :param area: Reactor section area
-        :param gas_diffusion: Enable/Disable gas diffusion
-        :param inlet_temperature: Inlet temperature
-        :param inlet_mass_fraction: Inlet mass fraction
-        :param length: Reactor length
-        :param inert_specie_index: Inert specie index
-        :param inert_coverage_index: Inert coverage index
+        Class representing Steady State pseudoHomogeneous 1D reactor model
+        :param cantera_input_file: Cantera file path
+        :param gas_phase_name: Cantera gas phase name
+        :param surface_phase_name: Cantera interface phase name
         """
-        self.gas = gas
-        self.surf = surf
-        self.pressure = pressure
-        self.alfa = alfa
-        self.energy = energy
-        self.inlet_mass_flow_rate = inlet_mass_flow_rate
-        self.area = area
-        self.gas_diffusion = gas_diffusion
+        super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name,
+                         surface_phase_name=surface_phase_name)
 
-        self.inlet_temperature = inlet_temperature
-        self.inlet_mass_fraction = inlet_mass_fraction
-        self.length = length
+        self.solution_parser.resolution_method = ResolutionMethod.TRANSIENT
 
-        self.inert_specie_index = inert_specie_index
-        self.inert_coverage_index = inert_coverage_index
+    def initial_condition(self):
+        """
+        Generate initial conditions for TRANSIENT model
+        :return: Vector/Matrix representing the initial conditions
+        """
+        y0_matrix = np.zeros([self.n_p, self.n_v], dtype=np.float64)
 
-        self.n_p = self.length.size
-        self.n_v = self.gas.n_species + self.surf.n_species + 1
-        self.alg = None
+        y0_matrix[:, :self.gas.n_species] = self.gas.Y
+        y0_matrix[:, self.gas.n_species:self.gas.n_species + self.surf.n_species] = self.surf.coverages
+        y0_matrix[:, -1] = self.initial_temperature
+
+        if not self.energy:
+            self.inlet_temperature = self.initial_temperature
+
+        y0_matrix[0, :self.gas.n_species] = self.inlet_mass_fraction
+        y0_matrix[0, -1] = self.inlet_temperature
+
+        if not self.is_mass_flow_rate:
+            self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
+            self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
+
+        return y0_matrix.flatten()
 
     def equations(self, t, y):
         """
@@ -69,7 +57,7 @@ class TransientPseudoHomogeneous1DReactor:
         r_from_surface = np.zeros([self.n_p, self.gas.n_species], dtype=np.float64)
         r_surface = np.zeros([self.n_p, self.surf.n_species], dtype=np.float64)
         gas_mix_diff = np.zeros([self.n_p, self.gas.n_species], dtype=np.float64)
-        q_gas = np.zeros([self.n_p], dtype=np.float64)
+        q_from_gas = np.zeros([self.n_p], dtype=np.float64)
         q_from_surface = np.zeros([self.n_p], dtype=np.float64)
         gas_rho = np.zeros([self.n_p], dtype=np.float64)
         gas_cp = np.zeros([self.n_p], dtype=np.float64)
@@ -97,11 +85,8 @@ class TransientPseudoHomogeneous1DReactor:
             gas_mix_diff[i, :] = diff_mix
 
             if self.energy:
-                if self.gas.n_reactions > 0:
-                    q_gas[i] = -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
-
-                if self.surf.n_reactions > 0:
-                    q_from_surface[i] = -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
+                q_from_gas[i] = self.get_homogeneous_heat_of_reaction()
+                q_from_surface[i] = self.get_heterogeneous_heat_of_reaction()
 
         domega = np.zeros_like(omega)
         dT = np.zeros_like(T)
@@ -129,7 +114,7 @@ class TransientPseudoHomogeneous1DReactor:
             else:
                 dT_outlet_derivative = (T[-1] - T[-2]) / (self.length[-1] - self.length[-2])
                 dT[-1] = -(self.inlet_mass_flow_rate / (self.area * gas_rho[-1])) * dT_outlet_derivative
-                dT[-1] = dT[-1] + q_gas[-1] / (gas_rho[-1] * gas_cp[-1])
+                dT[-1] = dT[-1] + q_from_gas[-1] / (gas_rho[-1] * gas_cp[-1])
                 dT[-1] = dT[-1] + self.alfa * q_from_surface[-1] / (gas_rho[-1] * gas_cp[-1])
 
         # Equations for mass
@@ -159,7 +144,7 @@ class TransientPseudoHomogeneous1DReactor:
         if self.energy:
             d1st_T_backward = (T[1:-1] - T[:-2]) / d1st_length_backward
             dT[1:-1] = -(self.inlet_mass_flow_rate / (self.area * gas_rho[1:-1])) * d1st_T_backward
-            dT[1:-1] = dT[1:-1] + q_gas[1:-1] / (gas_rho[1:-1] * gas_cp[1:-1])
+            dT[1:-1] = dT[1:-1] + q_from_gas[1:-1] / (gas_rho[1:-1] * gas_cp[1:-1])
             dT[1:-1] = dT[1:-1] + self.alfa * q_from_surface[1:-1] / (gas_rho[1:-1] * gas_cp[1:-1])
 
             if self.gas_diffusion:
@@ -223,19 +208,25 @@ class TransientPseudoHomogeneous1DReactor:
         res[diff_mask] = res[diff_mask] - dy[diff_mask]
         return res
 
-    def solve(self, numerical_solver, tspan, initial_conditions):
+    def solve(self, tspan, time_ud):
         """
-        Solve Transient equations
-        :param numerical_solver: Numerical solver object
-        :param tspan: Integration time
-        :param initial_conditions: Reactor initial conditions
+        Solve model
+        :param tspan: Vector representing the integration time
+        :param time_ud: Time unit dimension
+        :return: Vector/Matrix representing the results
         :return: Time vector,
                  Matrix representing the solution in terms of composition, coverage and temperature as function of time and reactor length
         """
         self.alg = self.algebraic_equations()
-        return numerical_solver.solve_dae(self.ode_equations,
-                                          self.equations,
-                                          self.residuals,
-                                          initial_conditions,
-                                          tspan,
-                                          self.alg)
+        x, y = self.numerical_solver.solve_dae(self.ode_equations,
+                                               self.equations,
+                                               self.residuals,
+                                               self.initial_condition(),
+                                               self.uc.convert_to_seconds(tspan, time_ud),
+                                               self.alg)
+
+        self.solution_parser.x = x
+        self.solution_parser.y = y
+        self.solution_parser.length = self.length
+        self.solution_parser.is_solved = True
+        return y
