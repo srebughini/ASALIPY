@@ -37,7 +37,7 @@ conda activate asali
 Equations solved for each reactor model can be found [here](EQUATIONS.md)
 
 ## 4. Examples
-Examples on how to use reactor models can be found [here](https://github.com/srebughini/ASALIPY/tree/main/examples).
+Examples on how to use reactor models can be found [here](EXAMPLES.md).
 
 ## 5. Contacts
 If you want to contribute, ask questions, report bugs compile the form [here](https://srebughini.github.io/ASALI/pages/contacts/) or [open an issue](https://github.com/srebughini/ASALIPY/issues).
