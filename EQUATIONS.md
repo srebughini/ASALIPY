@@ -53,6 +53,20 @@ In the following the list of the equations solved for each reactor model
 \frac{\partial T}{\partial z} = \frac{A(Q^{hom} + &alpha;Q^{het})}{\dot{m}c_{p}}
 ```
 
+## **1-D Pseudo-Homogeneous Plug Flow Reactor: *Transient***
+#### Mass balance
+```math
+\frac{\partial &omega;_{i}}{\partial z} = \frac{MW_{i}A({R_{i}}^{hom} + &alpha;{R_{i}}^{het})}{\dot{m}}
+```
+#### Coverage balance
+```math
+0 = \frac{{R_{j}}^{het}}{&Gamma;}
+```
+#### Energy balance
+```math
+\frac{\partial T}{\partial z} = \frac{A(Q^{hom} + &alpha;Q^{het})}{\dot{m}c_{p}}
+```
+
 ## Symbols
 Here is the symbols meaning:
 |Symbol|Meaning|Unit dimension|
