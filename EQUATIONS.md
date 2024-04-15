@@ -67,6 +67,19 @@ In the following the list of the equations solved for each reactor model
 \frac{\partial T}{\partial t} = -\frac{\dot{m}}{A&rho;}\frac{\partial T}{\partial z} +  \frac{k^{gas}_{mix}}{&rho;c_{p}}\frac{\partial^2 T}{\partial^2 z} + \frac{Q^{hom}}{&rho;c_{p}} + \frac{&alpha;Q^{het}}{&rho;c_{p}}
 ```
 
+## **1-D Heterogeneous Plug Flow Reactor: *Steady-State***
+#### Mass balance
+
+#### Solid mass balance
+
+#### Coverage balance
+```math
+0 = \frac{{R_{j}}^{het}}{&Gamma;}
+```
+#### Energy balance
+
+#### Solid energy balance
+
 ## Symbols
 Here is the symbols meaning:
 |Symbol|Meaning|Unit dimension|

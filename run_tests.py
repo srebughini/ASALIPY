@@ -1,6 +1,6 @@
 from asali.reactors.batch import BatchReactor
 from asali.reactors.cstr import CstrReactor
-from asali.reactors.het1d import Heterogeneous1DReactor
+from asali.reactors.het1d_steady_state import SteadyStateHeterogeneous1DReactor
 from asali.reactors.ph1d_steady_state import SteadyStatePseudoHomogeneous1DReactor
 from asali.reactors.ph1d_transient import TransientPseudoHomogeneous1DReactor
 from asali.utils.input_parser import InputParser
@@ -94,13 +94,13 @@ def transient_pseudohomogeneous_reactor(is_local):
     print(" ")
 
 
-def heterogeneous_reactor(is_local):
+def steady_state_heterogeneous_reactor(is_local):
     """
-    Run unit test for Heterogeneous1DReactor
+    Run unit test for SteadyStateHeterogeneous1DReactor
     :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
-    pfr = Heterogeneous1DReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
+    pfr = SteadyStateHeterogeneous1DReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(pfr, "reactors.json", is_local)
     ut.check_all()
     print(" ")
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         cstr_reactor(args.is_local)
         steady_state_pseudohomogeneous_reactor(args.is_local)
         transient_pseudohomogeneous_reactor(args.is_local)
-        heterogeneous_reactor(args.is_local)
+        steady_state_heterogeneous_reactor(args.is_local)
     elif class_to_check == "unitconverter":
         unit_converter()
     elif class_to_check == "batchreactor":
@@ -136,8 +136,8 @@ if __name__ == "__main__":
         steady_state_pseudohomogeneous_reactor(args.is_local)
     elif class_to_check == "transientpseudohomogeneous1dreactor":
         transient_pseudohomogeneous_reactor(args.is_local)
-    elif class_to_check == "heterogeneous1dreactor":
-        heterogeneous_reactor(args.is_local)
+    elif class_to_check == "steadystateheterogeneous1dreactor":
+        steady_state_heterogeneous_reactor(args.is_local)
     elif class_to_check == "canterafileconverter":
         cantera_file_converter()
     elif class_to_check == "inputparser":

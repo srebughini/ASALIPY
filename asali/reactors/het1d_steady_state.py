@@ -1,65 +1,25 @@
-import copy
-
 import numpy as np
 
+from asali.reactors.het1d import Heterogeneous1DReactor
+from asali.utils.input_parser import ResolutionMethod
 
-class SteadyStateHeterogeneous1DReactor:
-    def __init__(self,
-                 gas,
-                 surf,
-                 pressure,
-                 alfa,
-                 energy,
-                 inlet_mass_flow_rate,
-                 gas_diffusion,
-                 inlet_temperature,
-                 inlet_mass_fraction,
-                 length,
-                 inert_specie_index,
-                 inert_coverage_index,
-                 reactor_shape_object,
-                 solid):
+
+class SteadyStateHeterogeneous1DReactor(Heterogeneous1DReactor):
+    def __init__(self, cantera_input_file, gas_phase_name, surface_phase_name):
         """
-        Class representing Heterogeneous 1D reactor model
-        :param gas: Cantera gas phase object
-        :param surf: Cantera surface phase object
-        :param pressure: Reactor pressure
-        :param alfa: Reactor catalytic load
-        :param energy: Enable/Disable energy balance
-        :param inlet_mass_flow_rate: Reactor inlet mass flow rate
-        :param gas_diffusion: Enable/Disable gas diffusion
-        :param inlet_temperature: Inlet temperature
-        :param inlet_mass_fraction: Inlet mass fraction
-        :param length: Reactor length
-        :param inert_specie_index: Inert specie index
-        :param inert_coverage_index: Inert coverage index
-        :param reactor_shape_object: Reactor shape class object
-        :param solid: Solid class object
+        Class representing Steady State pseudoHomogeneous 1D reactor model
+        :param cantera_input_file: Cantera file path
+        :param gas_phase_name: Cantera gas phase name
+        :param surface_phase_name: Cantera interface phase name
         """
-        self.gas = gas
-        self.surf = surf
-        self.pressure = pressure
-        self.alfa = alfa
-        self.energy = energy
-        self.inlet_mass_flow_rate = inlet_mass_flow_rate
-        self.gas_diffusion = gas_diffusion
+        super().__init__(cantera_input_file=cantera_input_file, gas_phase_name=gas_phase_name,
+                         surface_phase_name=surface_phase_name)
 
-        self.inlet_temperature = inlet_temperature
-        self.inlet_mass_fraction = inlet_mass_fraction
-        self.length = length
+        self.solution_parser.resolution_method = ResolutionMethod.STEADYSTATE
 
-        self.inert_specie_index = inert_specie_index
-        self.inert_coverage_index = inert_coverage_index
-
-        self.reactor_shape_object = reactor_shape_object
-        self.solid = solid
-
-        self.n_p = self.length.size
         self.n_s = self.gas.n_species
         self.n_surf = self.surf.n_species
         self.n_v = self.n_s + self.n_s + self.n_surf + 1 + 1
-        self.alg = None
-
         self.n_loop = 5
 
     def estimate_integration_time(self):
@@ -68,37 +28,14 @@ class SteadyStateHeterogeneous1DReactor:
         :return: Integration time
         """
         self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
+        if self.is_mass_flow_rate:
+            return self.inlet_mass_flow_rate / (
+                    self.gas.density * self.reactor_shape_object.section_area * self.reactor_shape_object.void_fraction)
+
+        self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
         return self.inlet_mass_flow_rate / (
                 self.gas.density * self.reactor_shape_object.section_area * self.reactor_shape_object.void_fraction)
 
-    def estimate_mass_transfer_coefficient(self, viscosity, density, diffusivity):
-        """
-        Estimate mass transfer coefficient based on ReactorModel
-        :param viscosity: Gas viscosity in [Pas]
-        :param density: Gas density in [kg/m3]
-        :param diffusivity: Gas mixture diffusivity in [m2/s]
-        :return: Mass transfer coefficient
-        """
-
-        self.reactor_shape_object.length = self.length
-        return self.reactor_shape_object.estimate_mass_transfer_coefficient(self.inlet_mass_flow_rate,
-                                                                            viscosity,
-                                                                            density,
-                                                                            diffusivity)
-
-    def estimate_heat_transfer_coefficient(self, viscosity, conductivity, specific_heat):
-        """
-        Estimate heat transfer coefficient based on ReactorModel
-        :param viscosity: Gas viscosity in [Pas]
-        :param conductivity: Gas thermal conductivity in [W/m/K]
-        :param specific_heat: Gas specific heat in [J/kg/K]
-        :return: Heat transfer coefficient
-        """
-        self.reactor_shape_object.length = self.length
-        return self.reactor_shape_object.estimate_heat_transfer_coefficient(self.inlet_mass_flow_rate,
-                                                                            viscosity,
-                                                                            conductivity,
-                                                                            specific_heat)
 
     def interpolate_variables_vector(self, xp, fp, x):
         """
@@ -145,8 +82,8 @@ class SteadyStateHeterogeneous1DReactor:
         r_from_surface = np.zeros([self.n_p, self.n_s], dtype=np.float64)
         r_surface = np.zeros([self.n_p, self.n_surf], dtype=np.float64)
         gas_mix_diff = np.zeros([self.n_p, self.n_s], dtype=np.float64)
-        q_gas = np.zeros([self.n_p], dtype=np.float64)
-        q_surface = np.zeros([self.n_p], dtype=np.float64)
+        q_from_gas = np.zeros([self.n_p], dtype=np.float64)
+        q_from_surface = np.zeros([self.n_p], dtype=np.float64)
         gas_rho = np.zeros([self.n_p], dtype=np.float64)
         gas_cp = np.zeros([self.n_p], dtype=np.float64)
         gas_k = np.zeros([self.n_p], dtype=np.float64)
@@ -155,7 +92,7 @@ class SteadyStateHeterogeneous1DReactor:
         for i in range(0, self.n_p):
             self.gas.TPY = Tb[i], self.pressure, omegab[i, :]
 
-            r_gas[i, :] = self.gas.net_production_rates * self.gas.molecular_weights
+            r_gas[i, :] = self.get_homogeneous_gas_species_reaction_rates() * self.gas.molecular_weights
 
             gas_rho[i] = self.gas.density
             gas_mu[i] = self.gas.viscosity
@@ -168,18 +105,16 @@ class SteadyStateHeterogeneous1DReactor:
             gas_mix_diff[i, :] = diff_mix
 
             if self.energy:
-                if self.gas.n_reactions > 0:
-                    q_gas[i] = -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
+                q_from_gas[i] = self.get_homogeneous_heat_of_reaction()
 
             self.gas.TPY = Tw[i], self.pressure, omegaw[i, :]
             self.surf.TP = Tw[i], self.pressure
             self.surf.coverages = z[i, :]
-            r_from_surface[i, :] = self.surf.net_production_rates[:self.n_s] * self.gas.molecular_weights
-            r_surface[i, :] = self.surf.net_production_rates[-self.n_surf:]
+            r_from_surface[i, :] = self.get_heterogeneous_gas_species_reaction_rates() * self.gas.molecular_weights
+            r_surface[i, :] = self.get_surface_species_reaction_rates()
 
             if self.energy:
-                if self.surf.n_reactions > 0:
-                    q_surface[i] = -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
+                q_from_surface[i] = self.get_heterogeneous_heat_of_reaction()
 
         k_mat = self.estimate_mass_transfer_coefficient(gas_mu, gas_rho, gas_mix_diff)
         k_heat = self.estimate_heat_transfer_coefficient(gas_mu, gas_k, gas_cp)
@@ -215,7 +150,7 @@ class SteadyStateHeterogeneous1DReactor:
             else:
                 d1st_Tb_outlet = (Tb[-1] - Tb[-2]) / (self.length[-1] - self.length[-2])
                 dTb[-1] = -(self.inlet_mass_flow_rate / (area * gas_rho[-1])) * d1st_Tb_outlet
-                dTb[-1] = dTb[-1] + q_gas[-1] / (gas_rho[-1] * gas_cp[-1])
+                dTb[-1] = dTb[-1] + q_from_gas[-1] / (gas_rho[-1] * gas_cp[-1])
                 dTb[-1] = dTb[-1] - delta_T[-1] / (void_fraction * gas_rho[-1] * gas_cp[-1])
 
             dTw[-1] = Tw[-1] - Tw[-2]
@@ -253,7 +188,7 @@ class SteadyStateHeterogeneous1DReactor:
             # Equations of BULK energy
             d1st_Tb_backward = (Tb[1:-1] - Tb[:-2]) / d1st_length_backward
             dTb[1:-1] = -(self.inlet_mass_flow_rate / (area * gas_rho[1:-1])) * d1st_Tb_backward
-            dTb[1:-1] = dTb[1:-1] + q_gas[1:-1] / (gas_rho[1:-1] * gas_cp[1:-1])
+            dTb[1:-1] = dTb[1:-1] + q_from_gas[1:-1] / (gas_rho[1:-1] * gas_cp[1:-1])
             dTb[1:-1] = dTb[1:-1] - delta_T[1:-1] / (void_fraction * gas_rho[1:-1] * gas_cp[1:-1])
 
             if self.gas_diffusion:
@@ -268,7 +203,7 @@ class SteadyStateHeterogeneous1DReactor:
             d1st_Tw_backward = (Tw[1:-1] - Tw[:-2]) / d1st_length_backward
 
             dTw[1:-1] = (solid_k / (solid_cp * solid_rho)) * (d1st_Tw_forward - d1st_Tw_backward) / d2nd_length
-            dTw[1:-1] = dTw[1:-1] + self.alfa * q_surface[1:-1] / (solid_cp * solid_rho * (1 - void_fraction))
+            dTw[1:-1] = dTw[1:-1] + self.alfa * q_from_surface[1:-1] / (solid_cp * solid_rho * (1 - void_fraction))
             dTw[1:-1] = dTw[1:-1] + delta_T[1:-1] / (solid_cp * solid_rho * (1 - void_fraction))
 
         dy_matrix = np.zeros(shape=y_matrix.shape, dtype=np.float64)
@@ -347,13 +282,41 @@ class SteadyStateHeterogeneous1DReactor:
         res[diff_mask] = res[diff_mask] - dy[diff_mask]
         return res
 
-    def solve(self, numerical_solver, initial_conditions):
+    def initial_condition(self):
         """
-        Solve Transient equations
-        :param numerical_solver: Numerical solver object
-        :param initial_conditions: Reactor initial conditions
-        :return: Time vector,
-                 Matrix representing the solution in terms of composition, coverage and temperature as function of time and reactor length
+        Function creating the initial condition of the Steady State solution
+        :return: Matrix representing the initial mass fraction, coverage and temperature
+        """
+        self.initial_mass_fraction = self.inlet_mass_fraction
+        self.initial_temperature = self.inlet_temperature
+
+        y0_matrix = np.zeros([self.n_p, self.n_v], dtype=np.float64)
+
+        y0_matrix[:, :self.n_s] = self.initial_mass_fraction
+        y0_matrix[:, self.n_s:self.n_s + self.n_s] = self.initial_mass_fraction
+        y0_matrix[:, self.n_s + self.n_s:self.n_s + self.n_s + self.n_surf] = self.initial_coverage
+        y0_matrix[:, -2] = self.initial_temperature
+        y0_matrix[:, -1] = self.initial_solid_temperature
+
+        if not self.energy:
+            self.inlet_temperature = self.initial_temperature
+            y0_matrix[:, -1] = self.initial_temperature
+
+        y0_matrix[0, :self.n_s] = self.inlet_mass_fraction
+        y0_matrix[0, -1] = self.inlet_temperature
+
+        if not self.is_mass_flow_rate:
+            self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
+            self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
+
+        return y0_matrix.flatten()
+
+    def solve(self, tspan=None, time_ud=None):
+        """
+        Solve selected model
+        :param tspan: Not required
+        :param time_ud: Not required
+        :return: Vector/Matrix representing the results
         """
         tspan = [0, 100 * self.estimate_integration_time()]
 
@@ -361,18 +324,18 @@ class SteadyStateHeterogeneous1DReactor:
 
         length_matrix = [self.length[np.linspace(0, len(self.length) - 1, num=n_p, dtype=int)] for n_p in n_p_vector]
 
-        y0 = self.interpolate_variables_vector(self.length, initial_conditions, length_matrix[0])
+        y0 = self.interpolate_variables_vector(self.length, self.initial_condition(), length_matrix[0])
 
         for i, n_p in enumerate(n_p_vector[:-1]):
             self.n_p = n_p
             self.length = length_matrix[i]
             self.alg = self.algebraic_equations()
-            _, y = numerical_solver.solve_dae(self.ode_equations,
-                                              self.equations,
-                                              self.residuals,
-                                              y0,
-                                              tspan,
-                                              self.alg)
+            _, y = self.numerical_solver.solve_dae(self.ode_equations,
+                                                   self.equations,
+                                                   self.residuals,
+                                                   y0,
+                                                   tspan,
+                                                   self.alg)
 
             y0 = self.interpolate_variables_vector(self.length, y[-1, :], length_matrix[i + 1])
 
@@ -380,11 +343,15 @@ class SteadyStateHeterogeneous1DReactor:
         self.n_p = self.length.size
         self.alg = self.algebraic_equations()
 
-        _, y = numerical_solver.solve_dae(self.ode_equations,
-                                          self.equations,
-                                          self.residuals,
-                                          y0,
-                                          tspan,
-                                          self.alg)
+        _, y = self.numerical_solver.solve_dae(self.ode_equations,
+                                               self.equations,
+                                               self.residuals,
+                                               y0,
+                                               tspan,
+                                               self.alg)
 
-        return self.length, y[-1, :].reshape(self.n_p, self.n_v)
+        self.solution_parser.x = self.length
+        self.solution_parser.y = y[-1, :].reshape(self.n_p, self.n_v)
+        self.solution_parser.length = self.length
+        self.solution_parser.is_solved = True
+        return self.solution_parser.y

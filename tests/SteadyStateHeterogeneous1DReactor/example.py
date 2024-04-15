@@ -1,8 +1,8 @@
-from asali.reactors.het1d import Heterogeneous1DReactor
+from asali.reactors.het1d_steady_state import SteadyStateHeterogeneous1DReactor
 
 
 def main(cantera_input_file, gas_phase_name, surface_phase_name):
-    h = Heterogeneous1DReactor(cantera_input_file, gas_phase_name, surface_phase_name)
+    h = SteadyStateHeterogeneous1DReactor(cantera_input_file, gas_phase_name, surface_phase_name)
     h.set_length([0, 0.001, 0.025, 0.05, 0.1, 0.15, 0.2, 0.6, 0.65, 1.0, 1.5, 2.0], 'm')
     h.set_pressure(5, 'bar')
     h.set_catalytic_load(10, '1/m')
@@ -17,6 +17,5 @@ def main(cantera_input_file, gas_phase_name, surface_phase_name):
     h.set_energy(True)
     h.set_gas_diffusion(False)
     h.set_verbosity(False)
-    h.set_resolution_method("STEADYSTATE")
     h.set_packed_bed_reactor(0.3, 'mm', 1, 'cm', 0.75)
     return h.solve()

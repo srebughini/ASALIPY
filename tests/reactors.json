@@ -1170,7 +1170,7 @@
     },
     "example": null
   },
-  "Heterogeneous1DReactor": {
+  "SteadyStateHeterogeneous1DReactor": {
     "set_integration_parameters": {
       "input": {
         "value": [
@@ -1234,13 +1234,13 @@
     "set_catalytic_load": {
       "input": {
         "value": [
-          10,
+          5,
           "1/m"
         ],
         "format": "tuple"
       },
       "output": {
-        "value": 10,
+        "value": 5,
         "format": "float"
       }
     },
@@ -1481,16 +1481,6 @@
         "format": "int"
       }
     },
-    "set_resolution_method": {
-      "input": {
-        "value": "transient",
-        "format": "string"
-      },
-      "output": {
-        "value": 1,
-        "format": "enum"
-      }
-    },
     "initial_condition": {
       "input": {
         "value": null,
@@ -1536,14 +1526,29 @@
         "format": "path"
       }
     },
+    "get_coverage": {
+      "input": {
+        "value": null,
+        "format": "none"
+      },
+      "output": {
+        "value": null,
+        "format": "path"
+      }
+    },
     "get_mass_fraction": {
       "input": {
         "value": -1,
         "format": "int"
       },
       "output": {
-        "value": null,
-        "format": "path"
+        "value": [
+          0.08710223,
+          0.29764317,
+          0.1152546,
+          0.5
+        ],
+        "format": "array"
       }
     },
     "get_mole_fraction": {
@@ -1552,8 +1557,13 @@
         "format": "int"
       },
       "output": {
-        "value": null,
-        "format": "path"
+        "value": [
+          0.60494286,
+          0.13024129,
+          0.08957764,
+          0.17523821
+        ],
+        "format": "array"
       }
     },
     "get_temperature": {
@@ -1562,8 +1572,8 @@
         "format": "int"
       },
       "output": {
-        "value": null,
-        "format": "path"
+        "value": 1742.3717425557313,
+        "format": "float"
       }
     },
     "get_solid_mole_fraction": {
@@ -1572,8 +1582,13 @@
         "format": "int"
       },
       "output": {
-        "value": null,
-        "format": "path"
+        "value": [
+          0.6048756,
+          0.13017719,
+          0.08969878,
+          0.17524843
+        ],
+        "format": "array"
       }
     },
     "get_solid_mass_fraction": {
@@ -1582,8 +1597,13 @@
         "format": "int"
       },
       "output": {
-        "value": null,
-        "format": "path"
+        "value": [
+          0.08709004,
+          0.2974881,
+          0.11540714,
+          0.50001472
+        ],
+        "format": "array"
       }
     },
     "get_solid_temperature": {
@@ -1592,8 +1612,8 @@
         "format": "int"
       },
       "output": {
-        "value": null,
-        "format": "path"
+        "value": 1742.3752150078576,
+        "format": "float"
       }
     },
     "example": null

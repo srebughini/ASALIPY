@@ -103,6 +103,7 @@ class BasicReactorShape(ABC):
         :param diffusivity: Gas mixture diffusivity in [m2/s]
         :return: Mass transfer coefficient
         """
+        pass
 
     @abstractmethod
     def estimate_heat_transfer_coefficient(self, mass_flow_rate, viscosity, conductivity, specific_heat):
@@ -114,3 +115,4 @@ class BasicReactorShape(ABC):
         :param specific_heat: Gas specific heat in [J/kg/K]
         :return: Heat transfer coefficient
         """
+        pass
