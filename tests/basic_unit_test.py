@@ -121,6 +121,10 @@ class BasicUnitTest:
         if outputs_as_array.shape == results_as_array.shape:
             return np.allclose(outputs, results, atol=atol, rtol=rtol), outputs, results
 
+        if outputs_as_array.size == results_as_array.size:
+            return np.allclose(outputs.flatten(), results.flatten(), atol=atol,
+                               rtol=rtol), outputs.flatten(), results.flatten()
+
         return False, outputs, results
 
     def _check_enum(self, f, results, args, args_format):

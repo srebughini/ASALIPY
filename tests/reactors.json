@@ -793,7 +793,324 @@
     },
     "solve": {
       "input": {
-        "value": [null, null],
+        "value": [
+          null,
+          null
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": null,
+        "format": "path"
+      }
+    },
+    "get_results": {
+      "input": {
+        "value": null,
+        "format": "none"
+      },
+      "output": {
+        "value": null,
+        "format": "path"
+      }
+    },
+    "get_mass_fraction": {
+      "input": {
+        "value": null,
+        "format": "none"
+      },
+      "output": {
+        "value": null,
+        "format": "path"
+      }
+    },
+    "get_mole_fraction": {
+      "input": {
+        "value": null,
+        "format": "none"
+      },
+      "output": {
+        "value": null,
+        "format": "path"
+      }
+    },
+    "get_temperature": {
+      "input": {
+        "value": null,
+        "format": "none"
+      },
+      "output": {
+        "value": null,
+        "format": "path"
+      }
+    },
+    "get_coverage": {
+      "input": {
+        "value": null,
+        "format": "none"
+      },
+      "output": {
+        "value": null,
+        "format": "path"
+      }
+    },
+    "example": null
+  },
+  "TransientPseudoHomogeneous1DReactor": {
+    "set_length": {
+      "input": {
+        "value": [
+          2.5,
+          "dm"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": [
+          0.0,
+          0.02777778,
+          0.05555556,
+          0.08333333,
+          0.11111111,
+          0.13888889,
+          0.16666667,
+          0.19444444,
+          0.22222222,
+          0.25
+        ],
+        "format": "array"
+      }
+    },
+    "set_diameter": {
+      "input": {
+        "value": [
+          10,
+          "mm"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 0.01,
+        "format": "float"
+      }
+    },
+    "set_pressure": {
+      "input": {
+        "value": [
+          20,
+          "bar"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 20e05,
+        "format": "float"
+      }
+    },
+    "set_catalytic_load": {
+      "input": {
+        "value": [
+          75,
+          "1/m"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 75,
+        "format": "float"
+      }
+    },
+    "set_mass_flow_rate": {
+      "input": {
+        "value": [
+          1,
+          "kg/s"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 1,
+        "format": "float"
+      }
+    },
+    "set_volumetric_flow_rate": {
+      "input": {
+        "value": [
+          10,
+          "m3/h"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 0.002777777777777778,
+        "format": "float"
+      }
+    },
+    "set_inlet_mole_fraction": {
+      "input": {
+        "value": {
+          "O2": 0.4,
+          "AR": 0.5,
+          "H2": 0.1
+        },
+        "format": "dict"
+      },
+      "output": {
+        "value": [
+          0.1,
+          0.4,
+          0,
+          0.5
+        ],
+        "format": "array"
+      }
+    },
+    "set_inlet_mass_fraction": {
+      "input": {
+        "value": {
+          "O2": 0.4,
+          "AR": 0.5,
+          "H2": 0.1
+        },
+        "format": "dict"
+      },
+      "output": {
+        "value": [
+          0.1,
+          0.4,
+          0,
+          0.5
+        ],
+        "format": "array"
+      }
+    },
+    "set_inlet_temperature": {
+      "input": {
+        "value": [
+          240,
+          "degC"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 513.15,
+        "format": "float"
+      }
+    },
+    "set_initial_coverage": {
+      "input": {
+        "value": {
+          "Rh(s)": 1
+        },
+        "format": "dict"
+      },
+      "output": {
+        "value": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "format": "array"
+      }
+    },
+    "set_initial_mole_fraction": {
+      "input": {
+        "value": {
+          "O2": 0.4,
+          "AR": 0.5,
+          "H2": 0.1
+        },
+        "format": "dict"
+      },
+      "output": {
+        "value": [
+          0.1,
+          0.4,
+          0,
+          0.5
+        ],
+        "format": "array"
+      }
+    },
+    "set_initial_mass_fraction": {
+      "input": {
+        "value": {
+          "O2": 0.4,
+          "AR": 0.5,
+          "H2": 0.1
+        },
+        "format": "dict"
+      },
+      "output": {
+        "value": [
+          0.1,
+          0.4,
+          0,
+          0.5
+        ],
+        "format": "array"
+      }
+    },
+    "set_initial_temperature": {
+      "input": {
+        "value": [
+          240,
+          "degC"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 513.15,
+        "format": "float"
+      }
+    },
+    "set_inert_specie": {
+      "input": {
+        "value": "AR",
+        "format": "string"
+      },
+      "output": {
+        "value": 3,
+        "format": "int"
+      }
+    },
+    "set_inert_coverage": {
+      "input": {
+        "value": "Rh(s)",
+        "format": "string"
+      },
+      "output": {
+        "value": 0,
+        "format": "int"
+      }
+    },
+    "set_energy": {
+      "input": {
+        "value": 1,
+        "format": "float"
+      },
+      "output": {
+        "value": true,
+        "format": "bool"
+      }
+    },
+    "solve": {
+      "input": {
+        "value": [
+          [
+            0,
+            0.005,
+            0.01,
+            0.02,
+            0.03,
+            0.04,
+            0.05,
+            0.06
+          ],
+          "s"
+        ],
         "format": "tuple"
       },
       "output": {

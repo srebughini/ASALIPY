@@ -2,6 +2,7 @@ from asali.reactors.batch import BatchReactor
 from asali.reactors.cstr import CstrReactor
 from asali.reactors.het1d import Heterogeneous1DReactor
 from asali.reactors.ph1d_steady_state import SteadyStatePseudoHomogeneous1DReactor
+from asali.reactors.ph1d_transient import TransientPseudoHomogeneous1DReactor
 from asali.utils.input_parser import InputParser
 from tests.basic_unit_test import BasicUnitTest
 from tests.reactor_unit_test import ReactorUnitTest
@@ -81,6 +82,18 @@ def steady_state_pseudohomogeneous_reactor(is_local):
     print(" ")
 
 
+def transient_pseudohomogeneous_reactor(is_local):
+    """
+    Run unit test for TransientPseudoHomogeneous1DReactor
+    :param is_local: Bool that shows if the test is performed locally or not
+    :return:
+    """
+    pfr = TransientPseudoHomogeneous1DReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
+    ut = ReactorUnitTest(pfr, "reactors.json", is_local)
+    ut.check_all()
+    print(" ")
+
+
 def heterogeneous_reactor(is_local):
     """
     Run unit test for Heterogeneous1DReactor
@@ -111,6 +124,7 @@ if __name__ == "__main__":
         batch_reactor(args.is_local)
         cstr_reactor(args.is_local)
         steady_state_pseudohomogeneous_reactor(args.is_local)
+        transient_pseudohomogeneous_reactor(args.is_local)
         heterogeneous_reactor(args.is_local)
     elif class_to_check == "unitconverter":
         unit_converter()
@@ -119,7 +133,9 @@ if __name__ == "__main__":
     elif class_to_check == "cstrreactor":
         cstr_reactor(args.is_local)
     elif class_to_check == "steadystatepseudohomogeneous1dreactor":
-        steady_state_pseudohomogeneous_reactor(args.is_local) #TODO prepare for steady state and transient
+        steady_state_pseudohomogeneous_reactor(args.is_local)
+    elif class_to_check == "transientpseudohomogeneous1dreactor":
+        transient_pseudohomogeneous_reactor(args.is_local)
     elif class_to_check == "heterogeneous1dreactor":
         heterogeneous_reactor(args.is_local)
     elif class_to_check == "canterafileconverter":
