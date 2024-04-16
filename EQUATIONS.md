@@ -69,9 +69,13 @@ In the following the list of the equations solved for each reactor model
 
 ## **1-D Heterogeneous Plug Flow Reactor: *Steady-State***
 #### Mass balance
-
+```math
+\frac{\dot{m}}{A&rho;}\frac{\partial &omega;_{i}}{\partial z} = + D^{mix}_{i}\frac{\partial^2 &omega;_{i}}{\partial^2 z} -\frac{A_{s}K_{mat}}{&epsi;}(&omega;_{i} - &omega;^S_{i})+ \frac{MW_{i}{R_{i}}^{hom}}{&rho;}
+```
 #### Solid mass balance
-
+```math
+0 = A_{s}K_{mat}&rho;&epsi;(&omega;_{i} - &omega;^S_{i}) + &epsi;&alpha;MW_{i}{R_{i}}^{het}
+```
 #### Coverage balance
 ```math
 0 = \frac{{R_{j}}^{het}}{&Gamma;}
@@ -80,6 +84,7 @@ In the following the list of the equations solved for each reactor model
 
 #### Solid energy balance
 
+
 ## Symbols
 Here is the symbols meaning:
 |Symbol|Meaning|Unit dimension|
@@ -87,14 +92,18 @@ Here is the symbols meaning:
 |$i$|Gas specie index|$-$|
 |$j$|Coverage specie index|$-$|
 |$&alpha;$|Catalytic load|$\frac{1}{m}$|
+|$&epsi;$|Reactor void fraction|$-$|
 |$&omega;$|Gas mass fraction|$-$|
 |$&omega;^0$|Gas mass fraction at initial conditions|$-$|
+|$&omega;^S$|Gas mass fraction in the solid phase|$-$|
 |&theta;|Coverage fraction|$-$|
 |$&Gamma;$|Site density|$\frac{kmol}{m^2}$|
 |$A$|Reactor cross section area|$m^2$|
+|$A_{s}$|Reactor specific area|$\frac{1}{m}$|
 |$c_{p}$|Specific heat|$\frac{J}{kgK}$|
 |$D^{mix}$|Mixture diffusion coefficient|$\frac{m^2}{s}$|
 |$k^{gas}_{mix}$|Mixture thermal conductivity|$\frac{W}{mK}$|
+|$K_{mat}$|Gas-to-solid mass transfer coefficient|$\frac{m}{s}$|
 |$m$|Total mass|$kg$|
 |$\dot{m}$|Inlet mass flow rate|$\frac{kg}{m^3s}$|
 |$MW_{i}$|Gas specie molecular weight|$\frac{kg}{kmol}$|
