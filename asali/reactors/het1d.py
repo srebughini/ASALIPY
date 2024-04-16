@@ -7,6 +7,8 @@ from asali.utils.input_parser import ReactorType, InputParser
 from asali.utils.solid_material import SolidMaterial
 from asali.reactors.shapes.tubular import TubularReactorShape
 
+import numpy as np
+
 
 class Heterogeneous1DReactor(Basic1DReactor, ABC):
     def __init__(self, cantera_input_file, gas_phase_name, surface_phase_name):
@@ -24,6 +26,10 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
         self.reactor_shape_object = None
         self.initial_solid_temperature = 0.
         self.reactor_section = None
+
+        self.n_s = self.gas.n_species
+        self.n_surf = self.surf.n_species
+        self.n_v = self.n_s + self.n_s + self.n_surf + 1 + 1
 
     def set_reactor_section(self, method):
         """
@@ -166,108 +172,178 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
                                                                             conductivity,
                                                                             specific_heat)
 
-    # def initial_condition(self):
-    #     """
-    #     Generate initial conditions for the selected model
-    #     :return: Vector/Matrix representing the initial conditions
-    #     """
-    #     if self.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
-    #         return self.initial_condition_steady_state()
-    #
-    #     return self.initial_condition_transient()
+    def equations(self, t, y):
+        """
+        Function representing the Reactor model equations
+        :param t: Independent variable - Time
+        :param y: Dependent variable - Species composition, coverage and temperature as function of reactor length
+        :return: Dependent variable variations based on independent variable
+        """
+        # Extraction of geometrical properties
+        void_fraction = self.reactor_shape_object.void_fraction
+        area = self.reactor_shape_object.section_area
+        specific_area = self.reactor_shape_object.specific_area
 
+        # Extraction of solid properties
+        solid_k = self.solid.thermal_conductivity
+        solid_cp = self.solid.specific_heat
+        solid_rho = self.solid.density
 
+        y_matrix = y.reshape(self.n_p, self.n_v)
 
-    # def initial_condition_transient(self):
-    #     """
-    #     Function creating the initial condition of the Transient solution
-    #     :return: Vector/Matrix representing the initial conditions
-    #     """
-    #     n_p = self.length.size
-    #     n_s = self.gas.n_species
-    #     n_surf = self.surf.n_species
-    #     n_v = n_s + n_s + n_surf + 1 + 1
-    #
-    #     y0_matrix = np.zeros([n_p, n_v], dtype=np.float64)
-    #
-    #     y0_matrix[:, :n_s] = self.initial_mass_fraction
-    #     y0_matrix[:, n_s:n_s + n_s] = self.initial_mass_fraction
-    #     y0_matrix[:, n_s + n_s:n_s + n_s + n_surf] = self.initial_coverage
-    #     y0_matrix[:, -2] = self.initial_temperature
-    #     y0_matrix[:, -1] = self.initial_solid_temperature
-    #
-    #     if not self.energy:
-    #         self.inlet_temperature = self.initial_temperature
-    #         y0_matrix[:, -1] = self.initial_temperature
-    #
-    #     y0_matrix[0, :n_s] = self.inlet_mass_fraction
-    #     y0_matrix[0, -1] = self.inlet_temperature
-    #
-    #     if not self.is_mass_flow_rate:
-    #         self.gas.TPY = self.inlet_temperature, self.pressure, self.inlet_mass_fraction
-    #         self.inlet_mass_flow_rate = self.inlet_volumetric_flow_rate * self.gas.density
-    #
-    #     return y0_matrix.flatten()
-    #
-    # def solve(self, tspan=None, time_ud=None):
-    #     """
-    #     Solve selected model
-    #     :param tspan: Vector representing the integration time
-    #     :param time_ud: Time unit dimension
-    #     :return: Vector/Matrix representing the results
-    #     """
-    #     if self.solution_parser.resolution_method == ResolutionMethod.STEADYSTATE:
-    #         y0 = self.initial_condition_steady_state()
-    #         reactor_object = SteadyStateHeterogeneous1DReactor(self.gas,
-    #                                                            self.surf,
-    #                                                            self.pressure,
-    #                                                            self.alfa,
-    #                                                            self.energy,
-    #                                                            self.inlet_mass_flow_rate,
-    #                                                            self.gas_diffusion,
-    #                                                            self.inlet_temperature,
-    #                                                            self.inlet_mass_fraction,
-    #                                                            self.length,
-    #                                                            self.inert_specie_index,
-    #                                                            self.inert_coverage_index,
-    #                                                            self.reactor_shape_object,
-    #                                                            self.solid)
-    #         x, y = reactor_object.solve(self.numerical_solver,
-    #                                     y0)
-    #
-    #         self.solution_parser.x = x
-    #         self.solution_parser.y = y
-    #         self.solution_parser.length = self.length
-    #         self.solution_parser.is_solved = True
-    #         return y
-    #
-    #     if self.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
-    #         y0 = self.initial_condition_transient()
-    #         reactor_object = TransientHeterogeneous1DReactor(self.gas,
-    #                                                          self.surf,
-    #                                                          self.pressure,
-    #                                                          self.alfa,
-    #                                                          self.energy,
-    #                                                          self.inlet_mass_flow_rate,
-    #                                                          self.gas_diffusion,
-    #                                                          self.inlet_temperature,
-    #                                                          self.inlet_mass_fraction,
-    #                                                          self.length,
-    #                                                          self.inert_specie_index,
-    #                                                          self.inert_coverage_index,
-    #                                                          self.reactor_shape_object,
-    #                                                          self.solid)
-    #         x, y = reactor_object.solve(self.numerical_solver,
-    #                                     self.uc.convert_to_seconds(tspan, time_ud),
-    #                                     y0)
-    #
-    #         self.solution_parser.x = x
-    #         self.solution_parser.y = y
-    #         self.solution_parser.length = self.length
-    #         self.solution_parser.is_solved = True
-    #         return y
-    #
-    #     return None
+        omegab = y_matrix[:, :self.n_s]
+        omegaw = y_matrix[:, self.n_s:self.n_s + self.n_s]
+        z = y_matrix[:, self.n_s + self.n_s:self.n_s + self.n_s + self.n_surf]
+        Tb = y_matrix[:, -2]
+        Tw = y_matrix[:, -1]
+
+        r_gas = np.zeros([self.n_p, self.n_s], dtype=np.float64)
+        r_from_surface = np.zeros([self.n_p, self.n_s], dtype=np.float64)
+        r_surface = np.zeros([self.n_p, self.n_surf], dtype=np.float64)
+        gas_mix_diff = np.zeros([self.n_p, self.n_s], dtype=np.float64)
+        q_from_gas = np.zeros([self.n_p], dtype=np.float64)
+        q_from_surface = np.zeros([self.n_p], dtype=np.float64)
+        gas_rho = np.zeros([self.n_p], dtype=np.float64)
+        gas_cp = np.zeros([self.n_p], dtype=np.float64)
+        gas_k = np.zeros([self.n_p], dtype=np.float64)
+        gas_mu = np.zeros([self.n_p], dtype=np.float64)
+
+        for i in range(0, self.n_p):
+            self.gas.TPY = Tb[i], self.pressure, omegab[i, :]
+
+            r_gas[i, :] = self.get_homogeneous_gas_species_reaction_rates() * self.gas.molecular_weights
+
+            gas_rho[i] = self.gas.density
+            gas_mu[i] = self.gas.viscosity
+            gas_cp[i] = self.gas.cp_mass
+            gas_k[i] = self.gas.thermal_conductivity
+
+            diff_mix = self.gas.mix_diff_coeffs_mass
+            diff_mix_zero = diff_mix == 0
+            diff_mix[diff_mix_zero] = self.gas.binary_diff_coeffs[diff_mix_zero, diff_mix_zero]
+            gas_mix_diff[i, :] = diff_mix
+
+            if self.energy:
+                q_from_gas[i] = self.get_homogeneous_heat_of_reaction()
+
+            self.gas.TPY = Tw[i], self.pressure, omegaw[i, :]
+            self.surf.TP = Tw[i], self.pressure
+            self.surf.coverages = z[i, :]
+            r_from_surface[i, :] = self.get_heterogeneous_gas_species_reaction_rates() * self.gas.molecular_weights
+            r_surface[i, :] = self.get_surface_species_reaction_rates()
+
+            if self.energy:
+                q_from_surface[i] = self.get_heterogeneous_heat_of_reaction()
+
+        k_mat = self.estimate_mass_transfer_coefficient(gas_mu, gas_rho, gas_mix_diff)
+        k_heat = self.estimate_heat_transfer_coefficient(gas_mu, gas_k, gas_cp)
+
+        domegab = np.zeros_like(omegab)
+        dTb = np.zeros_like(Tb)
+        dTw = np.zeros_like(Tw)
+
+        delta_omega = specific_area * (gas_rho * (k_mat * (omegab - omegaw)).T).T
+        delta_T = k_heat * specific_area * (Tb - Tw)
+        d1st_length_backward = self.length[1:-1] - self.length[:-2]
+        d1st_length_forward = self.length[2:] - self.length[1:-1]
+        d2nd_length = 0.5 * (self.length[2:] - self.length[:-2])
+
+        # Inlet conditions
+        domegab[0, :] = self.inlet_mass_fraction - omegab[0, :]
+        if self.energy:
+            dTb[0] = self.inlet_temperature - Tb[0]
+            dTw[0] = Tw[1] - Tw[0]
+
+        # Outlet conditions
+        if self.gas_diffusion:
+            domegab[-1, :] = omegab[-1, :] - omegab[-2, :]
+        else:
+            d1st_omegab_outlet = (omegab[-1, :] - omegab[-2, :]) / (self.length[-1] - self.length[-2])
+            domegab[-1, :] = - self.inlet_mass_flow_rate * d1st_omegab_outlet / (area * gas_rho[-1])
+            domegab[-1, :] = domegab[-1, :] + r_gas[-1, :] / gas_rho[-1]
+            domegab[-1, :] = domegab[-1, :] - delta_omega[-1, :] / (void_fraction * gas_rho[-1])
+
+        if self.energy:
+            if self.gas_diffusion:
+                dTb[-1] = Tb[-1] - Tb[-2]
+            else:
+                d1st_Tb_outlet = (Tb[-1] - Tb[-2]) / (self.length[-1] - self.length[-2])
+                dTb[-1] = -(self.inlet_mass_flow_rate / (area * gas_rho[-1])) * d1st_Tb_outlet
+                dTb[-1] = dTb[-1] + q_from_gas[-1] / (gas_rho[-1] * gas_cp[-1])
+                dTb[-1] = dTb[-1] - delta_T[-1] / (void_fraction * gas_rho[-1] * gas_cp[-1])
+
+            dTw[-1] = Tw[-1] - Tw[-2]
+
+        # Equations for BULK mass
+        d1st_omegab_backward = (omegab[1:-1, :] - omegab[:-2, :]) / d1st_length_backward[:, np.newaxis]
+        domegab[1:-1, :] = - (self.inlet_mass_flow_rate / area) * d1st_omegab_backward
+        domegab[1:-1, :] = domegab[1:-1, :] + r_gas[1:-1, :]
+        domegab[1:-1, :] = domegab[1:-1, :] - delta_omega[1:-1, :] / void_fraction
+        domegab[1:-1, :] = domegab[1:-1, :] / gas_rho[1:-1, np.newaxis]
+
+        if self.gas_diffusion:
+            d1st_omegab_forward = (omegab[2:, :] - omegab[1:-1, :]) / d1st_length_forward[:, np.newaxis]
+            gas_diff_forward = 0.5 * (gas_mix_diff[2:, :] + gas_mix_diff[1:-1, :])
+            gas_diff_backward = 0.5 * (gas_mix_diff[1:-1, :] + gas_mix_diff[:-2, :])
+            domegab[1:-1, :] = domegab[1:-1, :] + gas_diff_forward * d1st_omegab_forward / d2nd_length[:,
+                                                                                           np.newaxis]
+            domegab[1:-1, :] = domegab[1:-1, :] - gas_diff_backward * d1st_omegab_backward / d2nd_length[:,
+                                                                                             np.newaxis]
+
+        # Equations of WALL mass
+        domega_wall = delta_omega * void_fraction + self.alfa * void_fraction * r_from_surface
+
+        # Inert specie
+        domegab[:, self.inert_specie_index] = 1. - np.sum(omegab, axis=1)
+        domega_wall[:, self.inert_specie_index] = 1. - np.sum(omegaw, axis=1)
+
+        # Equations for site fraction
+        dz = r_surface / self.surf.site_density
+
+        # Inert specie
+        dz[:, self.inert_coverage_index] = 1. - np.sum(z, axis=1)
+
+        if self.energy:
+            # Equations of BULK energy
+            d1st_Tb_backward = (Tb[1:-1] - Tb[:-2]) / d1st_length_backward
+            dTb[1:-1] = -(self.inlet_mass_flow_rate / (area * gas_rho[1:-1])) * d1st_Tb_backward
+            dTb[1:-1] = dTb[1:-1] + q_from_gas[1:-1] / (gas_rho[1:-1] * gas_cp[1:-1])
+            dTb[1:-1] = dTb[1:-1] - delta_T[1:-1] / (void_fraction * gas_rho[1:-1] * gas_cp[1:-1])
+
+            if self.gas_diffusion:
+                d1st_Tb_forward = (Tb[2:] - Tb[1:-1]) / d1st_length_forward
+                gas_k_forward = 0.5 * (gas_k[2:] + gas_k[1:-1]) / (gas_rho[1:-1] * gas_cp[1:-1])
+                gas_k_backward = 0.5 * (gas_k[1:-1] + gas_k[:-2]) / (gas_rho[1:-1] * gas_cp[1:-1])
+                dTb[1:-1] = dTb[1:-1] + gas_k_forward * d1st_Tb_forward / d2nd_length
+                dTb[1:-1] = dTb[1:-1] - gas_k_backward * d1st_Tb_backward / d2nd_length
+
+            # Equations of WALL energy
+            d1st_Tw_forward = (Tw[2:] - Tw[1:-1]) / d1st_length_forward
+            d1st_Tw_backward = (Tw[1:-1] - Tw[:-2]) / d1st_length_backward
+
+            dTw[1:-1] = (solid_k / (solid_cp * solid_rho)) * (d1st_Tw_forward - d1st_Tw_backward) / d2nd_length
+            dTw[1:-1] = dTw[1:-1] + self.alfa * q_from_surface[1:-1] / (solid_cp * solid_rho * (1 - void_fraction))
+            dTw[1:-1] = dTw[1:-1] + delta_T[1:-1] / (solid_cp * solid_rho * (1 - void_fraction))
+
+        dy_matrix = np.zeros(shape=y_matrix.shape, dtype=np.float64)
+        dy_matrix[:, :self.n_s] = domegab
+        dy_matrix[:, self.n_s:self.n_s + self.n_s] = domega_wall
+        dy_matrix[:, self.n_s + self.n_s:self.n_s + self.n_s + self.n_surf] = dz
+
+        if self.energy:
+            dy_matrix[:, -2] = dTb
+            dy_matrix[:, -1] = dTw
+
+        return dy_matrix.flatten()
+
+    def ode_equations(self, t, y):
+        """
+        Function representing the ODE system to estimate the DAE initial conditions
+        :param t: Independent variable - Time
+        :param y: Dependent variable - Species composition, coverage and temperature as function of reactor length
+        :return: Dependent variable variations based on independent variable
+        """
+        return self.equations(t, y) * np.fabs(np.round(self.alg - 1))
 
     def get_solid_mass_fraction(self, index=None):
         """
