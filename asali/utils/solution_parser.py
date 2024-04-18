@@ -416,11 +416,11 @@ class SolutionParser:
                 return self._y[:, idx]
 
             if self._resolution_method == ResolutionMethod.TRANSIENT:
-                coverage = np.zeros([self._x.size], dtype=np.ndarray)
+                coverage = list()
                 nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
 
                 for i in range(0, self._y.shape[0]):
                     sol_for_time = self._y[i, :].reshape(-1, nv)
-                    coverage[i] = sol_for_time[:, idx]
+                    coverage.append(sol_for_time[:, idx].tolist())
 
-                return coverage
+                return np.asarray(coverage)
