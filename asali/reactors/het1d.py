@@ -336,6 +336,62 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
 
         return dy_matrix.flatten()
 
+    def algebraic_equations(self):
+        """
+        Generate the vector describing algebraic (0) and differential (1) equations
+        :return: Vector on 0/1 describing algebraic/differential equations
+        """
+        alg_matrix = np.ones([self.n_p, self.n_v], dtype=int)
+
+        # Inlet conditions
+        alg_matrix[0, :self.gas.n_species] = 0
+        if self.energy:
+            alg_matrix[0, -1] = 0
+
+        # Outlet conditions
+        if self.gas_diffusion:
+            alg_matrix[-1, :self.gas.n_species] = 0
+            if self.energy:
+                alg_matrix[-1, -1] = 0
+
+        # Inlet conditions
+        alg_matrix[0, :self.n_s] = 0
+        if self.energy:
+            alg_matrix[0, -2] = 0
+            alg_matrix[0, -1] = 0
+
+        # Equations of WALL mass
+        alg_matrix[:, self.n_s:self.n_s + self.n_s] = 0
+
+        # Inert species
+        alg_matrix[:, self.inert_specie_index] = 0
+        alg_matrix[:, self.n_s + self.inert_specie_index] = 0
+        alg_matrix[:, self.n_s + self.n_s + self.inert_coverage_index] = 0
+
+        # Outlet conditions
+        if self.gas_diffusion:
+            alg_matrix[-1, :self.n_s] = 0
+
+        if self.energy:
+            if self.gas_diffusion:
+                alg_matrix[-1, -2] = 0
+            alg_matrix[-1, -1] = 0
+
+        return alg_matrix.flatten()
+
+    def residuals(self, t, y, dy):
+        """
+        Residuals required by the DAE solver
+        :param t: Independent variable - Time
+        :param y: Dependent variable - Species composition, coverage and temperature as function of reactor length
+        :param dy: Dependent variable variations based on independent variable
+        :return: Residuals - y - dy
+        """
+        res = self.equations(t, y)
+        diff_mask = self.alg == 1
+        res[diff_mask] = res[diff_mask] - dy[diff_mask]
+        return res
+
     def ode_equations(self, t, y):
         """
         Function representing the ODE system to estimate the DAE initial conditions
