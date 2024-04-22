@@ -82,7 +82,33 @@ In the following the list of the equations solved for each reactor model
 ```
 #### Energy balance
 
+\frac{\partial T}{\partial t} =  + \frac{Q^{hom}}{&rho;c_{p}} + \frac{&alpha;Q^{het}}{&rho;c_{p}}
+
+
 #### Solid energy balance
+
+## **1-D Heterogeneous Plug Flow Reactor: *Transient***
+#### Mass balance
+```math
+\frac{1partial &omega;_{i}}{dt} = -\frac{\dot{m}}{A&rho;}\frac{\partial &omega;_{i}}{\partial z}  + D^{mix}_{i}\frac{\partial^2 &omega;_{i}}{\partial^2 z} -\frac{A_{s}K_{mat}}{&epsi;}(&omega;_{i} - &omega;^S_{i})+ \frac{MW_{i}{R_{i}}^{hom}}{&rho;}
+```
+#### Solid mass balance
+```math
+0 = A_{s}K_{mat}&rho;&epsi;(&omega;_{i} - &omega;^S_{i}) + &epsi;&alpha;MW_{i}{R_{i}}^{het}
+```
+#### Coverage balance
+```math
+\frac{\partial &theta;_{j}}{\partial t} = \frac{{R_{j}}^{het}}{&Gamma;}
+```
+#### Energy balance
+```math
+\frac{\partial T}{\partial t} = -\frac{\dot{m}}{A&rho;}\frac{\partial T}{\partial z} +  \frac{k^{gas}_{mix}}{&rho;c_{p}}\frac{\partial^2 T}{\partial^2 z} + \frac{Q^{hom}}{&rho;c_{p}} 
+```
+
+#### Solid energy balance
+```math
+\frac{\partial T^S}{\partial t} = \frac{k^S}{&rho;^Sc_{p}^S}\frac{\partial^2 T^S}{\partial^2 z} + \frac{&alpha;Q^{het}}{&rho;^Sc_{p}^S(1-&epsi;)} + \frac{A_{s}h(T - T^s)}{&rho;^Sc_{p}^S(1-&epsi;)}
+```
 
 
 ## Symbols
