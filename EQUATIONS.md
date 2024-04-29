@@ -70,7 +70,7 @@ In the following the list of the equations solved for each reactor model
 ## **1-D Heterogeneous Plug Flow Reactor: *Steady-State***
 #### Mass balance
 ```math
-\frac{\dot{m}}{A&rho;}\frac{\partial &omega;_{i}}{\partial z} = + D^{mix}_{i}\frac{\partial^2 &omega;_{i}}{\partial^2 z} -\frac{A_{s}K_{mat}}{&epsi;}(&omega;_{i} - &omega;^S_{i})+ \frac{MW_{i}{R_{i}}^{hom}}{&rho;}
+0 = -\frac{\dot{m}}{A&rho;}\frac{\partial &omega;_{i}}{\partial z} + D^{mix}_{i}\frac{\partial^2 &omega;_{i}}{\partial^2 z} -\frac{A_{s}K_{mat}}{&epsi;}(&omega;_{i} - &omega;^S_{i})+ \frac{MW_{i}{R_{i}}^{hom}}{&rho;}
 ```
 #### Solid mass balance
 ```math
@@ -81,16 +81,19 @@ In the following the list of the equations solved for each reactor model
 0 = \frac{{R_{j}}^{het}}{&Gamma;}
 ```
 #### Energy balance
-
-\frac{\partial T}{\partial t} =  + \frac{Q^{hom}}{&rho;c_{p}} + \frac{&alpha;Q^{het}}{&rho;c_{p}}
-
+```math
+0 = -\frac{\dot{m}}{A&rho;}\frac{\partial T}{\partial z} +  \frac{k^{gas}_{mix}}{&rho;c_{p}}\frac{\partial^2 T}{\partial^2 z} + \frac{Q^{hom}}{&rho;c_{p}} - \frac{A_{s}h(T - T^s)}{&rho;c_{p}&epsi;}
+```
 
 #### Solid energy balance
+```math
+0 = \frac{k^S}{&rho;^Sc_{p}^S}\frac{\partial^2 T^S}{\partial^2 z} + \frac{&alpha;Q^{het}}{&rho;^Sc_{p}^S(1-&epsi;)} + \frac{A_{s}h(T - T^s)}{&rho;^Sc_{p}^S(1-&epsi;)}
+```
 
 ## **1-D Heterogeneous Plug Flow Reactor: *Transient***
 #### Mass balance
 ```math
-\frac{1partial &omega;_{i}}{dt} = -\frac{\dot{m}}{A&rho;}\frac{\partial &omega;_{i}}{\partial z}  + D^{mix}_{i}\frac{\partial^2 &omega;_{i}}{\partial^2 z} -\frac{A_{s}K_{mat}}{&epsi;}(&omega;_{i} - &omega;^S_{i})+ \frac{MW_{i}{R_{i}}^{hom}}{&rho;}
+\frac{\partial &omega;_{i}}{dt} = -\frac{\dot{m}}{A&rho;}\frac{\partial &omega;_{i}}{\partial z}  + D^{mix}_{i}\frac{\partial^2 &omega;_{i}}{\partial^2 z} -\frac{A_{s}K_{mat}}{&epsi;}(&omega;_{i} - &omega;^S_{i})+ \frac{MW_{i}{R_{i}}^{hom}}{&rho;}
 ```
 #### Solid mass balance
 ```math
@@ -102,7 +105,7 @@ In the following the list of the equations solved for each reactor model
 ```
 #### Energy balance
 ```math
-\frac{\partial T}{\partial t} = -\frac{\dot{m}}{A&rho;}\frac{\partial T}{\partial z} +  \frac{k^{gas}_{mix}}{&rho;c_{p}}\frac{\partial^2 T}{\partial^2 z} + \frac{Q^{hom}}{&rho;c_{p}} 
+\frac{\partial T}{\partial t} = -\frac{\dot{m}}{A&rho;}\frac{\partial T}{\partial z} +  \frac{k^{gas}_{mix}}{&rho;c_{p}}\frac{\partial^2 T}{\partial^2 z} + \frac{Q^{hom}}{&rho;c_{p}} - \frac{A_{s}h(T - T^s)}{&rho;c_{p}&epsi;}
 ```
 
 #### Solid energy balance
@@ -122,13 +125,18 @@ Here is the symbols meaning:
 |$&omega;$|Gas mass fraction|$-$|
 |$&omega;^0$|Gas mass fraction at initial conditions|$-$|
 |$&omega;^S$|Gas mass fraction in the solid phase|$-$|
+|$&rho;$|Gas density|$\frac{kg}{m^3}$|
+|$&rho;^S$|Solid density|$\frac{kg}{m^3}$|
 |&theta;|Coverage fraction|$-$|
 |$&Gamma;$|Site density|$\frac{kmol}{m^2}$|
 |$A$|Reactor cross section area|$m^2$|
 |$A_{s}$|Reactor specific area|$\frac{1}{m}$|
-|$c_{p}$|Specific heat|$\frac{J}{kgK}$|
+|$c_{p}$|Gas specific heat|$\frac{J}{kgK}$|
+|$c_{p}^S$|Solid specific heat|$\frac{J}{kgK}$|
 |$D^{mix}$|Mixture diffusion coefficient|$\frac{m^2}{s}$|
+|$h$|Gas-to-solid heat transfer coefficient|$\frac{W}{m^2K}$|
 |$k^{gas}_{mix}$|Mixture thermal conductivity|$\frac{W}{mK}$|
+|$k^S$|Solid thermal conductivity|$\frac{W}{mK}$|
 |$K_{mat}$|Gas-to-solid mass transfer coefficient|$\frac{m}{s}$|
 |$m$|Total mass|$kg$|
 |$\dot{m}$|Inlet mass flow rate|$\frac{kg}{m^3s}$|
@@ -139,6 +147,7 @@ Here is the symbols meaning:
 |${R_{i}}^{het}$|Gas specie reaction rate from heterogeneous reactions|$\frac{kmol}{m^2s}$|
 |${R_{j}}^{het}$|Coverage reaction rate|$\frac{kmol}{m^2s}$|
 |$t$|Time|$s$|
-|$T$|Temperature|$K$|
+|$T$|Gas temperature|$K$|
+|$T^S$|Solid temperature|$K$|
 |$V$|Reactor volume|$m^3$|
 |$z$|Reactor lenght|$m$|
