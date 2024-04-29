@@ -17,14 +17,14 @@ requirements:
     - python {{ python }}
   host:
     - python {{ python }}
-    - assimulo
+    - assimulo 3.0
     - cantera
     - termcolor
     - matplotlib
     - pyyaml
   run:
     - python {{ python }}
-    - assimulo
+    - assimulo 3.0
     - cantera
     - termcolor
     - matplotlib
