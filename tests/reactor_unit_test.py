@@ -72,8 +72,8 @@ class ReactorUnitTest(BasicUnitTest):
             example_module_format = 'tests.{}.example'
 
             mod = import_module(example_module_format.format(self.cls.__class__.__name__))
-            results = mod.main(self.cls.cantera_input_file, self.cls.gas_phase_name, self.cls.surface_phase_name)
-            outputs = np.loadtxt(os.path.join(self.folder_path, self.cls.__class__.__name__, "example.asali"))
+            outputs = mod.main(self.cls.cantera_input_file, self.cls.gas_phase_name, self.cls.surface_phase_name)
+            results = np.loadtxt(os.path.join(self.folder_path, self.cls.__class__.__name__, "example.asali"))
 
             if outputs.shape == results.shape:
                 check = np.allclose(outputs, results, atol=atol, rtol=rtol)

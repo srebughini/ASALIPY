@@ -87,7 +87,14 @@ class NumericalSolvers:
         sim_ode.rtol = self._rtol
         sim_ode.verbosity = self._verbosity
 
-        _, sol = sim_ode.simulate(tspan[-1], 0, tspan)
+        t, y = sim_ode.simulate(tspan[-1])
+        y = np.asarray(y)
+        t = np.asarray(t)
+
+        sol = np.zeros([len(tspan), len(y0)], dtype=np.float64)
+        for i in range(0, len(y0)):
+            sol[:, i] = NumericalSolvers.interpolation(tspan, t, y[:,i])
+
         return tspan, sol
 
     def solve_dae(self, ode_equations, dae_equations, residuals, y0, tspan, alg):
@@ -99,9 +106,6 @@ class NumericalSolvers:
         :param y0: Initial condition vector
         :param tspan: Integration vector
         :param alg: Algebraic/Differential equation vector
-        :param atol: Absolute tolerance
-        :param rtol: Relative tolerance
-        :param verbosity: Verbosity for ASSIMULO
         :return: tspan: Independent variable vector
                  sol: Solved dependent variable matrix
         """
@@ -127,9 +131,25 @@ class NumericalSolvers:
         sim_dae.dqtype = 'FORWARD'
         sim_dae.make_consistent('IDA_YA_YDP_INIT')
 
-        _, y, _ = sim_dae.simulate(tspan[-1], 0, tspan)
+        t, y, _ = sim_dae.simulate(tspan[-1])
+        y = np.asarray(y)
+        t = np.asarray(t)
 
-        sol = np.asarray(y)
+        sol = np.zeros([len(tspan), len(y0)], dtype=np.float64)
+        for i in range(0, len(y0)):
+            sol[:, i] = NumericalSolvers.interpolation(tspan, t, y[:,i])
+
         sol[0, :] = y0
 
         return tspan, sol
+
+    @staticmethod
+    def interpolation(x_target, x, y):
+        """
+        Numerical interpolation
+        :param x_target: Independent variable target
+        :param x: Independent variable
+        :param y: Dependent variable
+        :return: Dependent variable interpolated
+        """
+        return np.interp(x_target, x, y)

@@ -1,7 +1,9 @@
 from asali.reactors.batch import BatchReactor
 from asali.reactors.cstr import CstrReactor
-from asali.reactors.het1d import Heterogeneous1DReactor
-from asali.reactors.ph1d import PseudoHomogeneous1DReactor
+from asali.reactors.het1d_steady_state import SteadyStateHeterogeneous1DReactor
+from asali.reactors.het1d_transient import TransientHeterogeneous1DReactor
+from asali.reactors.ph1d_steady_state import SteadyStatePseudoHomogeneous1DReactor
+from asali.reactors.ph1d_transient import TransientPseudoHomogeneous1DReactor
 from asali.utils.input_parser import InputParser
 from tests.basic_unit_test import BasicUnitTest
 from tests.reactor_unit_test import ReactorUnitTest
@@ -51,7 +53,7 @@ def batch_reactor(is_local):
     :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
-    br = BatchReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    br = BatchReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(br, "reactors.json", is_local)
     ut.check_all()
     print(" ")
@@ -63,35 +65,57 @@ def cstr_reactor(is_local):
     :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
-    cr = CstrReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    cr = CstrReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(cr, "reactors.json", is_local)
     ut.check_all()
     print(" ")
 
 
-def pseudohomogeneous_reactor(is_local):
+def steady_state_pseudohomogeneous_reactor(is_local):
     """
-    Run unit test for PseudoHomogeneous1DReactor
+    Run unit test for SteadyStatePseudoHomogeneous1DReactor
     :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
-    pfr = PseudoHomogeneous1DReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    pfr = SteadyStatePseudoHomogeneous1DReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(pfr, "reactors.json", is_local)
     ut.check_all()
     print(" ")
 
 
-def heterogeneous_reactor(is_local):
+def transient_pseudohomogeneous_reactor(is_local):
     """
-    Run unit test for Heterogeneous1DReactor
+    Run unit test for TransientPseudoHomogeneous1DReactor
     :param is_local: Bool that shows if the test is performed locally or not
     :return:
     """
-    pfr = Heterogeneous1DReactor('tests/H2-O2-Rh.xml', 'gas', 'Rh_surface')
+    pfr = TransientPseudoHomogeneous1DReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
     ut = ReactorUnitTest(pfr, "reactors.json", is_local)
     ut.check_all()
     print(" ")
 
+
+def steady_state_heterogeneous_reactor(is_local):
+    """
+    Run unit test for SteadyStateHeterogeneous1DReactor
+    :param is_local: Bool that shows if the test is performed locally or not
+    :return:
+    """
+    pfr = SteadyStateHeterogeneous1DReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
+    ut = ReactorUnitTest(pfr, "reactors.json", is_local)
+    ut.check_all()
+    print(" ")
+
+def transient_heterogeneous_reactor(is_local):
+    """
+    Run unit test for TransientHeterogeneous1DReactor
+    :param is_local: Bool that shows if the test is performed locally or not
+    :return:
+    """
+    pfr = TransientHeterogeneous1DReactor('tests/H2-O2-Rh.yaml', 'gas', 'Rh_surface')
+    ut = ReactorUnitTest(pfr, "reactors.json", is_local)
+    ut.check_all()
+    print(" ")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
@@ -110,18 +134,24 @@ if __name__ == "__main__":
         cantera_file_converter()
         batch_reactor(args.is_local)
         cstr_reactor(args.is_local)
-        pseudohomogeneous_reactor(args.is_local)
-        heterogeneous_reactor(args.is_local)
+        steady_state_pseudohomogeneous_reactor(args.is_local)
+        transient_pseudohomogeneous_reactor(args.is_local)
+        steady_state_heterogeneous_reactor(args.is_local)
+        transient_heterogeneous_reactor(args.is_local)
     elif class_to_check == "unitconverter":
         unit_converter()
     elif class_to_check == "batchreactor":
         batch_reactor(args.is_local)
     elif class_to_check == "cstrreactor":
         cstr_reactor(args.is_local)
-    elif class_to_check == "pseudohomogeneous1dreactor":
-        pseudohomogeneous_reactor(args.is_local)
-    elif class_to_check == "heterogeneous1dreactor":
-        heterogeneous_reactor(args.is_local)
+    elif class_to_check == "steadystatepseudohomogeneous1dreactor":
+        steady_state_pseudohomogeneous_reactor(args.is_local)
+    elif class_to_check == "transientpseudohomogeneous1dreactor":
+        transient_pseudohomogeneous_reactor(args.is_local)
+    elif class_to_check == "steadystateheterogeneous1dreactor":
+        steady_state_heterogeneous_reactor(args.is_local)
+    elif class_to_check == "transientheterogeneous1dreactor":
+        transient_heterogeneous_reactor(args.is_local)
     elif class_to_check == "canterafileconverter":
         cantera_file_converter()
     elif class_to_check == "inputparser":

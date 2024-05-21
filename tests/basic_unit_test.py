@@ -71,7 +71,7 @@ class BasicUnitTest:
             function_name = f
 
         tested_function = '{}::{}'.format(self.cls.__class__.__name__, function_name)
-        msg = 'ASALI::{}{} --> {}'.format(tested_function, ' ' * (60 - len(tested_function)), output)
+        msg = 'ASALI::{}{} --> {}'.format(tested_function, ' ' * (85 - len(tested_function)), output)
         print(colored(msg, color))
 
     def _convert_path(self, f, results, results_format):
@@ -120,6 +120,10 @@ class BasicUnitTest:
 
         if outputs_as_array.shape == results_as_array.shape:
             return np.allclose(outputs, results, atol=atol, rtol=rtol), outputs, results
+
+        if outputs_as_array.size == results_as_array.size:
+            return np.allclose(outputs.flatten(), results.flatten(), atol=atol,
+                               rtol=rtol), outputs.flatten(), results.flatten()
 
         return False, outputs, results
 
@@ -180,6 +184,7 @@ class BasicUnitTest:
         :return: True/False output of the test, Function results
         """
         outputs = self._get_output(f, args, args_format)
+
         with open(outputs, 'r') as stream:
             outputs_as_yaml = yaml.safe_load(stream)
 

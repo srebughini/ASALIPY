@@ -6,6 +6,7 @@ from asali.utils.solution_parser import SolutionParser
 from asali.utils.unit_converter import UnitConverter
 
 import cantera as ct
+import numpy as np
 
 
 class BasicReactor(ABC):
@@ -222,3 +223,48 @@ class BasicReactor(ABC):
             return coverage
 
         return coverage[index]
+
+    def get_homogeneous_gas_species_reaction_rates(self):
+        """
+        Get net production rates from homogeneous reactions for gas species in kmol/m3/s
+        :return: Vector representing reaction rates
+        """
+        if self.gas.n_reactions > 0:
+            return self.gas.net_production_rates
+        return np.zeros([self.gas.n_species], dtype=np.float64)
+
+    def get_heterogeneous_gas_species_reaction_rates(self):
+        """
+        Get net production rates from heterogeneous reactions for gas species in kmol/m3/s
+        :return: Vector representing reaction rates
+        """
+        if self.surf.n_reactions > 0:
+            return self.surf.get_net_production_rates(self.gas)
+        return np.zeros([self.gas.n_species], dtype=np.float64)
+
+    def get_surface_species_reaction_rates(self):
+        """
+        Get net production rates from homogeneous reactions for surface species in kmol/m2/s
+        :return: Vector representing reaction rates
+        """
+        if self.surf.n_reactions > 0:
+            return self.surf.get_net_production_rates(self.surf)
+        return np.zeros([self.surf.n_species], dtype=np.float64)
+
+    def get_homogeneous_heat_of_reaction(self):
+        """
+        Get homogeneous heat of reaction in J/m3/s
+        :return: Float representing the heat of reaction
+        """
+        if self.gas.n_reactions > 0:
+            return -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
+        return 0.0
+
+    def get_heterogeneous_heat_of_reaction(self):
+        """
+        Get heterogenous heat of reaction in J/m2/s
+        :return: Float representing the heat of reaction
+        """
+        if self.surf.n_reactions > 0:
+            return -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
+        return 0.0

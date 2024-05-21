@@ -2,12 +2,12 @@
   <a href="https://imgur.com/T5W1buF"><img src="https://i.imgur.com/T5W1buFm.png" title="source: imgur.com" /></a>
 </p>
 <p align="center">
-  <a href="https://app.travis-ci.com/github/srebughini/ASALIPY"><img src="https://img.shields.io/travis/com/srebughini/ASALIPY?style=flat-square"></a>
-  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/pn/asalicode/asali?color=orange&style=flat-square"></a>
-  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda (channel only)" src="https://img.shields.io/conda/vn/asalicode/asali?color=blue&style=flat-square"></a>
-  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda - License" src="https://img.shields.io/conda/l/asalicode/asali?style=flat-square"></a>
-  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/dn/asalicode/asali?style=flat-square"></a>
-  <a href="https://www.codefactor.io/repository/github/srebughini/asalipy"><img src="https://www.codefactor.io/repository/github/srebughini/asalipy/badge" alt="CodeFactor" /></a>
+  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/pn/asalicode/asali?color=orange&style=popout-square"></a>
+  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda (channel only)" src="https://img.shields.io/conda/vn/asalicode/asali?color=blue&style=popout-square"></a>
+  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda - License" src="https://img.shields.io/conda/l/asalicode/asali?style=popout-square"></a>
+  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/dn/asalicode/asali?style=popout-square"></a>
+  <img alt="CodeFactor Grade" src="https://img.shields.io/codefactor/grade/github/srebughini/ASALIPY?style=flat-square">
+  <a href="https://github.com/srebughini/ASALIPY/stargazers"><img src="https://img.shields.io/github/stars/srebughini/ASALIPY.svg?style=popout-square"></a>
 </p>
 
 ## 1. Introduction
@@ -33,9 +33,11 @@ cd ASALIPY
 conda env create -f environment.yml
 conda activate asali
 ```  
+## 3. Equations
+Equations solved for each reactor model can be found [here](EQUATIONS.md)
 
-## 3. Examples
-Examples on how to use reactor models can be found [here](https://github.com/srebughini/ASALIPY/tree/main/examples).
+## 4. Examples
+Examples on how to use reactor models can be found [here](EXAMPLES.md).
 
-## 4. Contacts
+## 5. Contacts
 If you want to contribute, ask questions, report bugs compile the form [here](https://srebughini.github.io/ASALI/pages/contacts/) or [open an issue](https://github.com/srebughini/ASALIPY/issues).

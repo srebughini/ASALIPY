@@ -45,35 +45,24 @@ class BatchReactor(BasicReactor):
         self.surf.TP = T, self.pressure
         self.surf.coverages = z
 
-        gas_reaction_rates = self.gas.net_production_rates
-        gas_reaction_rates_from_surface = self.surf.net_production_rates[:self.gas.n_species]
-        coverage_reaction_rates = self.surf.net_production_rates[-self.surf.n_species:]
+        r_gas = self.get_homogeneous_gas_species_reaction_rates()
+        r_from_surface = self.get_heterogeneous_gas_species_reaction_rates()
+        r_surface = self.get_surface_species_reaction_rates()
 
-        dmass = self.volume * self.alfa * np.dot(gas_reaction_rates_from_surface, self.gas.molecular_weights)
+        dmass = self.volume * self.alfa * np.dot(r_from_surface, self.gas.molecular_weights)
 
-        domega = self.gas.molecular_weights * gas_reaction_rates / self.gas.density #+ (
-                #-omega * dy[self.gas.n_species] + (
-                #mass / self.gas.density) * self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights) / mass
+        domega = self.gas.molecular_weights * r_gas / self.gas.density
+        domega = domega - omega * dmass / mass
+        domega = domega + self.alfa * r_from_surface * self.gas.molecular_weights / self.gas.density
 
-        domega = domega - omega * dy[self.gas.n_species]/mass
-        domega = domega + self.alfa * gas_reaction_rates_from_surface * self.gas.molecular_weights/ self.gas.density
-
-        dz = coverage_reaction_rates / self.surf.site_density
+        dz = r_surface / self.surf.site_density
 
         dT = 0
         if self.energy:
-            if self.gas.n_reactions > 0:
-                heat_of_reaction_from_gas = -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
-            else:
-                heat_of_reaction_from_gas = 0.
+            q_from_gas = self.get_homogeneous_heat_of_reaction()
+            q_from_surface = self.get_heterogeneous_heat_of_reaction()
 
-            if self.surf.n_reactions > 0:
-                heat_from_reaction_from_surface = -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
-            else:
-                heat_from_reaction_from_surface = 0.
-
-            dT = (heat_of_reaction_from_gas + self.alfa * heat_from_reaction_from_surface) / (
-                    self.gas.density * self.gas.cp_mass)
+            dT = (q_from_gas + self.alfa * q_from_surface) / (self.gas.density * self.gas.cp_mass)
 
         dy[:self.gas.n_species] = domega
         dy[self.gas.n_species] = dmass

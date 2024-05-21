@@ -249,14 +249,14 @@ class SolutionParser:
                 return self._y[:, idx]
 
             if self._resolution_method == ResolutionMethod.TRANSIENT:
-                mass_fraction = np.zeros([self._x.size], dtype=np.ndarray)
+                mass_fraction = list()
                 nv = self.nv()
 
                 for i in range(0, self._y.shape[0]):
                     sol_for_time = self._y[i, :].reshape(-1, nv)
-                    mass_fraction[i] = sol_for_time[:, idx]
+                    mass_fraction.append(sol_for_time[:, idx].tolist())
 
-                return mass_fraction
+                return np.asarray(mass_fraction)
 
     def get_mass_fraction_wall(self):
         """
@@ -302,18 +302,18 @@ class SolutionParser:
                 return mole_fraction
 
             if self._resolution_method == ResolutionMethod.TRANSIENT:
-                mole_fraction = np.zeros([self._x.size], dtype=np.ndarray)
+                mole_fraction = list() #np.zeros([self._x.size], dtype=np.ndarray)
                 nv = self.nv()
 
                 for i in range(0, self._y.shape[0]):
                     sol_for_time = self._y[i, :].reshape(-1, nv)
                     mass_fraction_vector = sol_for_time[:, idx]
-                    mole_fraction[i] = np.zeros_like(mass_fraction_vector)
+                    mole_fraction.append([0.0]*len(mass_fraction_vector))
                     for j, mass_fraction in enumerate(mass_fraction_vector):
                         self.gas.Y = mass_fraction
-                        mole_fraction[i][j, :] = self.gas.X
+                        mole_fraction[-1][j] = self.gas.X
 
-                return mole_fraction
+                return np.asarray(mole_fraction)
 
     def get_mole_fraction_wall(self):
         """
@@ -357,14 +357,14 @@ class SolutionParser:
                 return self._y[:, idx]
 
             if self._resolution_method == ResolutionMethod.TRANSIENT:
-                temperature = np.zeros([self._x.size], dtype=np.ndarray)
+                temperature = list()
                 nv = self.nv()
 
                 for i in range(0, self._y.shape[0]):
                     sol_for_time = self._y[i, :].reshape(-1, nv)
-                    temperature[i] = sol_for_time[:, idx]
+                    temperature.append(sol_for_time[:, idx])
 
-                return temperature
+                return np.asarray(temperature)
 
     def get_temperature_wall(self):
         """
@@ -376,14 +376,14 @@ class SolutionParser:
                 return self._y[:, -1]
 
             if self._resolution_method == ResolutionMethod.TRANSIENT:
-                temperature = np.zeros([self._x.size], dtype=np.ndarray)
+                temperature = list()
                 nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
 
                 for i in range(0, self._y.shape[0]):
                     sol_for_time = self._y[i, :].reshape(-1, nv)
-                    temperature[i] = sol_for_time[:, -1]
+                    temperature.append(sol_for_time[:, -1])
 
-                return temperature
+                return np.asarray(temperature)
 
     def get_coverage(self):
         """
@@ -402,25 +402,25 @@ class SolutionParser:
                 return self._y[:, idx]
 
             if self._resolution_method == ResolutionMethod.TRANSIENT:
-                coverage = np.zeros([self._x.size], dtype=np.ndarray)
+                coverage = list()
                 nv = self.gas.n_species + self.surf.n_species + 1
 
                 for i in range(0, self._y.shape[0]):
                     sol_for_time = self._y[i, :].reshape(-1, nv)
-                    coverage[i] = sol_for_time[:, idx]
+                    coverage.append(sol_for_time[:, idx].tolist())
 
-                return coverage
+                return np.asarray(coverage)
 
         if self._reactor_type == ReactorType.HETEROGENEOUSPRF:
             if self._resolution_method == ResolutionMethod.STEADYSTATE:
                 return self._y[:, idx]
 
             if self._resolution_method == ResolutionMethod.TRANSIENT:
-                coverage = np.zeros([self._x.size], dtype=np.ndarray)
+                coverage = list()
                 nv = self.gas.n_species + self.gas.n_species + self.surf.n_species + 1 + 1
 
                 for i in range(0, self._y.shape[0]):
                     sol_for_time = self._y[i, :].reshape(-1, nv)
-                    coverage[i] = sol_for_time[:, idx]
+                    coverage.append(sol_for_time[:, idx].tolist())
 
-                return coverage
+                return np.asarray(coverage)

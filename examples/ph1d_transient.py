@@ -1,10 +1,10 @@
 import os
 
-from asali.reactors.ph1d import PseudoHomogeneous1DReactor
+from asali.reactors.ph1d_transient import TransientPseudoHomogeneous1DReactor
 from asali.plotters.reactor import ReactorPlotter
 
 if __name__ == "__main__":
-    p = PseudoHomogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.xml'), 'gas', 'Rh_surface')
+    p = TransientPseudoHomogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')
     p.set_length(2.5, 'm')
     p.set_diameter(10., 'mm')
     p.set_pressure(20, 'bar')
@@ -18,7 +18,6 @@ if __name__ == "__main__":
     p.set_inert_specie('AR')
     p.set_inert_coverage('Rh(s)')
     p.set_initial_temperature(240, 'degC')
-    p.set_resolution_method("TRANSIENT")
     p.set_gas_diffusion(True)
     p.set_verbosity(False)
     p.set_relative_tolerance(1.e-04)
