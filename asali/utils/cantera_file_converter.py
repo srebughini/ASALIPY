@@ -46,8 +46,13 @@ class CanteraFileConverter:
             raise Exception(file_path, " wrong file format!!")
 
     @staticmethod
-    def parse_chemkin_inputs(kinetic_file_path, thermodynamic_file_path, transport_file_path, surface_file_path,
-                             output_file_path, output_extension):
+    def parse_chemkin_inputs(kinetic_file_path,
+                             thermodynamic_file_path,
+                             transport_file_path,
+                             surface_file_path,
+                             output_file_path,
+                             output_extension,
+                             validation):
         """
         Parse of CHEMKIN input file
         :param kinetic_file_path: CHEMKIN kinetic file path
@@ -56,6 +61,7 @@ class CanteraFileConverter:
         :param surface_file_path: CHEMKIN surface kinetic file path
         :param output_file_path: Output file path
         :param output_extension: Output file extension
+        :param validation: Enable/Disable validation
         :return: List of commands to convert CHEMKIN file, Output file path with correct extension
         """
         CanteraFileConverter.check_if_file_exist(kinetic_file_path)
@@ -67,26 +73,29 @@ class CanteraFileConverter:
         else:
             output_file_path = CanteraFileConverter.replace_extension(output_file_path, output_extension)
 
+        output_list = ["--input=" + kinetic_file_path,
+                       "--transport=" + transport_file_path,
+                       "--thermo=" + thermodynamic_file_path,
+                       "--output=" + output_file_path,
+                       "--quiet",
+                       "--permissive"]
+
         if surface_file_path is not None:
             CanteraFileConverter.check_if_file_exist(surface_file_path)
-            return ["--input=" + kinetic_file_path,
-                    "--transport=" + transport_file_path,
-                    "--thermo=" + thermodynamic_file_path,
-                    "--surface=" + surface_file_path,
-                    "--output=" + output_file_path,
-                    "--quiet",
-                    "--permissive"], output_file_path
+            output_list.append("--surface=" + surface_file_path)
 
-        return ["--input=" + kinetic_file_path,
-                "--transport=" + transport_file_path,
-                "--thermo=" + thermodynamic_file_path,
-                "--output=" + output_file_path,
-                "--quiet",
-                "--permissive"], output_file_path
+        if not validation:
+            output_list.append("--no-validate")
+
+        return output_list, output_file_path
 
     @staticmethod
-    def from_chemkin_to_yaml(kinetic_file_path, thermodynamic_file_path, transport_file_path, surface_file_path=None,
-                             output_file_path=None):
+    def from_chemkin_to_yaml(kinetic_file_path,
+                             thermodynamic_file_path,
+                             transport_file_path,
+                             surface_file_path=None,
+                             output_file_path=None,
+                             validation=True):
         """
         Convert from CHEMKIN input files to Cantera .yaml file
         :param kinetic_file_path: CHEMKIN kinetic file path
@@ -94,6 +103,7 @@ class CanteraFileConverter:
         :param transport_file_path: CHEMKIN transport file path
         :param surface_file_path: CHEMKIN surface kinetic file path
         :param output_file_path: Output file path
+        :param validation: Enable/Disable validation
         :return: Cantera .yaml output file path
         """
 
@@ -102,7 +112,9 @@ class CanteraFileConverter:
                                                                   transport_file_path,
                                                                   surface_file_path,
                                                                   output_file_path,
-                                                                  ".yaml")
+                                                                  ".yaml",
+                                                                  validation)
+
         ck2yaml.main(input_list)
         file_path = CanteraFileConverter.replace_extension(output_file_path, ".yaml")
         return file_path
