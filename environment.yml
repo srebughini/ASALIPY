@@ -4,9 +4,8 @@ channels:
   - cantera
   - omnia
 dependencies:
-  - python >=3.7,<3.10
   - cantera
-  - assimulo 3.0
+  - assimulo
   - termcolor
   - matplotlib
   - pyyaml
