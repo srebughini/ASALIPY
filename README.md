@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/pn/asalicode/asali?color=orange&style=popout-square"></a>
-  <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda (channel only)" src="https://img.shields.io/conda/vn/asalicode/asali?color=blue&style=popout-square"></a>
+  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/version.svg" /> </a>
   <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda - License" src="https://img.shields.io/conda/l/asalicode/asali?style=popout-square"></a>
   <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/dn/asalicode/asali?style=popout-square"></a>
   <img alt="CodeFactor Grade" src="https://img.shields.io/codefactor/grade/github/srebughini/ASALIPY?style=flat-square">
