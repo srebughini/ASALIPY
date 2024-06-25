@@ -8,6 +8,8 @@ from asali.utils.unit_converter import UnitConverter
 import cantera as ct
 import numpy as np
 
+from asali.utils.user_defind_kinetic import UserDefinedKinetic
+
 
 class BasicReactor(ABC):
     def __init__(self, cantera_input_file, gas_phase_name, surface_phase_name):
@@ -35,6 +37,7 @@ class BasicReactor(ABC):
         self.initial_mole_fraction = None
         self.initial_temperature = None
         self.initial_coverage = None
+        self.udk_model = UserDefinedKinetic()
 
         self.energy = False
 
@@ -161,6 +164,17 @@ class BasicReactor(ABC):
 
         return self.numerical_solver.verbosity
 
+    def set_user_defined_kinetic_model(self, file_path):
+        """
+        Set user defined kinetic model
+        :param file_path: File path
+        :return:
+        """
+        self.udk_model.file_path = file_path
+        self.udk_model.load_and_validate(self.gas)
+        if self.udk_model.is_set:
+            self.set_initial_coverage(np.ones([self.surf.n_species], dtype=np.float64) / self.surf.n_species)
+
     def get_time(self, ud):
         """
         Get time vector
@@ -229,6 +243,9 @@ class BasicReactor(ABC):
         Get net production rates from homogeneous reactions for gas species in kmol/m3/s
         :return: Vector representing reaction rates
         """
+        if self.udk_model.is_set:
+            return self.udk_model.get_homogeneous_reaction_rates(self.gas)
+
         if self.gas.n_reactions > 0:
             return self.gas.net_production_rates
         return np.zeros([self.gas.n_species], dtype=np.float64)
@@ -238,6 +255,9 @@ class BasicReactor(ABC):
         Get net production rates from heterogeneous reactions for gas species in kmol/m3/s
         :return: Vector representing reaction rates
         """
+        if self.udk_model.is_set:
+            return self.udk_model.get_heterogeneous_reaction_rates(self.gas)
+
         if self.surf.n_reactions > 0:
             return self.surf.get_net_production_rates(self.gas)
         return np.zeros([self.gas.n_species], dtype=np.float64)
@@ -247,6 +267,9 @@ class BasicReactor(ABC):
         Get net production rates from homogeneous reactions for surface species in kmol/m2/s
         :return: Vector representing reaction rates
         """
+        if self.udk_model.is_set:
+            return np.zeros([self.surf.n_species], dtype=np.float64)
+
         if self.surf.n_reactions > 0:
             return self.surf.get_net_production_rates(self.surf)
         return np.zeros([self.surf.n_species], dtype=np.float64)
@@ -256,6 +279,9 @@ class BasicReactor(ABC):
         Get homogeneous heat of reaction in J/m3/s
         :return: Float representing the heat of reaction
         """
+        if self.udk_model.is_set:
+            raise Exception("get_homogeneous_heat_of_reaction to implement")
+
         if self.gas.n_reactions > 0:
             return -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
         return 0.0
@@ -265,6 +291,9 @@ class BasicReactor(ABC):
         Get heterogenous heat of reaction in J/m2/s
         :return: Float representing the heat of reaction
         """
+        if self.udk_model.is_set:
+            raise Exception("get_heterogeneous_heat_of_reaction to implement")
+
         if self.surf.n_reactions > 0:
             return -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)
         return 0.0

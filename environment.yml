@@ -9,3 +9,4 @@ dependencies:
   - termcolor
   - matplotlib
   - pyyaml
+  - sympy
