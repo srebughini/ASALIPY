@@ -324,7 +324,7 @@ class UserDefinedKinetic:
                 self._heterogeneous_reaction_array[i] = 1.0
 
             for j, n in enumerate(gas.species_names):
-                if n in species_list:
+                if n in species_list and n in coefficients_dict[r].keys():
                     self._coefficients_matrix[j, i] = coefficients_dict[r][n]
 
         self._cantera_idx_to_udk_idx_dict = {}
