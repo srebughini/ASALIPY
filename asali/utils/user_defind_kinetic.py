@@ -164,19 +164,12 @@ class UserDefinedKinetic:
         return coefficients
 
     @staticmethod
-    def validate_file(data):
+    def validate_main_structure(data):
         """
-        Validate and parse .json file
+        Validate .json file main structure
         :param data: .json file in dict format
-        :return: Species as list,
-                 Stoichiometric coefficient as dict,
-                 Reaction rates as callable functions,
-                 Reaction types as Enum
+        :return:
         """
-        coefficients = {}
-        reaction_rates = {}
-        reaction_type = {}
-
         # Check the species key
         if UserDefinedKineticKeys.SPECIES.value not in data or not isinstance(
                 data[UserDefinedKineticKeys.SPECIES.value], list):
@@ -190,50 +183,89 @@ class UserDefinedKinetic:
         # Check the temperature key
         if UserDefinedKineticKeys.TEMPERATURE.value not in data or not isinstance(
                 data[UserDefinedKineticKeys.TEMPERATURE.value], str):
-            raise InputParser.raise_error(f"Invalid JSON: '{UserDefinedKineticKeys.TEMPERATURE.value}' must be a string.")
+            raise InputParser.raise_error(
+                f"Invalid JSON: '{UserDefinedKineticKeys.TEMPERATURE.value}' must be a string.")
 
-        # Check id key for each reaction
-        for reaction in data[UserDefinedKineticKeys.REACTIONS.value]:
-            if UserDefinedKineticKeys.ID.value not in reaction:
+        return data
+
+    @staticmethod
+    def validate_single_reaction(reaction):
+        """
+        Validate single reaction
+        :param reaction: Reaction in dict format
+        :return:
+        """
+        if UserDefinedKineticKeys.ID.value not in reaction:
+            raise InputParser.raise_error(
+                f"Invalid JSON: Each reaction must have a '{UserDefinedKineticKeys.ID.value}'.")
+
+        for key in [UserDefinedKineticKeys.FORMULA,
+                    UserDefinedKineticKeys.RATE,
+                    UserDefinedKineticKeys.SPECIEUNITS,
+                    UserDefinedKineticKeys.RATEUNITS,
+                    UserDefinedKineticKeys.TYPE]:
+            if key.value not in reaction:
                 raise InputParser.raise_error(
-                    f"Invalid JSON: Each reaction must have a '{UserDefinedKineticKeys.ID.value}'.")
+                    f"Invalid JSON: Reaction {id} must have an '{UserDefinedKineticKeys.FORMULA.value}'.")
 
-        # Check keys for each reaction
+        return reaction
+
+    @staticmethod
+    def parse_single_reaction(reaction, data):
+        """
+        Parse single reaction
+        :param reaction: Reaction in dict format
+        :param data: .json file in dict format
+        :return:
+        """
+        id = reaction[UserDefinedKineticKeys.ID.value]
+
+        # Validate the reaction expression
+        try:
+            coefficients = UserDefinedKinetic.extract_stoichiometric_coefficients(
+                reaction[UserDefinedKineticKeys.FORMULA.value])
+        except Exception as e:
+            raise InputParser.raise_error(
+                f"Invalid {UserDefinedKineticKeys.FORMULA.value} in reaction {id}: {e}")
+
+        # Validate the reaction rate
+        try:
+            reaction_rates = UserDefinedKinetic.parse_reaction_rate(reaction[UserDefinedKineticKeys.RATE.value],
+                                                                    data[UserDefinedKineticKeys.SPECIES.value],
+                                                                    data[UserDefinedKineticKeys.TEMPERATURE.value])
+        except Exception as e:
+            raise InputParser.raise_error(f"Invalid reaction rate in reaction {id}: {e}")
+
+        # Extract reaction type
+        try:
+            reaction_type = ReactionType(reaction[UserDefinedKineticKeys.TYPE.value])
+        except Exception as e:
+            raise InputParser.raise_error(
+                f"Invalid {UserDefinedKineticKeys.TYPE.value} in reaction {id}: it can be only homogeneous/heterogeneous")
+
+        return coefficients, reaction_rates, reaction_type
+
+    @staticmethod
+    def validate_file(data):
+        """
+        Validate and parse .json file
+        :param data: .json file in dict format
+        :return: Species as list,
+                 Stoichiometric coefficient as dict,
+                 Reaction rates as callable functions,
+                 Reaction types as Enum
+        """
+        data = UserDefinedKinetic.validate_main_structure(data)
+
+        coefficients = {}
+        reaction_rates = {}
+        reaction_type = {}
+
         for reaction in data[UserDefinedKineticKeys.REACTIONS.value]:
+            reaction = UserDefinedKinetic.validate_single_reaction(reaction)
             id = reaction[UserDefinedKineticKeys.ID.value]
-
-            for key in [UserDefinedKineticKeys.FORMULA,
-                        UserDefinedKineticKeys.RATE,
-                        UserDefinedKineticKeys.SPECIEUNITS,
-                        UserDefinedKineticKeys.RATEUNITS,
-                        UserDefinedKineticKeys.TYPE]:
-                if key.value not in reaction:
-                    raise InputParser.raise_error(
-                        f"Invalid JSON: Reaction {id} must have an '{UserDefinedKineticKeys.FORMULA.value}'.")
-
-            # Validate the reaction expression
-            try:
-                coefficients[id] = UserDefinedKinetic.extract_stoichiometric_coefficients(
-                    reaction[UserDefinedKineticKeys.FORMULA.value])
-            except Exception as e:
-                raise InputParser.raise_error(
-                    f"Invalid {UserDefinedKineticKeys.FORMULA.value} in reaction {id}: {e}")
-
-            # Validate the reaction rate
-            try:
-                reaction_rates[id] = UserDefinedKinetic.parse_reaction_rate(reaction[UserDefinedKineticKeys.RATE.value],
-                                                                            data[UserDefinedKineticKeys.SPECIES.value],
-                                                                            data[UserDefinedKineticKeys.TEMPERATURE.value])
-            except Exception as e:
-                raise InputParser.raise_error(f"Invalid reaction rate in reaction {id}: {e}")
-
-            # Extract reaction type
-            try:
-                reaction_type[reaction[UserDefinedKineticKeys.ID.value]] = ReactionType(
-                    reaction[UserDefinedKineticKeys.TYPE.value])
-            except Exception as e:
-                raise InputParser.raise_error(
-                    f"Invalid {UserDefinedKineticKeys.TYPE.value} in reaction {id}: it can be only homogeneous/heterogeneous")
+            coefficients[id], reaction_rates[id], reaction_type[id] = UserDefinedKinetic.parse_single_reaction(reaction,
+                                                                                                               data)
 
             # Extract composition type
             try:
