@@ -6,144 +6,189 @@ class UnitConverter:
         """
         Class to convert Unit dimensions
         """
-        self.to_kelvin = {
-            'degK': 0.,
-            'K': 0.,
-            'degC': 273.15}
+        self.to_kelvin = UnitConverter.temperature_ud()
+        self.to_pascal = UnitConverter.pressure_ud()
+        self.to_seconds = UnitConverter.time_ud()
+        self.to_meter = UnitConverter.length_ud()
+        self.to_cubic_meter = UnitConverter.volume_ud()
+        self.to_kilograms = UnitConverter.mass_ud()
+        self.to_joule = UnitConverter.energy_ud()
+        self.to_watt = UnitConverter.power_ud()
 
-        self.to_pascal = {
-            'pascal': 1.,
-            'Pa': 1.,
-            'bar': 1e05,
-            'MPa': 1e06,
-            'kPa': 1e03,
-            'torr': 133.322,
-            'atm': 101325,
-            'mmHg': 133.322,
-            'mbar': 1e-03 * 1e05}
-
-        self.from_pascal = {k: 1 / v for k, v in self.to_pascal.items()}
-
-        self.to_seconds = {
-            's': 1.,
-            'seconds': 1.,
-            'second': 1.,
-            'min': 60.,
-            'minutes': 60.,
-            'minute': 60.,
-            'h': 3600.,
-            'hours': 3600.,
-            'hour': 3600.,
-            'd': 24. * 3600.,
-            'days': 24 * 3600.,
-            'day': 24 * 3600.
-        }
-
-        self.from_seconds = {k: 1 / v for k, v in self.to_seconds.items()}
-
-        self.to_meter = {
-            'meter': 1.,
-            'm': 1.,
-            'decimeter': 0.1,
-            'dm': 0.1,
-            'centimeter': 0.01,
-            'cm': 0.01,
-            'millimeter': 0.001,
-            'mm': 0.001,
-            'micron': 1e-06
-        }
-
-        self.from_meter = {k: 1 / v for k, v in self.to_meter.items()}
-
-        self.to_cubic_meter = {
-            'meter**3': 1.,
-            'm3': 1.,
-            'm**3': 1.,
-            'decimeter**3': 1e-03,
-            'dm3': 1e-03,
-            'dm**3': 1e-03,
-            'centimeter**3': 1e-06,
-            'cm3': 1e-06,
-            'cm**3': 1e-06,
-            'millimeter**3': 1e-09,
-            'mm3': 1e-09,
-            'mm**3': 1e-09
-        }
-
-        self.from_cubic_meter = {k: 1 / v for k, v in self.to_cubic_meter.items()}
+        self.from_pascal = UnitConverter.convert_from_to(self.to_pascal)
+        self.from_seconds = UnitConverter.convert_from_to(self.to_seconds)
+        self.from_meter = UnitConverter.convert_from_to(self.to_meter)
+        self.from_cubic_meter = UnitConverter.convert_from_to(self.to_cubic_meter)
+        self.from_kilograms = UnitConverter.convert_from_to(self.to_kilograms)
+        self.from_joule = UnitConverter.convert_from_to(self.to_joule)
+        self.from_watt = UnitConverter.convert_from_to(self.to_watt)
 
         self.to_one_over_meter = {'1/' + k: 1 / v for k, v in self.to_meter.items()}
+        self.from_one_over_meter = UnitConverter.convert_from_to(self.to_one_over_meter)
 
-        self.from_one_over_meter = {k: 1 / v for k, v in self.to_one_over_meter.items()}
+        self.to_kilograms_per_seconds, self.from_kilograms_per_seconds = UnitConverter.create_fractional_ud(
+            self.to_kilograms,
+            self.to_seconds)
 
-        self.to_kilograms = {
-            'kg': 1.,
-            'g': 1e-03,
-            'mg': 1e-06
-        }
+        self.to_cubic_meter_per_seconds, self.from_cubic_meter_per_seconds = UnitConverter.create_fractional_ud(
+            self.to_cubic_meter,
+            self.to_seconds)
 
-        self.from_kilograms = {k: 1 / v for k, v in self.to_kilograms.items()}
+        self.to_kilograms_per_cubic_meter, self.from_kilograms_per_cubic_meter = UnitConverter.create_fractional_ud(
+            self.to_kilograms,
+            self.to_cubic_meter)
 
-        self.to_joule = {
-            'J': 1.,
-            'kJ': 1e03,
-            'MJ': 1e06,
-            'cal': 4.184,
-            'kcal': 4.184 * 1e03,
-            'kWh': 3.6 * 1e06,
-            'Wh': 3.6 * 1e03
-        }
+        self.to_joule_per_kilograms, self.from_joule_per_kilograms = UnitConverter.create_fractional_ud(
+            self.to_joule,
+            self.to_kilograms)
 
-        self.from_joule = {k: 1 / v for k, v in self.to_joule.items()}
+        self.to_watt_per_meter, self.from_watt_per_meter = UnitConverter.create_fractional_ud(
+            self.to_watt,
+            self.to_meter)
 
-        self.to_watt = {
-            'W': 1.,
-            'kW': 1e03,
-            'MW': 1e06,
-            'cal/s': 4.184,
-            'kcal/s': 4.184 * 1e03,
-            'cal/min': 4.184 / 60.,
-            'kcal/min': 4.184 * 1e03 / 60.,
-            'cal/h': 4.184 / 3600.,
-            'kcal/h': 4.184 * 1e03 / 3600.
-        }
+    @staticmethod
+    def temperature_ud():
+        """
+        Return temperature unit dimensions as dict
+        :return: Temperature unit dimensions as dict
+        """
+        return {'degK': 0.,
+                'K': 0.,
+                'degC': 273.15}
 
-        self.from_watt = {k: 1 / v for k, v in self.to_watt.items()}
+    @staticmethod
+    def pressure_ud():
+        """
+        Return pressure unit dimensions as dict
+        :return: Pressure unit dimensions as dict
+        """
+        return {'pascal': 1.,
+                'Pa': 1.,
+                'bar': 1e05,
+                'MPa': 1e06,
+                'kPa': 1e03,
+                'torr': 133.322,
+                'atm': 101325,
+                'mmHg': 133.322,
+                'mbar': 1e-03 * 1e05}
 
-        self.to_kilograms_per_seconds = {}
-        for kup, vup in self.to_kilograms.items():
-            for kdown, vdown in self.to_seconds.items():
-                self.to_kilograms_per_seconds[kup + "/" + kdown] = vup / vdown
+    @staticmethod
+    def time_ud():
+        """
+        Return time unit dimensions as dict
+        :return: Time unit dimensions as dict
+        """
+        return {'s': 1.,
+                'seconds': 1.,
+                'second': 1.,
+                'min': 60.,
+                'minutes': 60.,
+                'minute': 60.,
+                'h': 3600.,
+                'hours': 3600.,
+                'hour': 3600.,
+                'd': 24. * 3600.,
+                'days': 24 * 3600.,
+                'day': 24 * 3600.}
 
-        self.from_kilograms_per_seconds = {k: 1 / v for k, v in self.to_kilograms_per_seconds.items()}
+    @staticmethod
+    def length_ud():
+        """
+        Return length unit dimensions as dict
+        :return: Length unit dimensions as dict
+        """
+        return {'meter': 1.,
+                'm': 1.,
+                'decimeter': 0.1,
+                'dm': 0.1,
+                'centimeter': 0.01,
+                'cm': 0.01,
+                'millimeter': 0.001,
+                'mm': 0.001,
+                'micron': 1e-06}
 
-        self.to_cubic_meter_per_seconds = {}
-        for kup, vup in self.to_cubic_meter.items():
-            for kdown, vdown in self.to_seconds.items():
-                self.to_cubic_meter_per_seconds[kup + "/" + kdown] = vup / vdown
+    @staticmethod
+    def volume_ud():
+        """
+        Return volume unit dimensions as dict
+        :return: Volume unit dimensions as dict
+        """
+        return {'meter**3': 1.,
+                'm3': 1.,
+                'm**3': 1.,
+                'decimeter**3': 1e-03,
+                'dm3': 1e-03,
+                'dm**3': 1e-03,
+                'centimeter**3': 1e-06,
+                'cm3': 1e-06,
+                'cm**3': 1e-06,
+                'millimeter**3': 1e-09,
+                'mm3': 1e-09,
+                'mm**3': 1e-09}
 
-        self.from_cubic_meter_per_seconds = {k: 1 / v for k, v in self.to_cubic_meter_per_seconds.items()}
+    @staticmethod
+    def mass_ud():
+        """
+        Return mass unit dimensions as dict
+        :return: Mass unit dimensions as dict
+        """
+        return {'kg': 1.,
+                'g': 1e-03,
+                'mg': 1e-06}
 
-        self.to_kilograms_per_cubic_meter = {}
-        for kup, vup in self.to_kilograms.items():
-            for kdown, vdown in self.to_cubic_meter.items():
-                self.to_kilograms_per_cubic_meter[kup + "/" + kdown] = vup / vdown
+    @staticmethod
+    def energy_ud():
+        """
+        Return energy unit dimensions as dict
+        :return: Energy unit dimensions as dict
+        """
+        return {'J': 1.,
+                'kJ': 1e03,
+                'MJ': 1e06,
+                'cal': 4.184,
+                'kcal': 4.184 * 1e03,
+                'kWh': 3.6 * 1e06,
+                'Wh': 3.6 * 1e03}
 
-        self.from_kilograms_per_cubic_meter = {k: 1 / v for k, v in self.to_kilograms_per_cubic_meter.items()}
+    @staticmethod
+    def power_ud():
+        """
+        Return power unit dimensions as dict
+        :return: Power unit dimensions as dict
+        """
+        return {'W': 1.,
+                'kW': 1e03,
+                'MW': 1e06,
+                'cal/s': 4.184,
+                'kcal/s': 4.184 * 1e03,
+                'cal/min': 4.184 / 60.,
+                'kcal/min': 4.184 * 1e03 / 60.,
+                'cal/h': 4.184 / 3600.,
+                'kcal/h': 4.184 * 1e03 / 3600.}
 
-        self.to_joule_per_kilograms = {}
-        for kup, vup in self.to_joule.items():
-            for kdown, vdown in self.to_kilograms.items():
-                self.to_joule_per_kilograms[kup + "/" + kdown] = vup / vdown
+    @staticmethod
+    def convert_from_to(to_unit_dimension):
+        """
+        Convert from to unit
+        :param to_unit_dimension: Convert TO unit dimension
+        :return: Converter FROM unit dimension
+        """
+        return {k: 1 / v for k, v in to_unit_dimension.items()}
 
-        self.from_joule_per_kilograms = {k: 1 / v for k, v in self.to_joule_per_kilograms.items()}
+    @staticmethod
+    def create_fractional_ud(numerator, denominator):
+        """
+        Create fraction unit dimensions
+        :param numerator: Numerator unit dimension
+        :param denominator: Denominator unit dimension
+        :return: to unit dimension dict, from unit dimension dict
+        """
+        to_fraction_unit_dimension = {}
+        for kup, vup in numerator.items():
+            for kdown, vdown in denominator.items():
+                to_fraction_unit_dimension[kup + "/" + kdown] = vup / vdown
 
-        self.to_watt_per_meter = {}
-        for kup, vup in self.to_watt.items():
-            for kdown, vdown in self.to_meter.items():
-                self.to_watt_per_meter[kup + "/" + kdown] = vup / vdown
-
-        self.from_watt_per_meter = {k: 1 / v for k, v in self.to_watt_per_meter.items()}
+        return to_fraction_unit_dimension, UnitConverter.convert_from_to(to_fraction_unit_dimension)
 
     @staticmethod
     def value_type_handler(value, converter):
