@@ -18,6 +18,16 @@
         "format": "array"
       }
     },
+    "set_user_defined_kinetic_model": {
+      "input": {
+        "value": "tests/H2-O2.json",
+        "format": "path"
+      },
+      "output": {
+        "value": null,
+        "format": null
+      }
+    },
     "set_volume": {
       "input": {
         "value": [
@@ -225,8 +235,12 @@
         "format": "none"
       },
       "output": {
-        "value": null,
-        "format": "path"
+        "value": [
+          3.931499999999999773e+02,
+          3.076010749390000001e+03,
+          3.076010749390000001e+03
+        ],
+        "format": "array"
       }
     },
     "get_coverage": {

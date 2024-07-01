@@ -280,7 +280,7 @@ class BasicReactor(ABC):
         :return: Float representing the heat of reaction
         """
         if self.udk_model.is_set:
-            raise Exception("get_homogeneous_heat_of_reaction to implement")
+            return self.udk_model.get_homogeneous_heat_of_reaction(self.gas)
 
         if self.gas.n_reactions > 0:
             return -np.dot(self.gas.net_rates_of_progress, self.gas.delta_enthalpy)
@@ -292,7 +292,7 @@ class BasicReactor(ABC):
         :return: Float representing the heat of reaction
         """
         if self.udk_model.is_set:
-            raise Exception("get_heterogeneous_heat_of_reaction to implement")
+            return self.udk_model.get_heterogeneous_heat_of_reaction(self.gas)
 
         if self.surf.n_reactions > 0:
             return -np.dot(self.surf.net_rates_of_progress, self.surf.delta_enthalpy)

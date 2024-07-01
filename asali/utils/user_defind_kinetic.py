@@ -21,6 +21,7 @@ class UserDefinedKineticKeys(Enum):
     RATEUNITS = "rate_units"
     SPECIEUNITS = "specie_units"
     ID = "id"
+    TEMPERATURE = "temperature"
 
 
 class ReactionType(Enum):
@@ -118,11 +119,12 @@ class UserDefinedKinetic:
             raise InputParser.raise_error(f"Invalid term: {term}")
 
     @staticmethod
-    def parse_reaction_rate(reaction_rate_as_str, species_list):
+    def parse_reaction_rate(reaction_rate_as_str, species_list, temperature_as_variable):
         """
         Parse the reaction rate into a callable function
         :param reaction_rate_as_str: Reaction rate as str
         :param species_list: List of species
+        :param temperature_as_variable: Temperature variable name
         :return: Reaction rate as callable function
         """
         # Replace species concentrations with symbolic variables
@@ -130,8 +132,13 @@ class UserDefinedKinetic:
             reaction_rate_as_str = reaction_rate_as_str.replace(f'[{species}]', f'{species}')
         # Convert the expression into a sympy expression
         reaction_rate_expr = sp.sympify(reaction_rate_as_str)
+
+        # Add temperature variable
+        species_and_temperature_list = species_list.copy()
+        species_and_temperature_list.append(temperature_as_variable)
+
         # Create a lambda function for the rate expression
-        reaction_rate_function = sp.lambdify([sp.Symbol(species) for species in species_list],
+        reaction_rate_function = sp.lambdify([sp.Symbol(v) for v in species_and_temperature_list],
                                              reaction_rate_expr,
                                              'numpy')
         return reaction_rate_function
@@ -180,6 +187,11 @@ class UserDefinedKinetic:
                 data[UserDefinedKineticKeys.REACTIONS.value], list):
             raise InputParser.raise_error(f"Invalid JSON: '{UserDefinedKineticKeys.REACTIONS.value}' must be a list.")
 
+        # Check the temperature key
+        if UserDefinedKineticKeys.TEMPERATURE.value not in data or not isinstance(
+                data[UserDefinedKineticKeys.TEMPERATURE.value], str):
+            raise InputParser.raise_error(f"Invalid JSON: '{UserDefinedKineticKeys.TEMPERATURE.value}' must be a list.")
+
         # Check id key for each reaction
         for reaction in data[UserDefinedKineticKeys.REACTIONS.value]:
             if UserDefinedKineticKeys.ID.value not in reaction:
@@ -210,7 +222,8 @@ class UserDefinedKinetic:
             # Validate the reaction rate
             try:
                 reaction_rates[id] = UserDefinedKinetic.parse_reaction_rate(reaction[UserDefinedKineticKeys.RATE.value],
-                                                                            data[UserDefinedKineticKeys.SPECIES.value])
+                                                                            data[UserDefinedKineticKeys.SPECIES.value],
+                                                                            data[UserDefinedKineticKeys.TEMPERATURE.value])
             except Exception as e:
                 raise InputParser.raise_error(f"Invalid reaction rate in reaction {id}: {e}")
 
@@ -306,7 +319,16 @@ class UserDefinedKinetic:
         :return: Array of reaction rate for each reaction in kmol/m2/s or kmol/m3/s
         """
         udk_mass_fraction = self._convert_mass_fraction_to_udk(gas)
-        return np.asarray([r(*udk_mass_fraction) for r in self._reaction_rate_array])
+        udk_mass_fraction_and_temperature = np.append(udk_mass_fraction, gas.T)
+        return np.asarray([r(*udk_mass_fraction_and_temperature) for r in self._reaction_rate_array])
+
+    def _calculate_delta_enthalpy(self, gas):
+        """
+        Estimate delta enthalpy for each reaction
+        :param gas: Cantera Solution object
+        :return: Array of delta enthalpy for each reaction in J/kmol
+        """
+        return np.dot(self._coefficients_matrix.T, gas.partial_molar_enthalpies)
 
     def load_and_validate(self, gas):
         """
@@ -347,3 +369,21 @@ class UserDefinedKinetic:
                                                  self._heterogeneous_reaction_array))
 
         return reaction_rate_array
+
+    def get_homogeneous_heat_of_reaction(self, gas):
+        """
+        Get homogeneous heat of reaction in J/m3/s
+        :param gas: Cantera Solution object
+        :return: Float representing the heat of reaction
+        """
+        return -np.dot(np.multiply(self._calculate_reaction_rates(gas),
+                                   self._homogeneous_reaction_array), self._calculate_delta_enthalpy(gas))
+
+    def get_heterogeneous_heat_of_reaction(self, gas):
+        """
+        Get heterogeneous heat of reaction in J/m3/s
+        :param gas: Cantera Solution object
+        :return: Float representing the heat of reaction
+        """
+        return -np.dot(np.multiply(self._calculate_reaction_rates(gas),
+                                   self._heterogeneous_reaction_array), self._calculate_delta_enthalpy(gas))
