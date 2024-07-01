@@ -190,7 +190,7 @@ class UserDefinedKinetic:
         # Check the temperature key
         if UserDefinedKineticKeys.TEMPERATURE.value not in data or not isinstance(
                 data[UserDefinedKineticKeys.TEMPERATURE.value], str):
-            raise InputParser.raise_error(f"Invalid JSON: '{UserDefinedKineticKeys.TEMPERATURE.value}' must be a list.")
+            raise InputParser.raise_error(f"Invalid JSON: '{UserDefinedKineticKeys.TEMPERATURE.value}' must be a string.")
 
         # Check id key for each reaction
         for reaction in data[UserDefinedKineticKeys.REACTIONS.value]:
@@ -241,7 +241,7 @@ class UserDefinedKinetic:
                 if composition_type != CompositionType.MASS:
                     InputParser.raise_error(
                         f"Invalid {UserDefinedKineticKeys.SPECIEUNITS.value} in reaction {id}: the only accepted value is mass_fraction")
-            except:
+            except Exception as e:
                 raise InputParser.raise_error(
                     f"Invalid {UserDefinedKineticKeys.SPECIEUNITS.value} in reaction {id}: the only accepted value is mass_fraction")
 
@@ -256,7 +256,7 @@ class UserDefinedKinetic:
                 if reaction_rate_ud != target_ud:
                     InputParser.raise_error(
                         f"Invalid {UserDefinedKineticKeys.RATEUNITS.value} in reaction {id}: the only accepted unit dimension is {target_ud}")
-            except:
+            except Exception as e:
                 raise InputParser.raise_error(
                     f"Invalid {UserDefinedKineticKeys.RATEUNITS.value} in reaction {id}: the only accepted unit dimension is {target_ud}")
 
