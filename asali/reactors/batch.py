@@ -46,6 +46,7 @@ class BatchReactor(BasicReactor):
         self.surf.coverages = z
 
         r_gas = self.get_homogeneous_gas_species_reaction_rates()
+
         r_from_surface = self.get_heterogeneous_gas_species_reaction_rates()
         r_surface = self.get_surface_species_reaction_rates()
 
