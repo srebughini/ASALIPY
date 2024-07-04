@@ -52,8 +52,7 @@ class UnitConverter:
         Return temperature unit dimensions as dict
         :return: Temperature unit dimensions as dict
         """
-        return {'degK': 0.,
-                'K': 0.,
+        return {'K': 0.,
                 'degC': 273.15}
 
     @staticmethod
