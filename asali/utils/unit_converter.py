@@ -352,6 +352,53 @@ class UnitConverter:
                               self.to_watt_per_meter,
                               self.from_watt_per_meter)
 
+    def convert_from_kg_per_cubic_meter(self, value, ud):
+        """
+        Convert from kg/m3
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final unit dimensions
+        """
+        return self.converter(value,
+                              'kg/meter**3',
+                              ud,
+                              self.to_kilograms_per_cubic_meter,
+                              self.from_kilograms_per_cubic_meter)
+
+    def convert_from_joule_per_kg_per_kelvin(self, value, ud):
+        """
+        Convert from J/kg/K
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final unit dimension
+        """
+
+        ud_split = ud.split("/")
+        ud_clean = ud_split[0] + "/" + ud_split[1]
+
+        return self.converter(value,
+                              'J/kg',
+                              ud_clean,
+                              self.to_joule_per_kilograms,
+                              self.from_joule_per_kilograms)
+
+    def convert_from_watt_per_meter_per_kelvin(self, value, ud):
+        """
+        Convert from W/m/K
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final unit dimension
+        """
+
+        ud_split = ud.split("/")
+        ud_clean = ud_split[0] + "/" + ud_split[1]
+
+        return self.converter(value,
+                              'W/meter',
+                              ud_clean,
+                              self.to_watt_per_meter,
+                              self.from_watt_per_meter)
+
     def convert_from_seconds(self, value, ud):
         """
         Convert from seconds
