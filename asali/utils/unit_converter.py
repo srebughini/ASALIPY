@@ -10,6 +10,7 @@ class UnitConverter:
         self.to_pascal = UnitConverter.pressure_ud()
         self.to_seconds = UnitConverter.time_ud()
         self.to_meter = UnitConverter.length_ud()
+        self.to_square_meter = UnitConverter.area_ud()
         self.to_cubic_meter = UnitConverter.volume_ud()
         self.to_kilograms = UnitConverter.mass_ud()
         self.to_kilomole = UnitConverter.mole_ud()
@@ -20,6 +21,7 @@ class UnitConverter:
         self.from_pascal = UnitConverter.convert_from_to(self.to_pascal)
         self.from_seconds = UnitConverter.convert_from_to(self.to_seconds)
         self.from_meter = UnitConverter.convert_from_to(self.to_meter)
+        self.from_square_meter = UnitConverter.convert_from_to(self.to_square_meter)
         self.from_cubic_meter = UnitConverter.convert_from_to(self.to_cubic_meter)
         self.from_kilograms = UnitConverter.convert_from_to(self.to_kilograms)
         self.from_kilomole = UnitConverter.convert_from_to(self.to_kilomole)
@@ -53,6 +55,10 @@ class UnitConverter:
         self.to_kilograms_per_kilomole, self.from_kilograms_per_kilomole = UnitConverter.create_fractional_ud(
             self.to_kilograms,
             self.to_kilomole)
+
+        self.to_square_meter_per_seconds, self.from_square_meter_per_seconds = UnitConverter.create_fractional_ud(
+            self.to_square_meter,
+            self.to_seconds)
 
     @staticmethod
     def temperature_ud():
@@ -113,6 +119,25 @@ class UnitConverter:
                 'millimeter': 0.001,
                 'mm': 0.001,
                 'micron': 1e-06}
+
+    @staticmethod
+    def area_ud():
+        """
+        Return area unit dimensions as dict
+        :return: area unit dimensions as dict
+        """
+        return {'meter**2': 1.,
+                'm2': 1.,
+                'm**2': 1.,
+                'decimeter**2': 1e-02,
+                'dm2': 1e-02,
+                'dm**2': 1e-02,
+                'centimeter**2': 1e-04,
+                'cm2': 1e-04,
+                'cm**2': 1e-04,
+                'millimeter**2': 1e-06,
+                'mm2': 1e-06,
+                'mm**2': 1e-06}
 
     @staticmethod
     def volume_ud():
@@ -339,6 +364,19 @@ class UnitConverter:
                               self.to_cubic_meter_per_seconds,
                               self.from_cubic_meter_per_seconds)
 
+    def convert_to_square_meter_per_seconds(self, value, ud):
+        """
+        Convert to m2/s
+        :param value: Value to be converted
+        :param ud: Value initial unit dimension
+        :return: Value in m2/s
+        """
+        return self.converter(value,
+                              ud,
+                              'meter**2/s',
+                              self.to_square_meter_per_seconds,
+                              self.from_square_meter_per_seconds)
+
     def convert_to_kelvin(self, value, ud):
         """
         Convert to K
@@ -512,3 +550,30 @@ class UnitConverter:
                               'Pas',
                               self.to_pascal_seconds,
                               self.from_pascal_seconds)
+
+    def convert_from_cubic_meter_per_seconds(self, value, ud):
+        """
+        Convert from m3/s
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final
+        """
+        return self.converter(value,
+                              'meter**3/s',
+                              ud,
+                              self.to_cubic_meter_per_seconds,
+                              self.from_cubic_meter_per_seconds)
+
+    def convert_from_square_meter_per_seconds(self, value, ud):
+        """
+        Convert from m2/s
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final
+        """
+        return self.converter(value,
+                              'meter**2/s',
+                              ud,
+                              self.to_square_meter_per_seconds,
+                              self.from_square_meter_per_seconds)
+
