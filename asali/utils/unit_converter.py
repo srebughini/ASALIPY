@@ -12,6 +12,7 @@ class UnitConverter:
         self.to_meter = UnitConverter.length_ud()
         self.to_cubic_meter = UnitConverter.volume_ud()
         self.to_kilograms = UnitConverter.mass_ud()
+        self.to_kilomole = UnitConverter.mole_ud()
         self.to_joule = UnitConverter.energy_ud()
         self.to_watt = UnitConverter.power_ud()
 
@@ -20,6 +21,7 @@ class UnitConverter:
         self.from_meter = UnitConverter.convert_from_to(self.to_meter)
         self.from_cubic_meter = UnitConverter.convert_from_to(self.to_cubic_meter)
         self.from_kilograms = UnitConverter.convert_from_to(self.to_kilograms)
+        self.from_kilomole = UnitConverter.convert_from_to(self.to_kilomole)
         self.from_joule = UnitConverter.convert_from_to(self.to_joule)
         self.from_watt = UnitConverter.convert_from_to(self.to_watt)
 
@@ -45,6 +47,10 @@ class UnitConverter:
         self.to_watt_per_meter, self.from_watt_per_meter = UnitConverter.create_fractional_ud(
             self.to_watt,
             self.to_meter)
+
+        self.to_kilograms_per_kilomole, self.from_kilograms_per_kilomole = UnitConverter.create_fractional_ud(
+            self.to_kilograms,
+            self.to_kilomole)
 
     @staticmethod
     def temperature_ud():
@@ -134,6 +140,15 @@ class UnitConverter:
         return {'kg': 1.,
                 'g': 1e-03,
                 'mg': 1e-06}
+
+    @staticmethod
+    def mole_ud():
+        """
+        Return mole unit dimensions as dict
+        :return: Mole unit dimensions as dict
+        """
+        return {'kmol': 1.,
+                'mol': 1e-03}
 
     @staticmethod
     def energy_ud():
@@ -277,6 +292,19 @@ class UnitConverter:
                               self.to_kilograms_per_seconds,
                               self.from_kilograms_per_seconds)
 
+    def convert_to_kg_per_kmol(self, value, ud):
+        """
+        Convert to kg/kmol
+        :param value: Value to be converted
+        :param ud: Value initial unit dimension
+        :return: Value in kg/kmol
+        """
+        return self.converter(value,
+                              ud,
+                              'kg/kmol',
+                              self.to_kilograms_per_kilomole,
+                              self.from_kilograms_per_kilomole)
+
     def convert_to_cubic_meter_per_seconds(self, value, ud):
         """
         Convert to m3/s
@@ -351,6 +379,19 @@ class UnitConverter:
                               'W/meter',
                               self.to_watt_per_meter,
                               self.from_watt_per_meter)
+
+    def convert_from_kg_per_kmol(self, value, ud):
+        """
+        Convert from kg/kmol
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final unit dimension
+        """
+        return self.converter(value,
+                              'kg/kmol',
+                              ud,
+                              self.to_kilograms_per_kilomole,
+                              self.from_kilograms_per_kilomole)
 
     def convert_from_kg_per_cubic_meter(self, value, ud):
         """
