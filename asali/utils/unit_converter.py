@@ -15,6 +15,7 @@ class UnitConverter:
         self.to_kilomole = UnitConverter.mole_ud()
         self.to_joule = UnitConverter.energy_ud()
         self.to_watt = UnitConverter.power_ud()
+        self.to_pascal_seconds = UnitConverter.viscosity_ud()
 
         self.from_pascal = UnitConverter.convert_from_to(self.to_pascal)
         self.from_seconds = UnitConverter.convert_from_to(self.to_seconds)
@@ -24,6 +25,7 @@ class UnitConverter:
         self.from_kilomole = UnitConverter.convert_from_to(self.to_kilomole)
         self.from_joule = UnitConverter.convert_from_to(self.to_joule)
         self.from_watt = UnitConverter.convert_from_to(self.to_watt)
+        self.from_pascal_seconds = UnitConverter.convert_from_to(self.to_pascal_seconds)
 
         self.to_one_over_meter = {'1/' + k: 1 / v for k, v in self.to_meter.items()}
         self.from_one_over_meter = UnitConverter.convert_from_to(self.to_one_over_meter)
@@ -181,6 +183,16 @@ class UnitConverter:
                 'kcal/h': 4.184 * 1e03 / 3600.}
 
     @staticmethod
+    def viscosity_ud():
+        """
+        Return viscosity unit dimensions as dict
+        :return: Viscosity unit dimensions as dict
+        """
+        return {'Pas': 1.,
+                'cP': 1000.,
+                'g/cm/s': 10.}
+
+    @staticmethod
     def convert_from_to(to_unit_dimension):
         """
         Convert from to unit
@@ -269,6 +281,15 @@ class UnitConverter:
         :return: Value in Pascal
         """
         return self.converter(value, ud, 'pascal', self.to_pascal, self.from_pascal)
+
+    def convert_to_pascal_seconds(self, value, ud):
+        """
+        Convert to Pascal*seconds
+        :param value: Value to be converted
+        :param ud: Value initial unit dimension
+        :return: Value in Pascal*seconds
+        """
+        return self.converter(value, ud, 'Pas', self.to_pascal_seconds, self.from_pascal_seconds)
 
     def convert_to_one_over_meter(self, value, ud):
         """
@@ -478,3 +499,16 @@ class UnitConverter:
                               ud,
                               self.to_pascal,
                               self.from_pascal)
+
+    def convert_from_pascal_seconds(self, value, ud):
+        """
+        Convert from Pascal*seconds
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final unit dimensions
+        """
+        return self.converter(value,
+                              ud,
+                              'Pas',
+                              self.to_pascal_seconds,
+                              self.from_pascal_seconds)
