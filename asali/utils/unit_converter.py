@@ -48,6 +48,10 @@ class UnitConverter:
             self.to_joule,
             self.to_kilograms)
 
+        self.to_joule_per_kilomole, self.from_joule_per_kilomole = UnitConverter.create_fractional_ud(
+            self.to_joule,
+            self.to_kilomole)
+
         self.to_watt_per_meter, self.from_watt_per_meter = UnitConverter.create_fractional_ud(
             self.to_watt,
             self.to_meter)
@@ -422,6 +426,23 @@ class UnitConverter:
                               self.to_joule_per_kilograms,
                               self.from_joule_per_kilograms)
 
+    def convert_to_joule_per_kmol_per_kelvin(self, value, ud):
+        """
+        Convert to J/kmol/K
+        :param value: Value to be converted
+        :param ud: Value initial unit dimension
+        :return: Value in J/kmol/K
+        """
+
+        ud_split = ud.split("/")
+        ud_clean = ud_split[0] + "/" + ud_split[1]
+
+        return self.converter(value,
+                              ud_clean,
+                              'J/kmol',
+                              self.to_joule_per_kilomole,
+                              self.from_joule_per_kilomole)
+
     def convert_to_watt_per_meter_per_kelvin(self, value, ud):
         """
         Convert to W/m/K
@@ -481,6 +502,23 @@ class UnitConverter:
                               ud_clean,
                               self.to_joule_per_kilograms,
                               self.from_joule_per_kilograms)
+
+    def convert_from_joule_per_kmol_per_kelvin(self, value, ud):
+        """
+        Convert from J/kmol/K
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final unit dimension
+        """
+
+        ud_split = ud.split("/")
+        ud_clean = ud_split[0] + "/" + ud_split[1]
+
+        return self.converter(value,
+                              'J/kmol',
+                              ud_clean,
+                              self.to_joule_per_kilomole,
+                              self.from_joule_per_kilomole)
 
     def convert_from_watt_per_meter_per_kelvin(self, value, ud):
         """
@@ -576,4 +614,3 @@ class UnitConverter:
                               ud,
                               self.to_square_meter_per_seconds,
                               self.from_square_meter_per_seconds)
-
