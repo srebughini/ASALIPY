@@ -64,6 +64,10 @@ class UnitConverter:
             self.to_square_meter,
             self.to_seconds)
 
+        self.to_meter_per_seconds, self.from_meter_per_seconds = UnitConverter.create_fractional_ud(
+            self.to_meter,
+            self.to_seconds)
+
     @staticmethod
     def temperature_ud():
         """
@@ -381,6 +385,19 @@ class UnitConverter:
                               self.to_square_meter_per_seconds,
                               self.from_square_meter_per_seconds)
 
+    def convert_to_meter_per_seconds(self, value, ud):
+        """
+        Convert to m/s
+        :param value: Value to be converted
+        :param ud: Value initial unit dimension
+        :return: Value in m/s
+        """
+        return self.converter(value,
+                              ud,
+                              'meter/s',
+                              self.to_meter_per_seconds,
+                              self.from_meter_per_seconds)
+
     def convert_to_kelvin(self, value, ud):
         """
         Convert to K
@@ -614,3 +631,16 @@ class UnitConverter:
                               ud,
                               self.to_square_meter_per_seconds,
                               self.from_square_meter_per_seconds)
+
+    def convert_from_meter_per_seconds(self, value, ud):
+        """
+        Convert from m/s
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final
+        """
+        return self.converter(value,
+                              'meter/s',
+                              ud,
+                              self.to_meter_per_seconds,
+                              self.from_meter_per_seconds)
