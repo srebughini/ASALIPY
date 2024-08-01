@@ -23,7 +23,7 @@ class BasicUnitTest:
         self.cls = cls
         self.setting_dict = solution_dict[cls.__class__.__name__]
         self.function_to_check = self.setting_dict.keys()
-        self.keys_to_ignore_for_yaml = ["input-files", "date"]
+        self.keys_to_ignore_for_yaml = ["cantera-version", "description", "generator", "input-files", "date"]
 
     @staticmethod
     def _get_output(f, args, args_format):
