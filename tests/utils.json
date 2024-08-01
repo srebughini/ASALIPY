@@ -1,15 +1,28 @@
 {
   "UnitConverter": {
-    "convert_to_seconds": {
+    "convert_to_meter": {
       "input": {
         "value": [
           1,
-          "h"
+          "cm"
         ],
         "format": "tuple"
       },
       "output": {
-        "value": 3600,
+        "value": 0.01,
+        "format": "float"
+      }
+    },
+    "convert_to_cubic_meter": {
+      "input": {
+        "value": [
+          1,
+          "dm3"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 0.001,
         "format": "float"
       }
     },
@@ -26,29 +39,16 @@
         "format": "float"
       }
     },
-    "convert_to_cubic_meter": {
+    "convert_to_pascal_seconds": {
       "input": {
         "value": [
           1,
-          "dm3"
+          "cP"
         ],
         "format": "tuple"
       },
       "output": {
-        "value": 1e-03,
-        "format": "float"
-      }
-    },
-    "convert_to_meter": {
-      "input": {
-        "value": [
-          1,
-          "dm"
-        ],
-        "format": "tuple"
-      },
-      "output": {
-        "value": 0.1,
+        "value": 1000,
         "format": "float"
       }
     },
@@ -61,28 +61,28 @@
         "format": "tuple"
       },
       "output": {
-        "value": 1e02,
-        "format": "float"
-      }
-    },
-    "convert_to_kelvin": {
-      "input": {
-        "value": [
-          25,
-          "degC"
-        ],
-        "format": "tuple"
-      },
-      "output": {
-        "value": 298.15,
+        "value": 100,
         "format": "float"
       }
     },
     "convert_to_kg_per_seconds": {
       "input": {
         "value": [
-          3600,
-          "kg/h"
+          1,
+          "g/s"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 0.001,
+        "format": "float"
+      }
+    },
+    "convert_to_kg_per_kmol": {
+      "input": {
+        "value": [
+          1,
+          "g/mol"
         ],
         "format": "tuple"
       },
@@ -94,8 +94,21 @@
     "convert_to_cubic_meter_per_seconds": {
       "input": {
         "value": [
-          3600,
-          "m3/h"
+          1,
+          "dm3/s"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 0.001,
+        "format": "float"
+      }
+    },
+    "convert_to_square_meter_per_seconds": {
+      "input": {
+        "value": [
+          1,
+          "m2/s"
         ],
         "format": "tuple"
       },
@@ -104,11 +117,167 @@
         "format": "float"
       }
     },
+    "convert_to_meter_per_seconds": {
+      "input": {
+        "value": [
+          1,
+          "cm/s"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 0.01,
+        "format": "float"
+      }
+    },
+    "convert_to_kelvin": {
+      "input": {
+        "value": [
+          1,
+          "degC"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 274.15,
+        "format": "float"
+      }
+    },
+    "convert_to_kg_per_cubic_meter": {
+      "input": {
+        "value": [
+          1,
+          "g/m3"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 0.001,
+        "format": "float"
+      }
+    },
+    "convert_to_joule_per_kg_per_kelvin": {
+      "input": {
+        "value": [
+          1,
+          "kJ/kg/K"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 1000.0,
+        "format": "float"
+      }
+    },
+    "convert_to_joule_per_kmol_per_kelvin": {
+      "input": {
+        "value": [
+          1,
+          "J/mol/K"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 1000,
+        "format": "float"
+      }
+    },
+    "convert_to_watt_per_meter_per_kelvin": {
+      "input": {
+        "value": [
+          1,
+          "W/cm/K"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 100,
+        "format": "float"
+      }
+    },
+    "convert_from_kg_per_kmol": {
+      "input": {
+        "value": [
+          1,
+          "g/kmol"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 1000,
+        "format": "float"
+      }
+    },
+    "convert_from_kg_per_cubic_meter": {
+      "input": {
+        "value": [
+          1,
+          "g/m3"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 1000.0,
+        "format": "float"
+      }
+    },
+    "convert_from_joule_per_kg_per_kelvin": {
+      "input": {
+        "value": [
+          1000,
+          "kJ/kg/K"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 1,
+        "format": "float"
+      }
+    },
+    "convert_from_joule_per_kmol_per_kelvin": {
+      "input": {
+        "value": [
+          1e06,
+          "kJ/mol/K"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 1,
+        "format": "float"
+      }
+    },
+    "convert_from_watt_per_meter_per_kelvin": {
+      "input": {
+        "value": [
+          1e-03,
+          "W/mm/K"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 1e-06,
+        "format": "float"
+      }
+    },
     "convert_from_seconds": {
       "input": {
         "value": [
           3600,
           "h"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 1,
+        "format": "float"
+      }
+    },
+    "convert_from_cubic_meter": {
+      "input": {
+        "value": [
+          1e-03,
+          "dm3"
         ],
         "format": "tuple"
       },
@@ -130,11 +299,11 @@
         "format": "float"
       }
     },
-    "convert_from_cubic_meter": {
+    "convert_from_pascal_seconds": {
       "input": {
         "value": [
           1,
-          "dm3"
+          "cP"
         ],
         "format": "tuple"
       },
@@ -143,24 +312,24 @@
         "format": "float"
       }
     },
-    "convert_to_watt_per_meter_per_kelvin": {
+    "convert_from_cubic_meter_per_seconds": {
       "input": {
         "value": [
           1,
-          "W/dm/degK"
+          "dm3/s"
         ],
         "format": "tuple"
       },
       "output": {
-        "value": 10,
+        "value": 1000,
         "format": "float"
       }
     },
-    "convert_to_joule_per_kg_per_kelvin": {
+    "convert_from_square_meter_per_seconds": {
       "input": {
         "value": [
           1,
-          "kJ/g/degK"
+          "mm2/s"
         ],
         "format": "tuple"
       },
@@ -169,16 +338,16 @@
         "format": "float"
       }
     },
-    "convert_to_kg_per_cubic_meter": {
+    "convert_from_meter_per_seconds": {
       "input": {
         "value": [
           1,
-          "g/cm3"
+          "cm/s"
         ],
         "format": "tuple"
       },
       "output": {
-        "value": 1000,
+        "value": 100,
         "format": "float"
       }
     }
