@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asali"
+version = "3.5"
+authors = [{name = "ASALI", email = "ste.rebu@outlook.it"}]
+description = "A Python package to simulate chemical reactors"
+license = {text = "GPL"}
+classifiers = [
+    "License :: OSI Approved :: GPL License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Chemical Reactors :: Libraries :: Python Modules",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Homepage = "https://github.com/srebughini/ASALIPY"
+"Bug Tracker" = "https://github.com/srebughini/ASALIPY/issues"
+
+[tool.setuptools]
+include-package-data = true
+package-dir = {asali = "asali"}
+packages = [
+    "asali.utils",
+    "asali.plotters",
+    "asali.reactors",
+    "asali.reactors.shapes",
+]
+platforms = ["any"]
+license-files = ["LICENSE"]
