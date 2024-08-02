@@ -578,24 +578,6 @@
     "example": null
   },
   "SteadyStatePseudoHomogeneous1DReactor": {
-    "set_integration_parameters": {
-      "input": {
-        "value": [
-          1e-06,
-          1e-06,
-          false
-        ],
-        "format": "tuple"
-      },
-      "output": {
-        "value": [
-          1e-06,
-          1e-06,
-          50
-        ],
-        "format": "array"
-      }
-    },
     "set_length": {
       "input": {
         "value": [
@@ -782,27 +764,6 @@
       "output": {
         "value": true,
         "format": "bool"
-      }
-    },
-    "initial_condition": {
-      "input": {
-        "value": null,
-        "format": "none"
-      },
-      "output": {
-        "value": [
-          0.1,
-          0.4,
-          0,
-          0.5,
-          1,
-          0,
-          0,
-          0,
-          0,
-          513.15
-        ],
-        "format": "array"
       }
     },
     "solve": {

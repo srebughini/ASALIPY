@@ -3,8 +3,6 @@ from asali.reactors.ph1d_steady_state import SteadyStatePseudoHomogeneous1DReact
 
 def main(cantera_input_file, gas_phase_name, surface_phase_name):
     p = SteadyStatePseudoHomogeneous1DReactor(cantera_input_file, gas_phase_name, surface_phase_name)
-    p.set_integration_parameters(1.e-06, 1.e-06, False)
-    p.set_absolute_tolerance(1.e-04)
     p.set_length(2.5, 'm')
     p.set_diameter(10., 'mm')
     p.set_pressure(20, 'bar')
