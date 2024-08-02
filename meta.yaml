@@ -2,13 +2,15 @@
 {% set project = pyproject.get('project') %}
 {% set homepage = project.get('urls').get('Homepage') %}
 {% set version = project.get('version')%}
+{% set name = project.get('name') %}
 {% set license_files = pyproject.get('tool').get('setuptools').get('license-files') %}
 {% set description = project.get('description') %}
 {% set license = project.get('license').get('text') %}
+{% set python = project.get('requires-python') %}
 
 
 package:
-  name: "asali"
+  name: {{ name }}
   version: {{ version }}
 
 source:
