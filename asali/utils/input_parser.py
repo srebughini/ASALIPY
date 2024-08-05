@@ -72,7 +72,14 @@ class InputParser:
         :param v: Variable to be parsed
         :return: Bool rapresenting the variable
         """
-        return v in ['yes', 'y', '1', 1, True, 'true', 'True']
+        if isinstance(v, str):
+            return v.lower().strip() in ['yes', 'y', '1', 'true', 'on']
+
+        if v is True:
+            return True
+
+        if v == 1:
+            return True
 
     @staticmethod
     def resolution_parser(method):
