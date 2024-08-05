@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "asali"
-version = "3.5.1"
+version = "3.5.2"
 authors = [{name = "ASALI", email = "ste.rebu@outlook.it"}]
 maintainers = [{name = "Stefano Rebughini", email="ste.rebu@outlook.it"}]
 description = "A Python package to simulate chemical reactors"
@@ -16,7 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Topic :: Chemical Reactors :: Libraries :: Python Modules",
 ]
-requires-python = "<=3.12"
+requires-python = ">=3.7,<=3.12"
 readme = {file="README.md", content-type="text/markdown"}
 
 [project.urls]

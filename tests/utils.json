@@ -350,6 +350,19 @@
         "value": 100,
         "format": "float"
       }
+    },
+    "convert_from_meter": {
+      "input": {
+        "value": [
+          1,
+          "cm"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": 100,
+        "format": "float"
+      }
     }
   },
   "CanteraFileConverter": {

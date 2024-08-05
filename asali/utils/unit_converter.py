@@ -644,3 +644,12 @@ class UnitConverter:
                               ud,
                               self.to_meter_per_seconds,
                               self.from_meter_per_seconds)
+
+    def convert_from_meter(self, value, ud):
+        """
+        Convert from meter
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final ud
+        """
+        return self.converter(value, 'meter', ud, self.to_meter, self.from_meter)
