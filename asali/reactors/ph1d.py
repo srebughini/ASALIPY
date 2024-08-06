@@ -17,3 +17,4 @@ class PseudoHomogeneous1DReactor(Basic1DReactor, ABC):
 
         self.solution_parser.reactor_type = ReactorType.PSEUDOHOMOGENEOUSPFR
         self.n_v = self.gas.n_species + self.surf.n_species + 1
+        self._setup.n_v = self.n_v

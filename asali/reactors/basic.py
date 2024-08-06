@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+from types import SimpleNamespace
 
 from asali.utils.input_parser import InputParser
 from asali.utils.numerical_solvers import NumericalSolvers
@@ -41,6 +42,9 @@ class BasicReactor(ABC):
 
         self.energy = False
 
+        self._setup = SimpleNamespace(gas_phase_name=self.gas_phase_name,
+                                      surface_phase_name=self.surface_phase_name)
+
     @abstractmethod
     def equations(self, t, y):
         pass
@@ -53,6 +57,14 @@ class BasicReactor(ABC):
     def solve(self, tspan, time_ud):
         pass
 
+    @property
+    def setup(self):
+        """
+        Return reactor setup
+        :return: Simplanamespace with reactor setup
+        """
+        return self._setup
+
     def set_energy(self, value):
         """
         Enable/Disable energy balance
@@ -60,6 +72,7 @@ class BasicReactor(ABC):
         :return: Bool for energy balance
         """
         self.energy = InputParser.true_parser(value)
+        self._setup.energy = self.energy
         return self.energy
 
     def set_catalytic_load(self, value, unit_dimension):
@@ -70,6 +83,7 @@ class BasicReactor(ABC):
         :return: Catalytic load in [1/m]
         """
         self.alfa = self.uc.convert_to_one_over_meter(value, unit_dimension)
+        self._setup.catalytic_load = self.alfa
         return self.alfa
 
     def set_pressure(self, value, unit_dimension):
@@ -80,6 +94,7 @@ class BasicReactor(ABC):
         :return: Pressure in [Pa]
         """
         self.pressure = self.uc.convert_to_pascal(value, unit_dimension)
+        self._setup.pressure = self.pressure
         return self.pressure
 
     def set_initial_mass_fraction(self, value):
@@ -91,6 +106,8 @@ class BasicReactor(ABC):
         self.gas.Y = value
         self.initial_mass_fraction = self.gas.Y
         self.initial_mole_fraction = self.gas.X
+        self._setup.initial_mass_fraction = self.initial_mass_fraction
+        self._setup.initial_mole_fraction = self.initial_mole_fraction
         return self.gas.Y
 
     def set_initial_mole_fraction(self, value):
@@ -102,6 +119,8 @@ class BasicReactor(ABC):
         self.gas.X = value
         self.initial_mass_fraction = self.gas.Y
         self.initial_mole_fraction = self.gas.X
+        self._setup.initial_mass_fraction = self.initial_mass_fraction
+        self._setup.initial_mole_fraction = self.initial_mole_fraction
         return self.gas.X
 
     def set_initial_coverage(self, value):
@@ -112,6 +131,7 @@ class BasicReactor(ABC):
         """
         self.surf.coverages = value
         self.initial_coverage = self.surf.coverages
+        self._setup.initial_coverage = self.initial_coverage
         return self.surf.coverages
 
     def set_initial_temperature(self, value, unit_dimension):
@@ -122,6 +142,7 @@ class BasicReactor(ABC):
         :return: Initial temperature in [K]
         """
         self.initial_temperature = self.uc.convert_to_kelvin(value, unit_dimension)
+        self._setup.initial_temperature = self.initial_temperature
         return self.initial_temperature
 
     def set_integration_parameters(self, atol, rtol, verbosity):
@@ -141,6 +162,7 @@ class BasicReactor(ABC):
         :return: Set Absolute tolerance
         """
         self.numerical_solver.atol = atol
+        self._setup.atol = self.numerical_solver.atol
         return self.numerical_solver.atol
 
     def set_relative_tolerance(self, rtol):
@@ -150,6 +172,7 @@ class BasicReactor(ABC):
         :return: Set Relative tolerance
         """
         self.numerical_solver.rtol = rtol
+        self._setup.rtol = self.numerical_solver.rtol
         return self.numerical_solver.rtol
 
     def set_verbosity(self, verbosity):
@@ -160,8 +183,8 @@ class BasicReactor(ABC):
         """
         if InputParser.true_parser(verbosity):
             self.numerical_solver.verbosity = 20
-            return self.numerical_solver.verbosity
 
+        self._setup.verbosity = self.numerical_solver.verbosity
         return self.numerical_solver.verbosity
 
     def set_user_defined_kinetic_model(self, file_path):
@@ -173,6 +196,7 @@ class BasicReactor(ABC):
         self.udk_model.file_path = file_path
         self.udk_model.load_and_validate(self.gas)
         if self.udk_model.is_set:
+            self._setup.udk_model_file_path = self.udk_model.file_path
             self.set_initial_coverage(np.ones([self.surf.n_species], dtype=np.float64) / self.surf.n_species)
 
     def get_time(self, ud):

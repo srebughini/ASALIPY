@@ -21,6 +21,10 @@ class TransientHeterogeneous1DReactor(Heterogeneous1DReactor):
         self.n_surf = self.surf.n_species
         self.n_v = self.n_s + self.n_s + self.n_surf + 1 + 1
 
+        self._setup.n_s = self.n_s
+        self._setup.n_surf = self.n_surf
+        self._setup.n_v = self.n_v
+
     def initial_condition(self):
         """
         Function creating the initial condition of the Transient solution

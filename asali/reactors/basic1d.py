@@ -53,6 +53,8 @@ class Basic1DReactor(BasicReactor, ABC):
             self.length = np.linspace(0, length, num=10)
 
         self.n_p = self.length.size
+        self._setup.n_p = self.n_p
+        self._setup.length = self.length
         return self.length
 
     def set_diameter(self, value, unit_dimension):
@@ -64,6 +66,8 @@ class Basic1DReactor(BasicReactor, ABC):
         """
         diameter = self.uc.convert_to_meter(value, unit_dimension)
         self.area = np.pi * 0.25 * np.square(diameter)
+        self._setup.area = self.area
+        self._setup.diameter = diameter
         return diameter
 
     def set_gas_diffusion(self, value):
@@ -73,6 +77,7 @@ class Basic1DReactor(BasicReactor, ABC):
         :return: Bool for gas diffusion
         """
         self.gas_diffusion = InputParser.true_parser(value)
+        self._setup.gas_diffusion = self.gas_diffusion
 
     def set_mass_flow_rate(self, value, unit_dimension):
         """
@@ -84,6 +89,9 @@ class Basic1DReactor(BasicReactor, ABC):
         self.inlet_mass_flow_rate = self.uc.convert_to_kg_per_seconds(value, unit_dimension)
         self.inlet_volumetric_flow_rate = 0.
         self.is_mass_flow_rate = True
+        self._setup.inlet_mass_flow_rate = self.inlet_mass_flow_rate
+        self._setup.inlet_volumetric_flow_rate = self.inlet_volumetric_flow_rate
+        self._setup.is_mass_flow_rate = self.is_mass_flow_rate
         return self.inlet_mass_flow_rate
 
     def set_volumetric_flow_rate(self, value, unit_dimension):
@@ -96,6 +104,9 @@ class Basic1DReactor(BasicReactor, ABC):
         self.inlet_volumetric_flow_rate = self.uc.convert_to_cubic_meter_per_seconds(value, unit_dimension)
         self.inlet_mass_flow_rate = 0.
         self.is_mass_flow_rate = False
+        self._setup.inlet_mass_flow_rate = self.inlet_mass_flow_rate
+        self._setup.inlet_volumetric_flow_rate = self.inlet_volumetric_flow_rate
+        self._setup.is_mass_flow_rate = self.is_mass_flow_rate
         return self.inlet_volumetric_flow_rate
 
     def set_inlet_mass_fraction(self, value):
@@ -107,6 +118,8 @@ class Basic1DReactor(BasicReactor, ABC):
         self.gas.Y = value
         self.inlet_mass_fraction = self.gas.Y
         self.inlet_mole_fraction = self.gas.X
+        self._setup.inlet_mass_fraction = self.inlet_mass_fraction
+        self._setup.inlet_mole_fraction = self.inlet_mole_fraction
         return self.inlet_mass_fraction
 
     def set_inlet_mole_fraction(self, value):
@@ -118,6 +131,8 @@ class Basic1DReactor(BasicReactor, ABC):
         self.gas.X = value
         self.inlet_mass_fraction = self.gas.Y
         self.inlet_mole_fraction = self.gas.X
+        self._setup.inlet_mass_fraction = self.inlet_mass_fraction
+        self._setup.inlet_mole_fraction = self.inlet_mole_fraction
         return self.inlet_mole_fraction
 
     def set_inlet_temperature(self, value, unit_dimension):
@@ -128,6 +143,7 @@ class Basic1DReactor(BasicReactor, ABC):
         :return: Temperature in [K]
         """
         self.inlet_temperature = self.uc.convert_to_kelvin(value, unit_dimension)
+        self._setup.inlet_temperature = self.inlet_temperature
         return self.inlet_temperature
 
     def set_inert_specie(self, specie_name):
@@ -137,6 +153,7 @@ class Basic1DReactor(BasicReactor, ABC):
         :return: Specie index
         """
         self.inert_specie_index = self.gas.species_index(specie_name)
+        self._setup.inert_specie_index = self.inert_specie_index
         return self.inert_specie_index
 
     def set_inert_coverage(self, coverage_name):
@@ -146,4 +163,5 @@ class Basic1DReactor(BasicReactor, ABC):
         :return: Coverage specie index
         """
         self.inert_coverage_index = self.surf.species_index(coverage_name)
+        self._setup.inert_coverage_index = self.inert_coverage_index
         return self.inert_coverage_index

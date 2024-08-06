@@ -35,6 +35,7 @@ class CstrReactor(BasicReactor):
         :return: Volume in [m3]
         """
         self.volume = self.uc.convert_to_cubic_meter(value, unit_dimension)
+        self._setup.volume = self.volume
         return self.volume
 
     def set_mass_flow_rate(self, value, unit_dimension):
@@ -47,6 +48,9 @@ class CstrReactor(BasicReactor):
         self.inlet_mass_flow_rate = self.uc.convert_to_kg_per_seconds(value, unit_dimension)
         self.inlet_volumetric_flow_rate = 0.
         self.is_mass_flow_rate = True
+        self._setup.inlet_mass_flow_rate = self.inlet_mass_flow_rate
+        self._setup.inlet_volumetric_flow_rate = self.inlet_volumetric_flow_rate
+        self._setup.is_mass_flow_rate = self.is_mass_flow_rate
         return self.inlet_mass_flow_rate
 
     def set_volumetric_flow_rate(self, value, unit_dimension):
@@ -59,6 +63,9 @@ class CstrReactor(BasicReactor):
         self.inlet_volumetric_flow_rate = self.uc.convert_to_cubic_meter_per_seconds(value, unit_dimension)
         self.inlet_mass_flow_rate = 0.
         self.is_mass_flow_rate = False
+        self._setup.inlet_mass_flow_rate = self.inlet_mass_flow_rate
+        self._setup.inlet_volumetric_flow_rate = self.inlet_volumetric_flow_rate
+        self._setup.is_mass_flow_rate = self.is_mass_flow_rate
         return self.inlet_volumetric_flow_rate
 
     def set_inlet_mass_fraction(self, value):
@@ -70,6 +77,8 @@ class CstrReactor(BasicReactor):
         self.gas.Y = value
         self.inlet_mass_fraction = self.gas.Y
         self.inlet_mole_fraction = self.gas.X
+        self._setup.inlet_mass_fraction = self.inlet_mass_fraction
+        self._setup.inlet_mole_fraction = self.inlet_mole_fraction
         return self.inlet_mass_fraction
 
     def set_inlet_mole_fraction(self, value):
@@ -81,6 +90,8 @@ class CstrReactor(BasicReactor):
         self.gas.X = value
         self.inlet_mass_fraction = self.gas.Y
         self.inlet_mole_fraction = self.gas.X
+        self._setup.inlet_mass_fraction = self.inlet_mass_fraction
+        self._setup.inlet_mole_fraction = self.inlet_mole_fraction
         return self.inlet_mole_fraction
 
     def set_inlet_temperature(self, value, unit_dimension):
@@ -91,6 +102,7 @@ class CstrReactor(BasicReactor):
         :return: Temperature in [K]
         """
         self.inlet_temperature = self.uc.convert_to_kelvin(value, unit_dimension)
+        self._setup.inlet_temperature = self.inlet_temperature
         return self.inlet_temperature
 
     def equations(self, t, y):

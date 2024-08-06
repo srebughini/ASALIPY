@@ -27,10 +27,6 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
         self.initial_solid_temperature = 0.
         self.reactor_section = None
 
-        self.n_s = self.gas.n_species
-        self.n_surf = self.surf.n_species
-        self.n_v = self.n_s + self.n_s + self.n_surf + 1 + 1
-
     def set_reactor_section(self, method):
         """
         Set reactor section
@@ -38,6 +34,7 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
         :return: ReactorSection
         """
         self.reactor_section = InputParser.section_parser(method)
+        self._setup.reactor_section = self.reactor_section
         return self.reactor_section
 
     def set_solid_density(self, value, unit_dimension):
@@ -48,6 +45,7 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
         :return: Solid density in [kg/m3]
         """
         self.solid.density = (value, unit_dimension)
+        self._setup.solid_density = self.solid.density
         return self.solid.density
 
     def set_solid_specific_heat(self, value, unit_dimension):
@@ -58,6 +56,7 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
         :return: Solid specific heat in [J/kg/K]
         """
         self.solid.specific_heat = (value, unit_dimension)
+        self._setup.solid_specific_heat = self.solid.specific_heat
         return self.solid.specific_heat
 
     def set_solid_thermal_conductivity(self, value, unit_dimension):
@@ -68,6 +67,7 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
         :return: Solid thermal conductivity in [W/m/K]
         """
         self.solid.thermal_conductivity = (value, unit_dimension)
+        self._setup.solid_thermal_conductivity = self.solid.thermal_conductivity
         return self.solid.thermal_conductivity
 
     def set_initial_solid_temperature(self, value, unit_dimension):
@@ -78,6 +78,7 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
         :return: Initial solid temperature in [K]
         """
         self.initial_solid_temperature = self.uc.convert_to_kelvin(value, unit_dimension)
+        self._setup.initial_solid_temperature = self.initial_solid_temperature
         return self.initial_solid_temperature
 
     def set_tubular_reactor(self, tube_diameter, tube_diameter_ud, wall_thickness, wall_thickness_ud):
@@ -95,6 +96,11 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
                                                  tube_diameter_ud,
                                                  wall_thickness,
                                                  wall_thickness_ud)
+
+        self._setup.tube_diameter = self.reactor_shape_object.tube_diameter
+        self._setup.void_fraction = self.reactor_shape_object.void_fraction
+        self._setup.specific_area = self.reactor_shape_object.specific_area
+        self._setup.section_area = self.reactor_shape_object.section_area
 
         return [self.reactor_shape_object.tube_diameter,
                 self.reactor_shape_object.void_fraction,
@@ -114,6 +120,11 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
                                                  cpsi,
                                                  wall_thickness,
                                                  wall_thickness_ud)
+
+        self._setup.tube_diameter = self.reactor_shape_object.tube_diameter
+        self._setup.void_fraction = self.reactor_shape_object.void_fraction
+        self._setup.specific_area = self.reactor_shape_object.specific_area
+        self._setup.section_area = self.reactor_shape_object.section_area
 
         return [self.reactor_shape_object.tube_diameter,
                 self.reactor_shape_object.void_fraction,
@@ -136,6 +147,12 @@ class Heterogeneous1DReactor(Basic1DReactor, ABC):
         self.reactor_shape_object.set_properties(particle_diameter, particle_diameter_ud, tube_diameter,
                                                  tube_diameter_ud,
                                                  void_fraction)
+
+        self._setup.tube_diameter = self.reactor_shape_object.tube_diameter
+        self._setup.void_fraction = self.reactor_shape_object.void_fraction
+        self._setup.specific_area = self.reactor_shape_object.specific_area
+        self._setup.section_area = self.reactor_shape_object.section_area
+        self._setup.particle_diameter = self.reactor_shape_object.particle_diameter
 
         return [self.reactor_shape_object.tube_diameter,
                 self.reactor_shape_object.void_fraction,

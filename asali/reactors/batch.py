@@ -25,6 +25,7 @@ class BatchReactor(BasicReactor):
         :return: Volume in [m3]
         """
         self.volume = self.uc.convert_to_cubic_meter(value, unit_dimension)
+        self._setup.volume = self.volume
         return self.volume
 
     def equations(self, t, y):
