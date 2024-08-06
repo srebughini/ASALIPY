@@ -419,3 +419,10 @@ class UserDefinedKinetic:
         """
         return -np.dot(np.multiply(self._calculate_reaction_rates(gas),
                                    self._heterogeneous_reaction_array), self._calculate_delta_enthalpy(gas))
+
+    def get_species_list(self):
+        """
+        Get species list in the UDK model
+        :return: List of species names
+        """
+        return self._species_list
