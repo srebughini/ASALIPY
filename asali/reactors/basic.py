@@ -207,6 +207,14 @@ class BasicReactor(ABC):
         """
         return self.uc.convert_from_seconds(self.solution_parser.x, ud)
 
+    def get_length(self, ud):
+        """
+        Get length vector
+        :param ud: Unit dimension
+        :return: Length vector in the request unit dimension
+        """
+        return self.uc.convert_from_meter(self.solution_parser.x, ud)
+
     def get_results(self):
         """
         Get results
