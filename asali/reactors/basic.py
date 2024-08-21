@@ -199,6 +199,22 @@ class BasicReactor(ABC):
             self._setup.udk_model_file_path = self.udk_model.file_path
             self.set_initial_coverage(np.ones([self.surf.n_species], dtype=np.float64) / self.surf.n_species)
 
+    def set_independent_variable_results(self, x):
+        """
+        Set independent variable solution for parsing
+        :param x: List of solution
+        :return:
+        """
+        self.solution_parser.x = x
+
+    def set_dependent_variable_results(self, y):
+        """
+        Set dependent variable solution for parsing
+        :param y: List of solution
+        :return:
+        """
+        self.solution_parser.y = y
+
     def get_time(self, ud):
         """
         Get time vector

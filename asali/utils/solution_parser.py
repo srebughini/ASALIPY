@@ -14,7 +14,6 @@ class SolutionParser:
         self._surf = None
         self._y = None
         self._x = None
-        self._length = None
         self._is_solved = False
 
     def get_reactor_type(self):
@@ -142,24 +141,6 @@ class SolutionParser:
 
     # Creating a property object for Dependent variables
     is_solved = property(get_is_solved, set_is_solved)
-
-    def get_length(self):
-        """
-        Length getter
-        :return: Length
-        """
-        return self._length
-
-    def set_length(self, value):
-        """
-        Length setter
-        :param value: Length
-        :return:
-        """
-        self._length = value
-
-    # Creating a property object for Length
-    length = property(get_length, set_length)
 
     def nv(self):
         """
