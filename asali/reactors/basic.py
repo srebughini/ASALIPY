@@ -199,16 +199,18 @@ class BasicReactor(ABC):
             self._setup.udk_model_file_path = self.udk_model.file_path
             self.set_initial_coverage(np.ones([self.surf.n_species], dtype=np.float64) / self.surf.n_species)
 
-    def set_results(self, x, y):
+    def set_results(self, x, y, length=None):
         """
         Set independent and dependent variables solution for parsing
         :param x: List of independent variables
         :param y: List of dependent variables
+        :param length: List of reactor length
         :return:
         """
         self.solution_parser.is_solved = True
         self.solution_parser.x = x
         self.solution_parser.y = y
+        self.solution_parser.length = length
 
     def get_time(self, ud):
         """
@@ -224,7 +226,7 @@ class BasicReactor(ABC):
         :param ud: Unit dimension
         :return: Length vector in the request unit dimension
         """
-        return self.uc.convert_from_meter(self.solution_parser.x, ud)
+        return self.uc.convert_from_meter(self.solution_parser.length, ud)
 
     def get_results(self):
         """

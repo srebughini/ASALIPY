@@ -68,8 +68,8 @@ class TransientPseudoHomogeneous1DReactor(PseudoHomogeneous1DReactor):
             self.surf.TP = T[i], self.pressure
             self.surf.coverages = np.maximum(0.0, z[i, :])
 
-            r_gas[i, :] = self.get_homogeneous_gas_species_reaction_rates()* self.gas.molecular_weights
-            r_from_surface[i, :] = self.get_heterogeneous_gas_species_reaction_rates()* self.gas.molecular_weights
+            r_gas[i, :] = self.get_homogeneous_gas_species_reaction_rates() * self.gas.molecular_weights
+            r_from_surface[i, :] = self.get_heterogeneous_gas_species_reaction_rates() * self.gas.molecular_weights
             r_surface[i, :] = self.get_surface_species_reaction_rates()
 
             gas_rho[i] = self.gas.density
@@ -226,4 +226,5 @@ class TransientPseudoHomogeneous1DReactor(PseudoHomogeneous1DReactor):
         self.solution_parser.y = y
         self.solution_parser.length = self.length
         self.solution_parser.is_solved = True
+
         return y

@@ -15,7 +15,7 @@ class PseudoHomogeneous1DReactorPlotter(BasicPlotter):
         self.coverage = self.cls.solution_parser.get_coverage()
         self.temperature = self.cls.solution_parser.get_temperature()
         self.x = self.cls.solution_parser.x
-        self.length = self.cls.length
+        self.length = self.cls.solution_parser.length
 
     def plot_species_mass_fraction(self, plt, species_names):
         """

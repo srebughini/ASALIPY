@@ -18,7 +18,7 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
         self.temperature = self.cls.solution_parser.get_temperature()
         self.temperature_wall = self.cls.solution_parser.get_temperature_wall()
         self.x = self.cls.solution_parser.x
-        self.length = self.cls.length
+        self.length = self.cls.solution_parser.length
 
     def plot_species_mass_fraction(self, plt, species_names):
         """
