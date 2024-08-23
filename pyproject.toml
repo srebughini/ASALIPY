@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "asali"
-version = "3.5.8"
+version = "3.5.9"
 authors = [{name = "ASALI", email = "ste.rebu@outlook.it"}]
 maintainers = [{name = "Stefano Rebughini", email="ste.rebu@outlook.it"}]
 description = "A Python package to simulate chemical reactors"

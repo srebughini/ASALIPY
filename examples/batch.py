@@ -14,7 +14,10 @@ if __name__ == "__main__":
     b.set_energy(1)
     b.solve([0, 0.1, 0.5, 5], 's')
 
-    plt = ReactorPlotter(b)
+    c = BatchReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')
+    c.set_results(b.get_time("s"), b.get_results())
+
+    plt = ReactorPlotter(c)
     plt.plot_species_mass_fraction(['H2', 'H2O', 'O2'])
     plt.plot_species_mole_fraction(['H2', 'H2O', 'O2'])
     plt.plot_temperature()
