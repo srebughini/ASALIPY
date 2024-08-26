@@ -147,7 +147,7 @@ class BasicSaver(BasicSupporter):
         """
         species_names, coverage_names = self.parse_specie_and_coverage_names(species_names, coverage_names)
 
-        output_dict = self.species_mass_fraction_to_df(species_names)
+        output_dict = self.species_mole_fraction_to_df(species_names)
         output_dict.update(self.coverage_to_df(coverage_names))
         output_dict.update(self.temperature_to_df())
 

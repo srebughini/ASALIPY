@@ -29,6 +29,7 @@ package-dir = {asali = "asali"}
 packages = [
     "asali.utils",
     "asali.plotters",
+    "asali.savers",
     "asali.reactors",
     "asali.reactors.shapes",
 ]
