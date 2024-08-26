@@ -5,7 +5,7 @@ from asali.utils.input_parser import ResolutionMethod
 class Heterogeneous1DReactorPlotter(BasicPlotter):
     def __init__(self, cls, colormap):
         """
-        Class to plot BATCH reactor results
+        Class to plot HETEROGENEOUS 1D REACTOR results
         :param cls: Object of class to be plotted
         :param colormap: String representing the color map
         """
@@ -32,16 +32,16 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
             self.plot_x_vector_and_y_matrix(plt,
                                             self.x,
                                             ym,
-                                            'Length [m]',
-                                            'Gas mass fraction',
+                                            self._variables_name.length,
+                                            self._variables_name.gas_mass_fraction,
                                             species_names)
 
             ym = [self.mass_fraction_wall[:, self.cls.gas.species_index(s)] for s in species_names]
             self.plot_x_vector_and_y_matrix(plt,
                                             self.x,
                                             ym,
-                                            'Length [m]',
-                                            'Solid mass fraction',
+                                            self._variables_name.length,
+                                            self._variables_name.solid_mass_fraction,
                                             species_names)
 
         if self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
@@ -52,8 +52,8 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
                 self.plot_x_vector_and_y_matrix(plt,
                                                 self.length,
                                                 ym,
-                                                'Length [m]',
-                                                'Gas mass fraction',
+                                                self._variables_name.length,
+                                                self._variables_name.gas_mass_fraction,
                                                 legend,
                                                 title=s,
                                                 colors=colors)
@@ -64,8 +64,8 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
                 self.plot_x_vector_and_y_matrix(plt,
                                                 self.length,
                                                 ym,
-                                                'Length [m]',
-                                                'Solid mass fraction',
+                                                self._variables_name.length,
+                                                self._variables_name.solid_mass_fraction,
                                                 legend,
                                                 title=s,
                                                 colors=colors)
@@ -82,16 +82,16 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
             self.plot_x_vector_and_y_matrix(plt,
                                             self.x,
                                             ym,
-                                            'Length [m]',
-                                            'Gas mole fraction',
+                                            self._variables_name.length,
+                                            self._variables_name.gas_mole_fraction,
                                             species_names)
 
             ym = [self.mole_fraction_wall[:, self.cls.gas.species_index(s)] for s in species_names]
             self.plot_x_vector_and_y_matrix(plt,
                                             self.x,
                                             ym,
-                                            'Length [m]',
-                                            'Solid mole fraction',
+                                            self._variables_name.length,
+                                            self._variables_name.solid_mole_fraction,
                                             species_names)
 
         if self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
@@ -102,8 +102,8 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
                 self.plot_x_vector_and_y_matrix(plt,
                                                 self.length,
                                                 ym,
-                                                'Length [m]',
-                                                'Gas mole fraction',
+                                                self._variables_name.length,
+                                                self._variables_name.gas_mole_fraction,
                                                 legend,
                                                 title=s,
                                                 colors=colors)
@@ -113,8 +113,8 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
                 self.plot_x_vector_and_y_matrix(plt,
                                                 self.length,
                                                 ym,
-                                                'Length [m]',
-                                                'Solid mole fraction',
+                                                self._variables_name.length,
+                                                self._variables_name.solid_mole_fraction,
                                                 legend,
                                                 title=s,
                                                 colors=colors)
@@ -131,8 +131,8 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
             self.plot_x_vector_and_y_matrix(plt,
                                             self.x,
                                             ym,
-                                            'Length [m]',
-                                            'Site fraction',
+                                            self._variables_name.length,
+                                            self._variables_name.coverage,
                                             coverage_names)
 
         if self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
@@ -143,8 +143,8 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
                 self.plot_x_vector_and_y_matrix(plt,
                                                 self.length,
                                                 ym,
-                                                'Length [m]',
-                                                'Site fraction',
+                                                self._variables_name.length,
+                                                self._variables_name.coverage,
                                                 legend,
                                                 title=s,
                                                 colors=colors)
@@ -159,14 +159,14 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
             self.plot_x_vector_and_y_vector(plt,
                                             self.x,
                                             self.temperature,
-                                            'Length [m]',
-                                            'Gas temperature [K]')
+                                            self._variables_name.length,
+                                            self._variables_name.gas_temperature)
 
             self.plot_x_vector_and_y_vector(plt,
                                             self.x,
                                             self.temperature_wall,
-                                            'Length [m]',
-                                            'Solid temperature [K]')
+                                            self._variables_name.length,
+                                            self._variables_name.solid_temperature)
 
         if self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
             legend = ["Time: " + str(round(t, 3)) + " s" for t in self.x]
@@ -175,8 +175,8 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
             self.plot_x_vector_and_y_matrix(plt,
                                             self.length,
                                             ym,
-                                            'Length [m]',
-                                            'Gas temperature [K]',
+                                            self._variables_name.length,
+                                            self._variables_name.gas_temperature,
                                             legend,
                                             colors=colors)
 
@@ -184,7 +184,7 @@ class Heterogeneous1DReactorPlotter(BasicPlotter):
             self.plot_x_vector_and_y_matrix(plt,
                                             self.length,
                                             ym,
-                                            'Length [m]',
-                                            'Solid temperature [K]',
+                                            self._variables_name.length,
+                                            self._variables_name.solid_temperature,
                                             legend,
                                             colors=colors)

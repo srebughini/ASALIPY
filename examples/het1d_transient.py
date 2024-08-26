@@ -2,6 +2,7 @@ import os
 
 from asali.plotters.reactor import ReactorPlotter
 from asali.reactors.het1d_transient import TransientHeterogeneous1DReactor
+from asali.savers.reactor import ReactorSaver
 
 if __name__ == "__main__":
     h = TransientHeterogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')
@@ -23,6 +24,11 @@ if __name__ == "__main__":
     h.set_initial_temperature(250, 'degC')
     h.set_packed_bed_reactor(0.3, 'mm', 1, 'cm', 0.75)
     h.solve([0, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0, 2.0, 4.0, 10., 20.], 's')
+
+    svr = ReactorSaver(h)
+    svr.save_using_mole_fraction(os.path.join('files', 'output_het1d_steady_state_mole_fraction.xlsx'),
+                                 species_names=['H2', 'H2O', 'O2'],
+                                 coverage_names=['H(s)', 'O(s)', 'Rh(s)'])
 
     plt = ReactorPlotter(h)
     plt.plot_species_mass_fraction(['H2', 'H2O', 'O2'])

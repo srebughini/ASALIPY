@@ -5,7 +5,7 @@ from asali.utils.input_parser import ResolutionMethod
 class PseudoHomogeneous1DReactorPlotter(BasicPlotter):
     def __init__(self, cls, colormap):
         """
-        Class to plot BATCH reactor results
+        Class to plot PSEUDO HOMOGENOUS 1D REACTOR results
         :param cls: Object of class to be plotted
         :param colormap: String representing the color map
         """
@@ -29,20 +29,20 @@ class PseudoHomogeneous1DReactorPlotter(BasicPlotter):
             self.plot_x_vector_and_y_matrix(plt,
                                             self.x,
                                             ym,
-                                            'Length [m]',
-                                            'Mass fraction',
+                                            self._variables_name.length,
+                                            self._variables_name.gas_mass_fraction,
                                             species_names)
 
         if self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
-            legend = ["Time: " + str(round(t, 3)) + " s" for t in self.x]
+            legend = [f"{self._variables_name.time}:{str(round(t, 3))}" for t in self.x]
             colors = [self.colors[k] for k, _ in enumerate(self.x)]
             for s in species_names:
                 ym = [self.mass_fraction[k][:, self.cls.gas.species_index(s)] for k, _ in enumerate(self.x)]
                 self.plot_x_vector_and_y_matrix(plt,
                                                 self.length,
                                                 ym,
-                                                'Length [m]',
-                                                'Mass fraction',
+                                                self._variables_name.length,
+                                                self._variables_name.gas_mass_fraction,
                                                 legend,
                                                 title=s,
                                                 colors=colors)
@@ -59,20 +59,20 @@ class PseudoHomogeneous1DReactorPlotter(BasicPlotter):
             self.plot_x_vector_and_y_matrix(plt,
                                             self.x,
                                             ym,
-                                            'Length [m]',
-                                            'Mole fraction',
+                                            self._variables_name.length,
+                                            self._variables_name.gas_mole_fraction,
                                             species_names)
 
         if self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
-            legend = ["Time: " + str(round(t, 3)) + " s" for t in self.x]
+            legend = [f"{self._variables_name.time}:{str(round(t, 3))}" for t in self.x]
             colors = [self.colors[k] for k, _ in enumerate(self.x)]
             for s in species_names:
                 ym = [self.mole_fraction[k][:, self.cls.gas.species_index(s)] for k, _ in enumerate(self.x)]
                 self.plot_x_vector_and_y_matrix(plt,
                                                 self.length,
                                                 ym,
-                                                'Length [m]',
-                                                'Mole fraction',
+                                                self._variables_name.length,
+                                                self._variables_name.gas_mole_fraction,
                                                 legend,
                                                 title=s,
                                                 colors=colors)
@@ -89,20 +89,20 @@ class PseudoHomogeneous1DReactorPlotter(BasicPlotter):
             self.plot_x_vector_and_y_matrix(plt,
                                             self.x,
                                             ym,
-                                            'Length [m]',
-                                            'Site fraction',
+                                            self._variables_name.length,
+                                            self._variables_name.coverage,
                                             coverage_names)
 
         if self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
-            legend = ["Time: " + str(round(t, 3)) + " s" for t in self.x]
+            legend = [f"{self._variables_name.time}:{str(round(t, 3))}" for t in self.x]
             colors = [self.colors[k] for k, _ in enumerate(self.x)]
             for s in coverage_names:
                 ym = [self.coverage[k][:, self.cls.surf.species_index(s)] for k, _ in enumerate(self.x)]
                 self.plot_x_vector_and_y_matrix(plt,
                                                 self.length,
                                                 ym,
-                                                'Length [m]',
-                                                'Site fraction',
+                                                self._variables_name.length,
+                                                self._variables_name.coverage,
                                                 legend,
                                                 title=s,
                                                 colors=colors)
@@ -117,17 +117,17 @@ class PseudoHomogeneous1DReactorPlotter(BasicPlotter):
             self.plot_x_vector_and_y_vector(plt,
                                             self.x,
                                             self.temperature,
-                                            'Length [m]',
-                                            'Temperature [K]')
+                                            self._variables_name.length,
+                                            self._variables_name.gas_temperature)
 
         if self.cls.solution_parser.resolution_method == ResolutionMethod.TRANSIENT:
-            legend = ["Time: " + str(round(t, 3)) + " s" for t in self.x]
+            legend = [f"{self._variables_name.time}:{str(round(t, 3))}" for t in self.x]
             colors = [self.colors[k] for k, _ in enumerate(self.x)]
             ym = [self.temperature[k] for k, _ in enumerate(self.x)]
             self.plot_x_vector_and_y_matrix(plt,
                                             self.length,
                                             ym,
-                                            'Length [m]',
-                                            'Temperature [K]',
+                                            self._variables_name.length,
+                                            self._variables_name.gas_temperature,
                                             legend,
                                             colors=colors)

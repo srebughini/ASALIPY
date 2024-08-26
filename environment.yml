@@ -10,3 +10,5 @@ dependencies:
   - matplotlib
   - pyyaml
   - sympy
+  - pandas
+  - openpyxl

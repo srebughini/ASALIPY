@@ -2,6 +2,7 @@ import os
 
 from asali.reactors.ph1d_transient import TransientPseudoHomogeneous1DReactor
 from asali.plotters.reactor import ReactorPlotter
+from asali.savers.reactor import ReactorSaver
 
 if __name__ == "__main__":
     p = TransientPseudoHomogeneous1DReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')
@@ -23,6 +24,11 @@ if __name__ == "__main__":
     p.set_relative_tolerance(1.e-04)
     p.set_absolute_tolerance(1.e-04)
     p.solve([0, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06], 's')
+
+    svr = ReactorSaver(p)
+    svr.save_using_mole_fraction(os.path.join('files', 'output_ph1d_transient_mole_fraction.xlsx'),
+                                 species_names=['H2', 'H2O', 'O2', 'AR'],
+                                 coverage_names=['Rh(s)', 'H(s)', 'O(s)', 'OH(s)'])
 
     plt = ReactorPlotter(p, colormap="Greens")
     plt.plot_species_mass_fraction(['H2', 'H2O', 'O2'])

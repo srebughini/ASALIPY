@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from asali.plotters.batch import BatchPlotter
+from asali.plotters.batch_and_cstr import BatchAndCstrPlotter
 from asali.plotters.het1d import Heterogeneous1DReactorPlotter
 from asali.plotters.ph1d import PseudoHomogeneous1DReactorPlotter
 from asali.utils.input_parser import ReactorType
@@ -31,10 +31,10 @@ class ReactorPlotter:
         :return: Plotter object
         """
         if cls.solution_parser.reactor_type == ReactorType.BATCH:
-            return BatchPlotter(cls, colormap)
+            return BatchAndCstrPlotter(cls, colormap)
 
         if cls.solution_parser.reactor_type == ReactorType.CSTR:
-            return BatchPlotter(cls, colormap)
+            return BatchAndCstrPlotter(cls, colormap)
 
         if cls.solution_parser.reactor_type == ReactorType.PSEUDOHOMOGENEOUSPFR:
             return PseudoHomogeneous1DReactorPlotter(cls, colormap)

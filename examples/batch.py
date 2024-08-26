@@ -2,6 +2,7 @@ import os
 
 from asali.reactors.batch import BatchReactor
 from asali.plotters.reactor import ReactorPlotter
+from asali.savers.reactor import ReactorSaver
 
 if __name__ == "__main__":
     b = BatchReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')
@@ -16,6 +17,10 @@ if __name__ == "__main__":
 
     c = BatchReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')
     c.set_results(b.get_time("s"), b.get_results())
+
+    svr = ReactorSaver(b)
+    svr.save_using_mass_fraction(os.path.join('files', 'output_batch_mass_fraction.xlsx'),
+                                 species_names=['H2', 'H2O', 'O2'])
 
     plt = ReactorPlotter(c)
     plt.plot_species_mass_fraction(['H2', 'H2O', 'O2'])

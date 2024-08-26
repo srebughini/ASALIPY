@@ -1,10 +1,10 @@
 from asali.plotters.basic import BasicPlotter
 
 
-class BatchPlotter(BasicPlotter):
+class BatchAndCstrPlotter(BasicPlotter):
     def __init__(self, cls, colormap):
         """
-        Class to plot BATCH reactor results
+        Class to plot BATCH and CSTR reactor results
         :param cls: Object of class to be plotted
         :param colormap: String representing the color map
         """
@@ -26,8 +26,8 @@ class BatchPlotter(BasicPlotter):
         self.plot_x_vector_and_y_matrix(plt,
                                         self.x,
                                         ym,
-                                        'Time [s]',
-                                        'Mass fraction',
+                                        self._variables_name.time,
+                                        self._variables_name.gas_mass_fraction,
                                         species_names)
 
     def plot_species_mole_fraction(self, plt, species_names):
@@ -41,8 +41,8 @@ class BatchPlotter(BasicPlotter):
         self.plot_x_vector_and_y_matrix(plt,
                                         self.x,
                                         ym,
-                                        'Time [s]',
-                                        'Mole fraction',
+                                        self._variables_name.time,
+                                        self._variables_name.gas_mole_fraction,
                                         species_names)
 
     def plot_coverage(self, plt, coverage_names):
@@ -56,8 +56,8 @@ class BatchPlotter(BasicPlotter):
         self.plot_x_vector_and_y_matrix(plt,
                                         self.x,
                                         ym,
-                                        'Time [s]',
-                                        'Site fraction',
+                                        self._variables_name.time,
+                                        self._variables_name.coverage,
                                         coverage_names)
 
     def plot_temperature(self, plt):
@@ -69,5 +69,5 @@ class BatchPlotter(BasicPlotter):
         self.plot_x_vector_and_y_vector(plt,
                                         self.x,
                                         self.temperature,
-                                        'Time [s]',
-                                        'Temperature [K]')
+                                        self._variables_name.time,
+                                        self._variables_name.gas_temperature)
