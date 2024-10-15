@@ -273,6 +273,19 @@
         "format": "float"
       }
     },
+    "convert_from_kelvin": {
+      "input": {
+        "value": [
+          0,
+          "degC"
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": -273.15,
+        "format": "float"
+      }
+    },
     "convert_from_cubic_meter": {
       "input": {
         "value": [

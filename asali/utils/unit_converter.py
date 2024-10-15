@@ -18,7 +18,6 @@ class UnitConverter:
         self.to_watt = UnitConverter.power_ud()
         self.to_pascal_seconds = UnitConverter.viscosity_ud()
 
-        self.from_kelvin = UnitConverter.convert_from_to(self.to_kelvin)
         self.from_pascal = UnitConverter.convert_from_to(self.to_pascal)
         self.from_seconds = UnitConverter.convert_from_to(self.to_seconds)
         self.from_meter = UnitConverter.convert_from_to(self.to_meter)
@@ -588,11 +587,13 @@ class UnitConverter:
         :param ud: Value final unit dimension
         :return: Value in final unit dimensions
         """
-        return self.converter(value,
-                              'K',
-                              ud,
-                              self.to_kelvin,
-                              self.from_kelvin)
+        if isinstance(value, float):
+            return value - self.to_kelvin[ud]
+
+        if isinstance(value, int):
+            return value - self.to_kelvin[ud]
+
+        return np.asarray([v - self.to_kelvin[ud] for v in value])
 
     def convert_from_pascal(self, value, ud):
         """
