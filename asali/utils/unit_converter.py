@@ -18,6 +18,7 @@ class UnitConverter:
         self.to_watt = UnitConverter.power_ud()
         self.to_pascal_seconds = UnitConverter.viscosity_ud()
 
+        self.from_kelvin = UnitConverter.convert_from_to(self.to_kelvin)
         self.from_pascal = UnitConverter.convert_from_to(self.to_pascal)
         self.from_seconds = UnitConverter.convert_from_to(self.to_seconds)
         self.from_meter = UnitConverter.convert_from_to(self.to_meter)
@@ -579,6 +580,19 @@ class UnitConverter:
                               ud,
                               self.to_cubic_meter,
                               self.from_cubic_meter)
+
+    def convert_from_kelvin(self, value, ud):
+        """
+        Convert from Kelvin
+        :param value: Value to be converted
+        :param ud: Value final unit dimension
+        :return: Value in final unit dimensions
+        """
+        return self.converter(value,
+                              'K',
+                              ud,
+                              self.to_kelvin,
+                              self.from_kelvin)
 
     def convert_from_pascal(self, value, ud):
         """
