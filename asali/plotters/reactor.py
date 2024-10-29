@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 from asali.plotters.batch_and_cstr import BatchAndCstrPlotter
 from asali.plotters.het1d import Heterogeneous1DReactorPlotter
@@ -41,6 +42,23 @@ class ReactorPlotter:
 
         if cls.solution_parser.reactor_type == ReactorType.HETEROGENEOUSPRF:
             return Heterogeneous1DReactorPlotter(cls, colormap)
+
+    @staticmethod
+    def set_rc_params(params):
+        """
+        Set rc parameters for matplotlib
+        :param params: Parameters as dict
+        :return:
+        """
+        plt.rcParams.update(params)
+
+    @staticmethod
+    def set_default_rc_params():
+        """
+        Set default rc parameters for matplotlib
+        :return:
+        """
+        mpl.rcdefaults()
 
     def plot_species_mass_fraction(self, species_names):
         """
