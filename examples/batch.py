@@ -22,7 +22,8 @@ if __name__ == "__main__":
     svr.save_using_mass_fraction(os.path.join('files', 'output_batch_mass_fraction.xlsx'),
                                  species_names=['H2', 'H2O', 'O2'])
 
-    plt = ReactorPlotter(c)
+    plt = ReactorPlotter(c, style='classic')
+    plt.set_rc_params({'toolbar': 'None'})
     plt.plot_species_mass_fraction(['H2', 'H2O', 'O2'])
     plt.plot_species_mole_fraction(['H2', 'H2O', 'O2'])
     plt.plot_temperature()

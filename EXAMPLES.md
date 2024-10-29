@@ -237,7 +237,8 @@ if __name__ == "__main__":
     h.set_packed_bed_reactor(0.3, 'mm', 1, 'cm', 0.75)
     h.solve([0, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0, 2.0, 4.0, 10., 20.], 's')
 
-    plt = ReactorPlotter(h)  # Initialize plotting object
+    plt = ReactorPlotter(h, style='classic') # Initialize plotting object
+    plt.set_rc_params({'toolbar': 'None'}) # Set Rc parameter
     plt.plot_species_mass_fraction(['H2', 'H2O', 'O2'])  # Plot mass fraction from species names
     plt.plot_species_mole_fraction(['H2', 'H2O', 'O2'])  # Plot mole fraction from species names
     plt.plot_coverage(['Rh(s)', 'H(s)', 'O(s)', 'OH(s)'])  # Plot coverage from coverage names

@@ -1,3 +1,4 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
@@ -8,11 +9,13 @@ from asali.utils.input_parser import ReactorType
 
 
 class ReactorPlotter:
-    def __init__(self, cls, colormap="Blues"):
+    def __init__(self, cls, colormap="Blues", style='default'):
         """
         Class to plot reactor results
         :param cls: Reactor class object
         :param colormap: String representing the color map
+        :param style: String representing the matplotlib style sheet
+        :param toolbar: Enable/Disable the toolbar before plotting
         """
 
         if cls.solution_parser.reactor_type not in [r for r in ReactorType]:
@@ -22,6 +25,8 @@ class ReactorPlotter:
             raise Exception("ASALI::ERROR::Nothing to plot, no solution found")
 
         self.plotter = ReactorPlotter.get_plotter(cls, colormap)
+
+        plt.style.use(style)
 
     @staticmethod
     def get_plotter(cls, colormap):
