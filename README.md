@@ -1,9 +1,9 @@
 <p align="center">
-  <a href="https://imgur.com/T5W1buF"><img src="https://i.imgur.com/T5W1buFm.png" title="source: imgur.com" /></a>
+  <a href="https://srebughini.github.io/ASALI/"><img src="https://github.com/srebughini/ASALI/blob/c2ddb86b89ed23eec5843b99e9363738cd1dd14d/GUI/Ubuntu/src/resources/images/BigLogo.png"/></a>
 </p>
 <p align="center">
   <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/pn/asalicode/asali?color=orange&style=popout-square"></a>
-  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/version.svg" /> </a>
+  <a href="https://anaconda.org/asalicode/asali"><img src="https://anaconda.org/asalicode/asali/badges/version.svg" /></a>
   <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda - License" src="https://img.shields.io/conda/l/asalicode/asali?style=popout-square"></a>
   <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/dn/asalicode/asali?style=popout-square"></a>
   <img alt="CodeFactor Grade" src="https://img.shields.io/codefactor/grade/github/srebughini/ASALIPY?style=flat-square">
