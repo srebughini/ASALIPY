@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://srebughini.github.io/ASALI/"><img src="https://github.com/srebughini/ASALI/blob/94b02810504e62c5b5ab0b96ef8c515bec3353e0/GUI/Ubuntu/src/resources/images/BigLogo.png"/></a>
+  <a href="https://srebughini.github.io/ASALI/"><img src="https://github.com/srebughini/ASALI/blob/8bab03eebf389c0a6f30ececd553eed8cedf2f73/GUI/src/resources/images/BigLogo.png"/></a>
 </p>
 <p align="center">
   <a href="https://anaconda.org/ASALIcode/asali"><img alt="Conda" src="https://img.shields.io/conda/pn/asalicode/asali?color=orange&style=popout-square"></a>
