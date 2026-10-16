@@ -39,7 +39,7 @@ from asali.reactors.batch import BatchReactor
 
 if __name__ == "__main__":
     b = BatchReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')  # Initialize reactor class
-    b.set_user_defined_kinetic_model(os.path.join('examples/files', 'H2-O2.json')) # Initialize user defined kinetic model
+    b.set_user_defined_kinetic_model(os.path.join('files', 'H2-O2.json')) # Initialize user defined kinetic model
     b.set_volume(10., 'mm3')  # Set reactor volume in [mm3]
     b.set_pressure(5, 'bar')  # Set reactor pressure in [bar]
     b.set_catalytic_load(15, '1/m')  # Set catalytic load in [1/m]
