@@ -28,15 +28,6 @@ python run_tests.py --class BatchReactor              # one class
 python run_tests.py --class BatchReactor --local      # see below
 ```
 
-`--class` is not case sensitive. The accepted names, taken from `run_tests.py`, are: `InputParser`, `UnitConverter`, `CanteraFileConverter`, `BatchReactor`, `CstrReactor`, `SteadyStatePseudoHomogeneous1DReactor`, `TransientPseudoHomogeneous1DReactor`, `SteadyStateHeterogeneous1DReactor` and `TransientHeterogeneous1DReactor`.
-
-With `--local`, the reactor tests run the `tests/<ClassName>/example.py` module and compare its output with the reference file in the same folder (see `tests/reactor_unit_test.py`).
-
-Please note:
-
-- These commands could not be executed while preparing this guide, because Assimulo was not available in the test environment. Please tell us if one of them does not work for you.
-- `run_tests.py` prints `ASALI::ERROR::UNKNOWN CLASS` for an unknown class name, but it does not set a failing exit status for it. There is no continuous integration that runs the tests yet (the only GitHub workflow is CodeQL).
-
 ## Check the documentation
 
 If you change `README.md` or `EXAMPLES.md`, check that the links to the examples point to existing files. From the repository root:
@@ -51,7 +42,7 @@ The example scripts in `examples/` use paths such as `os.path.join('files', ...)
 
 ## Find something to work on
 
-Browse the [open issues](https://github.com/srebughini/ASALIPY/issues), and look for the labels `good first issue` and `help wanted` **[needs maintainer confirmation]**. Before you start, check the comments of the issue and the [open pull requests](https://github.com/srebughini/ASALIPY/pulls), and leave a comment saying that you would like to work on it **[needs maintainer confirmation]**.
+Browse the [open issues](https://github.com/srebughini/ASALIPY/issues), and look for the labels `good first issue` and `help wanted`. Before you start, check the comments of the issue and the [open pull requests](https://github.com/srebughini/ASALIPY/pulls), and leave a comment saying that you would like to work on it.
 
 ## Reporting bugs and asking questions
 
