@@ -38,7 +38,7 @@ import os
 from asali.reactors.batch import BatchReactor
 
 if __name__ == "__main__":
-    b = BatchReactor(os.path.join('examples/files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')  # Initialize reactor class
+    b = BatchReactor(os.path.join('files', 'H2-O2-Rh.yaml'), 'gas', 'Rh_surface')  # Initialize reactor class
     b.set_user_defined_kinetic_model(os.path.join('examples/files', 'H2-O2.json')) # Initialize user defined kinetic model
     b.set_volume(10., 'mm3')  # Set reactor volume in [mm3]
     b.set_pressure(5, 'bar')  # Set reactor pressure in [bar]
@@ -206,7 +206,7 @@ if __name__ == "__main__":
 
 ## **Reactor Plotter**
 
-This [example](https://github.com/srebughini/ASALIPY/blob/main/examples/het1d_transiet.py) show how to **solve and
+This [example](https://github.com/srebughini/ASALIPY/blob/main/examples/het1d_transient.py) show how to **solve and
 plot** 1-D
 heterogeneous plug flow reactor for
 the [catalytic combustion of hydrogen over rhodium](https://www.detchem.com/mechanisms).
@@ -266,7 +266,7 @@ if __name__ == "__main__":
 ```
 ## **Reactor Saver**
 
-This [example](https://github.com/srebughini/ASALIPY/blob/main/examples/ph1d_steady_statet.py) show how to **solve and
+This [example](https://github.com/srebughini/ASALIPY/blob/main/examples/ph1d_steady_state.py) show how to **solve and
 save** 1-D pseudo-homogeneous plug flow reactor for the [catalytic combustion of hydrogen over rhodium](https://www.detchem.com/mechanisms).
 
 ```python
