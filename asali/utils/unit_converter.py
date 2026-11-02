@@ -222,8 +222,8 @@ class UnitConverter:
         :return: Viscosity unit dimensions as dict
         """
         return {'Pas': 1.,
-                'cP': 1000.,
-                'g/cm/s': 10.}
+                'cP': 1e-03,
+                'g/cm/s': 0.1}
 
     @staticmethod
     def convert_from_to(to_unit_dimension):
@@ -616,8 +616,8 @@ class UnitConverter:
         :return: Value in final unit dimensions
         """
         return self.converter(value,
-                              ud,
                               'Pas',
+                              ud,
                               self.to_pascal_seconds,
                               self.from_pascal_seconds)
 
