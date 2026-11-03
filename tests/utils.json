@@ -48,7 +48,7 @@
         "format": "tuple"
       },
       "output": {
-        "value": 1000,
+        "value": 0.001,
         "format": "float"
       }
     },
