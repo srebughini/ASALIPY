@@ -16,7 +16,9 @@ conda env create -f environment.yml
 conda activate asali
 ```
 
-`environment.yml` asks for Python `>=3.7,<=3.12`, Cantera, Assimulo, termcolor, matplotlib, pyyaml, sympy, pandas and openpyxl.
+`environment.yml` asks for Python `>=3.12,<3.14` (all Python 3.12 and 3.13 patch releases), Cantera, Assimulo, termcolor, matplotlib, pyyaml, sympy, pandas and openpyxl.
+
+The upper bound reflects the Python versions for which Cantera and Assimulo can be installed together from conda-forge. Their Python 3.14 builds currently require incompatible SUNDIALS versions on macOS. Before raising this bound, check that both dependencies resolve together for the new Python version. Keep `pyproject.toml` and `environment.yml` in sync; `meta.yaml` reads its Python requirement from `pyproject.toml`.
 
 ## Run the tests
 
