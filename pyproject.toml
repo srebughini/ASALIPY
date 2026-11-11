@@ -10,13 +10,14 @@ maintainers = [{name = "Stefano Rebughini", email="ste.rebu@outlook.it"}]
 description = "A Python package to simulate chemical reactors"
 license = {text = "GPL"}
 classifiers = [
-    "License :: OSI Approved :: GPL License",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
-    "Topic :: Chemical Reactors :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Chemistry",
 ]
-requires-python = ">=3.7,<=3.12"
+requires-python = ">=3.12,<3.14"
 readme = {file="README.md", content-type="text/markdown"}
 
 [project.urls]
